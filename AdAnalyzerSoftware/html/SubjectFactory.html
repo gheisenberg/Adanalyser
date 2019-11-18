@@ -1,0 +1,213 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>SubjectFactory</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-08-23"><meta name="DC.source" content="SubjectFactory.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Creates new Subjects on base of the file paths stored in Config Object.</a></li><li><a href="#4">Creates subject</a></li><li><a href="#5">Parses EEG file to int array</a></li><li><a href="#6">Parses ECG file to double array</a></li><li><a href="#7">Parses EDA file to double array</a></li></ul></div><pre class="codeinput"><span class="comment">%Creates new Subjects</span>
+<span class="comment">%   Reads subject related files and creates appropriate data representation -&gt; See: Subject</span>
+<span class="keyword">classdef</span> SubjectFactory
+
+    <span class="keyword">properties</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">methods</span>
+</pre><h2>Creates new Subjects on base of the file paths stored in Config Object.<a name="2"></a></h2><pre class="language-matlab">See: Config.m
+</pre><pre class="codeinput">        <span class="keyword">function</span> subjects=createSubjects(self,config)
+            eegFilePaths = config.EEGFiles;
+            edaFilePaths = config.EDAFiles;
+            ecgFilePaths = config.ECGFiles;
+            numberOfSubjects =  length(eegFilePaths);
+            message = [<span class="string">'Reading raw data for '</span> num2str(numberOfSubjects) <span class="string">' subject(s)'</span>];
+            bar = waitbar(0,message);  <span class="comment">% open waitbar dialog with message</span>
+            subjects=cell(1,numberOfSubjects);
+            <span class="keyword">for</span> i = 1:numberOfSubjects
+                <span class="comment">% get subject name from eeg file name</span>
+                eegFileForSubject = eegFilePaths{i};
+                [~,name,~] = fileparts(eegFileForSubject);
+                splitFileName =  textscan(name,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'_'</span>);
+                subjectName = splitFileName{1}{2};
+                <span class="comment">% get eda file for subject by subject name</span>
+                matches = strfind(edaFilePaths,subjectName);
+                edaFileIndex = ~cellfun(@isempty,matches);
+                edaFileForSubject = edaFilePaths{edaFileIndex};
+                <span class="comment">% get ecg file for subject by subject name</span>
+                matches = strfind(ecgFilePaths,subjectName);
+                ecgFileIndex = ~cellfun(@isempty,matches);
+                ecgFileForSubject = ecgFilePaths{ecgFileIndex};
+                <span class="comment">% create the subject</span>
+                subjects{i}=self.readSubjectData(edaFileForSubject,eegFileForSubject,ecgFileForSubject,subjectName);
+                <span class="comment">% update waitbar</span>
+                waitbar(i /numberOfSubjects);
+            <span class="keyword">end</span>
+            close(bar);
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+    methods(Access=private)
+</pre><h2>Creates subject<a name="4"></a></h2><pre class="codeinput">        <span class="keyword">function</span> subject = readSubjectData(self,edaFile,eegFile,ecgFile,subjectName)
+            subject = Subject();
+            subject.name = subjectName;
+            subject.edaValues = self.parseEDAGFile(edaFile);
+            subject.eegValues = self.parseEEGFile(eegFile);
+            subject.ecgValues = self.parseECGFile(ecgFile);
+        <span class="keyword">end</span>
+</pre><h2>Parses EEG file to int array<a name="5"></a></h2><pre class="codeinput">        <span class="keyword">function</span> eegValues = parseEEGFile(self,eegFile)
+            fileID = fopen(eegFile);
+            fileContents = textscan(fileID,<span class="string">'%d'</span>,<span class="string">'Headerlines'</span>,1);
+            fclose(fileID);
+            eegValues = fileContents{1};
+        <span class="keyword">end</span>
+</pre><h2>Parses ECG file to double array<a name="6"></a></h2><pre class="codeinput">        <span class="keyword">function</span> ecgValues = parseECGFile(self,ecgFile)
+            fileID = fopen(ecgFile);
+            fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+            fclose(fileID);
+            ecgValues = fileContents(:,2);
+            ecgValues = ecgValues{1};
+        <span class="keyword">end</span>
+</pre><h2>Parses EDA file to double array<a name="7"></a></h2><pre class="codeinput">        <span class="keyword">function</span> edaValues = parseEDAGFile(self,edaFile)
+            fileID = fopen(edaFile);
+            fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'HeaderLines'</span>,1,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+            fclose(fileID);
+            edaValues = fileContents(:,2);
+            edaValues = edaValues{1};
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+%Creates new Subjects
+%   Reads subject related files and creates appropriate data representation -> See: Subject
+classdef SubjectFactory
+    
+    properties
+    end
+    
+    methods
+        %% Creates new Subjects on base of the file paths stored in Config Object.
+        %   See: Config.m
+        function subjects=createSubjects(self,config)
+            eegFilePaths = config.EEGFiles;
+            edaFilePaths = config.EDAFiles;
+            ecgFilePaths = config.ECGFiles;
+            numberOfSubjects =  length(eegFilePaths);
+            message = ['Reading raw data for ' num2str(numberOfSubjects) ' subject(s)'];
+            bar = waitbar(0,message);  % open waitbar dialog with message
+            subjects=cell(1,numberOfSubjects);
+            for i = 1:numberOfSubjects
+                % get subject name from eeg file name
+                eegFileForSubject = eegFilePaths{i};
+                [~,name,~] = fileparts(eegFileForSubject);
+                splitFileName =  textscan(name,'%s','Delimiter','_');
+                subjectName = splitFileName{1}{2};
+                % get eda file for subject by subject name
+                matches = strfind(edaFilePaths,subjectName);
+                edaFileIndex = ~cellfun(@isempty,matches);
+                edaFileForSubject = edaFilePaths{edaFileIndex};
+                % get ecg file for subject by subject name
+                matches = strfind(ecgFilePaths,subjectName);
+                ecgFileIndex = ~cellfun(@isempty,matches);
+                ecgFileForSubject = ecgFilePaths{ecgFileIndex};
+                % create the subject
+                subjects{i}=self.readSubjectData(edaFileForSubject,eegFileForSubject,ecgFileForSubject,subjectName);
+                % update waitbar
+                waitbar(i /numberOfSubjects);
+            end
+            close(bar);
+        end
+    end
+    methods(Access=private)
+        %% Creates subject
+        function subject = readSubjectData(self,edaFile,eegFile,ecgFile,subjectName)
+            subject = Subject();
+            subject.name = subjectName;
+            subject.edaValues = self.parseEDAGFile(edaFile);
+            subject.eegValues = self.parseEEGFile(eegFile);
+            subject.ecgValues = self.parseECGFile(ecgFile);
+        end
+        
+        %% Parses EEG file to int array
+        function eegValues = parseEEGFile(self,eegFile)
+            fileID = fopen(eegFile);
+            fileContents = textscan(fileID,'%d','Headerlines',1);
+            fclose(fileID);
+            eegValues = fileContents{1};
+        end
+        
+        %% Parses ECG file to double array
+        function ecgValues = parseECGFile(self,ecgFile)
+            fileID = fopen(ecgFile);
+            fileContents = textscan(fileID,'%f %f','Delimiter',',');
+            fclose(fileID);
+            ecgValues = fileContents(:,2);
+            ecgValues = ecgValues{1};
+        end
+        
+        
+        %% Parses EDA file to double array
+        function edaValues = parseEDAGFile(self,edaFile)
+            fileID = fopen(edaFile);
+            fileContents = textscan(fileID,'%f %f','HeaderLines',1,'Delimiter',',');
+            fclose(fileID);
+            edaValues = fileContents(:,2);
+            edaValues = edaValues{1};
+        end
+        
+    end
+end
+
+
+
+##### SOURCE END #####
+--></body></html>

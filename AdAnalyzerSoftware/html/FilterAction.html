@@ -1,0 +1,363 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>FilterAction</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-08-23"><meta name="DC.source" content="FilterAction.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Main function of this class</a></li><li><a href="#4">Calculates percentage of values outside lower and upper bound</a></li><li><a href="#5">Splits given values per video using given videoDefs and video start point</a></li><li><a href="#6">Calculates valid videos per subject regarding the relevant video types</a></li><li><a href="#7">Splits given videoDefs based on there <i>VideoType</i></a></li></ul></div><pre class="codeinput"><span class="comment">% Performs filter calculation steps</span>
+<span class="comment">%   Starts when button "Filter" was clicked</span>
+<span class="comment">%   Analysis quality and filters subjects</span>
+<span class="comment">%   Plots quality figures</span>
+<span class="keyword">classdef</span> FilterAction &lt; handle
+    <span class="keyword">properties</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">methods</span>
+</pre><h2>Main function of this class<a name="2"></a></h2><pre class="language-matlab">First <span class="string">substracts</span> <span class="string">mean</span> <span class="string">for</span> <span class="string">each</span> <span class="string">column</span> <span class="string">from</span> <span class="string">eegMatrix</span> <span class="string">column</span> <span class="string">values</span>
+Second <span class="string">calculates</span> <span class="string">values</span> <span class="string">outside</span> <span class="string">allowed</span> <span class="string">interval</span> <span class="string">for</span> <span class="string">filtered</span> <span class="string">and</span> <span class="string">unfiltered</span> <span class="string">eeg</span> <span class="string">values</span>
+Thirdly <span class="string">calculates</span> <span class="string">eeg</span> <span class="string">and</span> <span class="string">eda</span> <span class="string">values</span> <span class="string">per</span> <span class="string">video</span>
+Fourthly <span class="string">rates</span> <span class="string">qualiyt</span>
+Sixthly <span class="string">plots</span> <span class="string">eeg</span> <span class="string">quality</span> <span class="string">figures</span> <span class="string">using</span> <span class="string">_Plotter_</span>
+</pre><pre class="codeinput">        <span class="keyword">function</span> data = filter(self,data,config)
+            plotter = Plotter();
+            message = [<span class="string">'Filtering data for '</span>, num2str(length(data.subjects)), <span class="string">' subject(s)'</span>];
+            h = waitbar(0,message);
+            numVideos = length(data.videoDefs);
+            numSubjects = length(data.subjects);
+            unfilteredQuality = zeros(numSubjects,numVideos);
+            filteredQuality = zeros(numSubjects,numVideos);
+            <span class="keyword">for</span> s=1:numSubjects
+                subject = data.subjects{s};
+                rawMatrix = subject.eegMatrix;
+                [seconds,eegValsPerSec] = size(rawMatrix);
+                edaValsPerSec = 5;
+                totalEEGValues = double(seconds*eegValsPerSec);
+                <span class="comment">%substract mean for each column from eegMatrix column values</span>
+                <span class="keyword">for</span> i=1:seconds
+                    column=rawMatrix(i,:);
+                    m=mean(column);
+                    rawMatrix(i,:) = column-m;
+                <span class="keyword">end</span>
+                <span class="comment">%calculate number of values outside allowed interval for filtered and unfiltered eeg values</span>
+                rawList = reshape(rawMatrix',1,totalEEGValues);
+                percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
+                filteredList = eegfiltfft(rawList,eegValsPerSec,1,49);
+                percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
+                <span class="keyword">if</span> (config.EEGFig)
+                    plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject.name,config);
+                <span class="keyword">end</span>
+                <span class="comment">%calculate eeg and eda values per video</span>
+                edaValuesPerVid = self.getValuesPerVideo(1,edaValsPerSec,data.videoDefs,subject.edaValues);
+                eegValuesPerVid = self.getValuesPerVideo(1,eegValsPerSec,data.videoDefs,rawList);
+                filteredEEGValuesPerVid = self.getValuesPerVideo(1,512,data.videoDefs,filteredList);
+                subject.edaPerVid = edaValuesPerVid;
+                subject.filteredEEGPerVid = filteredEEGValuesPerVid;
+                <span class="keyword">for</span> v=1:numVideos
+                    unfilteredEEGVid = eegValuesPerVid{v};
+                    filteredEEGVid = filteredEEGValuesPerVid{v};
+                    unfilteredQuality(s,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
+                    filteredQuality(s,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
+                <span class="keyword">end</span>
+                data.subjects{s} = subject;
+                waitbar(s/length(data.subjects));
+            <span class="keyword">end</span>
+            close(h);
+            <span class="comment">% rate quality</span>
+            [data.subjects,validVideosPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.videoDefs,config.QualityIndex);
+            <span class="comment">% plot quality figures</span>
+            <span class="keyword">if</span> (config.QualityFig)
+                plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validVideosPerSubject,validSubjects,data.videoDefs,config,length(data.subjects));
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+
+    methods(Access=private)
+</pre><h2>Calculates percentage of values outside lower and upper bound<a name="4"></a></h2><pre class="codeinput">        <span class="keyword">function</span> percentOutside = getPercentQutside(self,lowerBound,upperBound,values)
+            numValues = length(values);
+            outside = length(find(values &lt; lowerBound | values &gt; upperBound));
+            percentOutside = (outside/numValues)*100;
+        <span class="keyword">end</span>
+</pre><h2>Splits given values per video using given videoDefs and video start point<a name="5"></a></h2><pre class="codeinput">        <span class="keyword">function</span> splittedValues = getValuesPerVideo(self,videoStart,valuesPerSec,videoDefs,values)
+            numVideos = length(videoDefs);
+            splittedValues = cell(1,numVideos);
+            <span class="keyword">for</span> v=1:numVideos
+                curVid = videoDefs{v};
+                eegVideoLength = double(curVid.length*valuesPerSec);
+                eegVideoEnd = videoStart+eegVideoLength-1;
+                splittedValues{v} = values(videoStart:eegVideoEnd);
+                videoStart = videoStart+eegVideoLength;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2>Calculates valid videos per subject regarding the relevant video types<a name="6"></a></h2><pre class="language-matlab">Stores <span class="string">number</span> <span class="string">of</span> <span class="string">valid</span> <span class="string">videos</span> <span class="string">for</span> <span class="string">each</span> <span class="string">subject</span> <span class="string">and</span> <span class="string">video</span> <span class="string">type</span> <span class="string">in</span> <span class="string">_qualityIndex_</span>
+Calculates <span class="string">total</span> <span class="string">number</span> <span class="string">of</span> <span class="string">valid</span> <span class="string">video</span> <span class="string">See:</span> <span class="string">_totalValidVideo_</span>
+Sets <span class="string">isValid</span> <span class="string">flag</span> <span class="string">for</span> <span class="string">each</span> <span class="string">subject</span>
+</pre><pre class="codeinput">        <span class="keyword">function</span> [subjects,qualityIndex,totalValidVideo] = rateQuality(self,subjects,quality,videoDefs,qualityThreshold)
+            videos = length(videoDefs);
+            numSubjects = length(subjects);
+            [baselines,ads,other,clips] = self.getVideoIndiciesByType(videoDefs);
+            qualityIndex = zeros(numSubjects,3);
+            <span class="keyword">for</span> i = 1:numSubjects
+                <span class="keyword">for</span> j = 1:length(clips)
+                    <span class="keyword">if</span> quality(i,clips(j)) &lt; qualityThreshold
+                        qualityIndex(i,3) = qualityIndex(i,3)+1;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+                <span class="keyword">for</span> j = 1:length(ads)
+                    <span class="keyword">if</span> quality(i,ads(j)) &lt; qualityThreshold
+                        qualityIndex(i,2) = qualityIndex(i,2)+1;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+                <span class="keyword">for</span> j = 1:length(baselines)
+                    <span class="keyword">if</span> quality(i,baselines(j)) &lt; qualityThreshold
+                        qualityIndex(i,1) = qualityIndex(i,1)+1;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            validVideosPerSubject = sum(qualityIndex,2);
+            numRelevantVideos = videos - length(other);
+            totalValidVideo = length(find(validVideosPerSubject &gt;= numRelevantVideos));
+            <span class="keyword">for</span> i=1:numSubjects
+                numValidVideosForSubject = validVideosPerSubject(i);
+                <span class="keyword">if</span> (numValidVideosForSubject &gt;= numRelevantVideos)
+                    subjects{i}.isValid = 1;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2>Splits given videoDefs based on there <i>VideoType</i><a name="7"></a></h2><pre class="language-matlab">Returns <span class="string">videos</span> <span class="string">by</span> <span class="string">_VideoType_</span>
+</pre><pre class="codeinput">        <span class="keyword">function</span> [baselines,ads,other,clips]= getVideoIndiciesByType(self,videoDefs)
+            numVideoDefs = length(videoDefs);
+            baselines = zeros(1,numVideoDefs);
+            ads = zeros(1,numVideoDefs);
+            other = zeros(1,numVideoDefs);
+            clips = zeros(1,numVideoDefs);
+            <span class="keyword">for</span> i=1:numVideoDefs
+                vid = videoDefs{i};
+                <span class="keyword">if</span> (vid.videoType==VideoType.EEGBaseline)
+                    baselines(i) = i;
+                <span class="keyword">elseif</span> (vid.videoType==VideoType.TVCommercial)
+                    ads(i) = i;
+                <span class="keyword">elseif</span> (vid.videoType==VideoType.TVProgramm)
+                    clips(i) = i;
+                <span class="keyword">else</span>
+                    other(i) = i;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            baselines = baselines(baselines~=0);
+            ads = ads(ads~=0);
+            other = other(other~=0);
+            clips = clips(clips~=0);
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+% Performs filter calculation steps
+%   Starts when button "Filter" was clicked
+%   Analysis quality and filters subjects
+%   Plots quality figures
+classdef FilterAction < handle
+    properties
+    end
+    
+    methods
+        %% Main function of this class
+        %   First substracts mean for each column from eegMatrix column values
+        %   Second calculates values outside allowed interval for filtered and unfiltered eeg values
+        %   Thirdly calculates eeg and eda values per video
+        %   Fourthly rates qualiyt
+        %   Sixthly plots eeg quality figures using _Plotter_
+        function data = filter(self,data,config)
+            plotter = Plotter();
+            message = ['Filtering data for ', num2str(length(data.subjects)), ' subject(s)'];
+            h = waitbar(0,message);
+            numVideos = length(data.videoDefs);
+            numSubjects = length(data.subjects);
+            unfilteredQuality = zeros(numSubjects,numVideos);
+            filteredQuality = zeros(numSubjects,numVideos);
+            for s=1:numSubjects
+                subject = data.subjects{s};
+                rawMatrix = subject.eegMatrix;
+                [seconds,eegValsPerSec] = size(rawMatrix);
+                edaValsPerSec = 5;
+                totalEEGValues = double(seconds*eegValsPerSec);
+                %substract mean for each column from eegMatrix column values
+                for i=1:seconds
+                    column=rawMatrix(i,:);
+                    m=mean(column);
+                    rawMatrix(i,:) = column-m;
+                end
+                %calculate number of values outside allowed interval for filtered and unfiltered eeg values
+                rawList = reshape(rawMatrix',1,totalEEGValues);
+                percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
+                filteredList = eegfiltfft(rawList,eegValsPerSec,1,49);
+                percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
+                if (config.EEGFig)
+                    plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject.name,config);
+                end
+                %calculate eeg and eda values per video
+                edaValuesPerVid = self.getValuesPerVideo(1,edaValsPerSec,data.videoDefs,subject.edaValues);
+                eegValuesPerVid = self.getValuesPerVideo(1,eegValsPerSec,data.videoDefs,rawList);
+                filteredEEGValuesPerVid = self.getValuesPerVideo(1,512,data.videoDefs,filteredList);
+                subject.edaPerVid = edaValuesPerVid;
+                subject.filteredEEGPerVid = filteredEEGValuesPerVid;
+                for v=1:numVideos
+                    unfilteredEEGVid = eegValuesPerVid{v};
+                    filteredEEGVid = filteredEEGValuesPerVid{v};
+                    unfilteredQuality(s,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
+                    filteredQuality(s,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
+                end
+                data.subjects{s} = subject;
+                waitbar(s/length(data.subjects));
+            end
+            close(h);
+            % rate quality
+            [data.subjects,validVideosPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.videoDefs,config.QualityIndex);
+            % plot quality figures
+            if (config.QualityFig)
+                plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validVideosPerSubject,validSubjects,data.videoDefs,config,length(data.subjects));
+            end
+        end
+    end
+    
+    methods(Access=private)
+        %% Calculates percentage of values outside lower and upper bound
+        function percentOutside = getPercentQutside(self,lowerBound,upperBound,values)
+            numValues = length(values);
+            outside = length(find(values < lowerBound | values > upperBound));
+            percentOutside = (outside/numValues)*100;
+        end
+        
+        %% Splits given values per video using given videoDefs and video start point
+        function splittedValues = getValuesPerVideo(self,videoStart,valuesPerSec,videoDefs,values)
+            numVideos = length(videoDefs);
+            splittedValues = cell(1,numVideos);
+            for v=1:numVideos
+                curVid = videoDefs{v};
+                eegVideoLength = double(curVid.length*valuesPerSec);
+                eegVideoEnd = videoStart+eegVideoLength-1;
+                splittedValues{v} = values(videoStart:eegVideoEnd);
+                videoStart = videoStart+eegVideoLength;
+            end
+        end
+        
+        %% Calculates valid videos per subject regarding the relevant video types
+        %   Stores number of valid videos for each subject and video type in _qualityIndex_
+        %   Calculates total number of valid video See: _totalValidVideo_
+        %   Sets isValid flag for each subject
+        function [subjects,qualityIndex,totalValidVideo] = rateQuality(self,subjects,quality,videoDefs,qualityThreshold)
+            videos = length(videoDefs);
+            numSubjects = length(subjects);
+            [baselines,ads,other,clips] = self.getVideoIndiciesByType(videoDefs);
+            qualityIndex = zeros(numSubjects,3);
+            for i = 1:numSubjects
+                for j = 1:length(clips)
+                    if quality(i,clips(j)) < qualityThreshold
+                        qualityIndex(i,3) = qualityIndex(i,3)+1;
+                    end
+                end
+                for j = 1:length(ads)
+                    if quality(i,ads(j)) < qualityThreshold
+                        qualityIndex(i,2) = qualityIndex(i,2)+1;
+                    end
+                end
+                for j = 1:length(baselines)
+                    if quality(i,baselines(j)) < qualityThreshold
+                        qualityIndex(i,1) = qualityIndex(i,1)+1;
+                    end
+                end
+            end
+            validVideosPerSubject = sum(qualityIndex,2);
+            numRelevantVideos = videos - length(other);
+            totalValidVideo = length(find(validVideosPerSubject >= numRelevantVideos));
+            for i=1:numSubjects
+                numValidVideosForSubject = validVideosPerSubject(i);
+                if (numValidVideosForSubject >= numRelevantVideos)
+                    subjects{i}.isValid = 1;
+                end
+            end
+        end
+        
+        %% Splits given videoDefs based on there _VideoType_
+        %   Returns videos by _VideoType_
+        function [baselines,ads,other,clips]= getVideoIndiciesByType(self,videoDefs)
+            numVideoDefs = length(videoDefs);
+            baselines = zeros(1,numVideoDefs);
+            ads = zeros(1,numVideoDefs);
+            other = zeros(1,numVideoDefs);
+            clips = zeros(1,numVideoDefs);
+            for i=1:numVideoDefs
+                vid = videoDefs{i};
+                if (vid.videoType==VideoType.EEGBaseline)
+                    baselines(i) = i;
+                elseif (vid.videoType==VideoType.TVCommercial)
+                    ads(i) = i;
+                elseif (vid.videoType==VideoType.TVProgramm)
+                    clips(i) = i;
+                else
+                    other(i) = i;
+                end
+            end
+            baselines = baselines(baselines~=0);
+            ads = ads(ads~=0);
+            other = other(other~=0);
+            clips = clips(clips~=0);
+        end
+    end
+    
+end
+
+##### SOURCE END #####
+--></body></html>

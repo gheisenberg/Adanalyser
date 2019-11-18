@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ConfigManager</title>
+  <meta name="keywords" content="ConfigManager">
+  <meta name="description" content="Class manages _Config_">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyser -->
+<h1>ConfigManager
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Class manages _Config_</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Class manages _Config_
+   Provides methods to load, save and validate _Config_ objects</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Config.html" class="code" title="">Config</a>	Data representation for seetings set by the user using the gui window</li><li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="AdAnalyser.html" class="code" title="function varargout = AdAnalyser(varargin)">AdAnalyser</a>	adanalyser class</li><li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function conf = load(self)</a></li><li><a href="#_sub2" class="code">function save(self,conf)</a></li><li><a href="#_sub3" class="code">function valid = validate(self,conf)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% Class manages _Config_</span>
+0002 <span class="comment">%   Provides methods to load, save and validate _Config_ objects</span>
+0003 classdef <a href="ConfigManager.html" class="code" title="">ConfigManager</a>
+0004     
+0005     properties
+0006     <span class="keyword">end</span>
+0007     
+0008     methods
+0009         <span class="comment">%% Loads saved config files and creates _Config_ object from loaded data</span>
+0010         <a name="_sub0" href="#_subfunctions" class="code">function conf = load(self)</a>
+0011             conf = <a href="Config.html" class="code" title="">Config</a>();
+0012             [file, path]=uigetfile(<span class="string">'*.txt'</span>,<span class="string">'Select conf file'</span>);
+0013             <span class="keyword">try</span>
+0014                 <span class="keyword">if</span> file~=0
+0015                     fid = fopen(fullfile(path, file),<span class="string">'r'</span>);
+0016                     <span class="keyword">while</span> ~feof(fid)
+0017                         line = fgets(fid);
+0018                         values = textscan(line,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'='</span>,<span class="string">'BufSize'</span>, 200000);
+0019                         splitLine = values{1};
+0020                         <span class="keyword">if</span> isscalar(splitLine)
+0021                             splitLine{2}=<span class="string">''</span>;
+0022                         <span class="keyword">end</span>
+0023                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'OutputDirectory'</span>)
+0024                             conf.OutputDirectory=splitLine{2};
+0025                         <span class="keyword">end</span>
+0026                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'VideoDef'</span>)
+0027                             conf.VideoDef=splitLine{2};
+0028                         <span class="keyword">end</span>
+0029                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'EEGFig'</span>)
+0030                             conf.EEGFig=str2num(splitLine{2});
+0031                         <span class="keyword">end</span>
+0032                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'EDAFig'</span>)
+0033                             conf.EDAFig=str2num(splitLine{2});
+0034                         <span class="keyword">end</span>
+0035                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'DetrendedEDAFig'</span>)
+0036                             conf.DetrendedEDAFig=str2num(splitLine{2});
+0037                         <span class="keyword">end</span>
+0038                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'HRVFig'</span>)
+0039                             conf.HRVFig=str2num(splitLine{2});
+0040                         <span class="keyword">end</span>
+0041                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'SubVideoEDAFig'</span>)
+0042                             conf.SubVideoEDAFig=str2num(splitLine{2});
+0043                         <span class="keyword">end</span>
+0044                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'QualityFig'</span>)
+0045                             conf.QualityFig=str2num(splitLine{2});
+0046                         <span class="keyword">end</span>
+0047                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'FrequencyFig'</span>)
+0048                             conf.FrequencyFig=str2num(splitLine{2});
+0049                         <span class="keyword">end</span>
+0050                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'Statistics'</span>)
+0051                             conf.Statistics=str2num(splitLine{2});
+0052                         <span class="keyword">end</span>
+0053                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'BehaveFig'</span>)
+0054                             conf.BehaveFig=str2num(splitLine{2});
+0055                         <span class="keyword">end</span>
+0056                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'RecurrenceFig'</span>)
+0057                             conf.RecurrenceFig=str2num(splitLine{2});
+0058                         <span class="keyword">end</span>
+0059                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'EDAFiles'</span>)
+0060                             <span class="keyword">if</span> ~isempty(findstr(<span class="string">','</span>, splitLine{2}))
+0061                                 files = textscan(splitLine{2},<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>,<span class="string">'BufSize'</span>, 200000);
+0062                                 conf.EDAFiles = files{1};
+0063                             <span class="keyword">elseif</span> ~isempty(splitLine{2})
+0064                                 conf.EDAFiles = {splitLine{2}};
+0065                             <span class="keyword">else</span>
+0066                                 conf.EDAFiles = cell(0);
+0067                             <span class="keyword">end</span>
+0068                         <span class="keyword">end</span>
+0069                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'EEGFiles'</span>)
+0070                             <span class="keyword">if</span> ~isempty(findstr(<span class="string">','</span>, splitLine{2}))
+0071                                 files = textscan(splitLine{2},<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>,<span class="string">'BufSize'</span>, 200000);
+0072                                 conf.EEGFiles = files{1};
+0073                             <span class="keyword">elseif</span> ~isempty(splitLine{2})
+0074                                 conf.EEGFiles = {splitLine{2}};
+0075                             <span class="keyword">else</span>
+0076                                 conf.EEGFiles = cell(0);
+0077                             <span class="keyword">end</span>
+0078                         <span class="keyword">end</span>
+0079                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'ECGFiles'</span>)
+0080                             <span class="keyword">if</span> ~isempty(findstr(<span class="string">','</span>, splitLine{2}))
+0081                                 files = textscan(splitLine{2},<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>,<span class="string">'BufSize'</span>, 200000);
+0082                                 conf.ECGFiles = files{1};
+0083                             <span class="keyword">elseif</span> ~isempty(splitLine{2})
+0084                                 conf.ECGFiles = {splitLine{2}};
+0085                             <span class="keyword">else</span>
+0086                                 conf.ECGFiles = cell(0);
+0087                             <span class="keyword">end</span>
+0088                         <span class="keyword">end</span>
+0089                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'LowerThreshold'</span>)
+0090                             conf.LowerThreshold=str2double(splitLine{2});
+0091                         <span class="keyword">end</span>
+0092                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'UpperThreshold'</span>)
+0093                             conf.UpperThreshold=str2double(splitLine{2});
+0094                         <span class="keyword">end</span>
+0095                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'QualityIndex'</span>)
+0096                             conf.QualityIndex=str2double(splitLine{2});
+0097                         <span class="keyword">end</span>
+0098                         <span class="keyword">if</span> strcmp(splitLine{1},<span class="string">'RecurrenceTreshold'</span>)
+0099                             conf.RecurrenceTreshold=str2double(splitLine{2}); 
+0100                         <span class="keyword">end</span> 
+0101                     <span class="keyword">end</span>
+0102                     fclose(fid);
+0103                 <span class="keyword">end</span>
+0104             <span class="keyword">catch</span> ex
+0105                 dialogMessage = strcat([sprintf(<span class="string">'%s\n'</span>,<span class="string">'Error loading conf:'</span>),ex.message]);
+0106                 h = warndlg(dialogMessage,<span class="string">'Error loading conf'</span>,<span class="string">'modal'</span>);
+0107                 rethrow(ex);
+0108             <span class="keyword">end</span>
+0109         <span class="keyword">end</span>
+0110         
+0111         <span class="comment">%% Saves _Config_ objects to file using toString method of config object</span>
+0112         <a name="_sub1" href="#_subfunctions" class="code">function save(self,conf)</a>
+0113             text = conf.toString();
+0114             [file,path] = uiputfile(<span class="string">'*.txt'</span>,<span class="string">'Save conf'</span>);
+0115             <span class="keyword">if</span> file~=0
+0116                 fid = fopen(fullfile(path,file),<span class="string">'wt'</span>);
+0117                 fprintf(fid,<span class="string">'%s'</span>,text);
+0118                 fclose(fid);
+0119             <span class="keyword">end</span>
+0120         <span class="keyword">end</span>
+0121         
+0122         <span class="comment">%% Validates given _Config_ object and displays error dialog if config is not valid</span>
+0123         <a name="_sub2" href="#_subfunctions" class="code">function valid = validate(self,conf)</a>
+0124             <span class="keyword">try</span>
+0125                 msgID = <span class="string">'VALIDATE:config'</span>;
+0126                 msg = <span class="string">'Invalid Settings'</span>;
+0127                 isValid = true;
+0128                 baseException = MException(msgID,msg);
+0129                 <span class="keyword">try</span>
+0130                     assert(exist(conf.OutputDirectory,<span class="string">'dir'</span>)==7,<span class="string">'VALIDATE:outputdirectory'</span>,<span class="string">'Output folder is not a valid folder.'</span>);
+0131                 <span class="keyword">catch</span> ex
+0132                     baseException = addCause(baseException,ex);
+0133                     isValid = false;
+0134                 <span class="keyword">end</span>
+0135                 <span class="keyword">try</span>
+0136                     assert(exist(conf.VideoDef,<span class="string">'file'</span>)==2,<span class="string">'VALIDATE:videodef'</span>,<span class="string">'Path to Video definitions file is not valid.'</span>);
+0137                 <span class="keyword">catch</span> ex
+0138                     baseException = addCause(baseException,ex);
+0139                     isValid = false;
+0140                 <span class="keyword">end</span>
+0141                 <span class="keyword">try</span>
+0142                     assert(~isempty(conf.EDAFiles),<span class="string">'VALIDATE:edafiles'</span>,<span class="string">'No EDA files selected. Please select at least one.'</span>);
+0143                 <span class="keyword">catch</span> ex
+0144                     baseException = addCause(baseException,ex);
+0145                     isValid = false;
+0146                 <span class="keyword">end</span>
+0147                 <span class="keyword">try</span>
+0148                     assert(~isempty(conf.EEGFiles),<span class="string">'VALIDATE:eegfiles'</span>,<span class="string">'No EEG files selected. Please select at least one.'</span>);
+0149                 <span class="keyword">catch</span> ex
+0150                     baseException = addCause(baseException,ex);
+0151                     isValid = false;
+0152                 <span class="keyword">end</span>
+0153                 <span class="keyword">try</span>
+0154                     assert(~isempty(conf.ECGFiles),<span class="string">'VALIDATE:ecgfiles'</span>,<span class="string">'No ECG files selected. Please select at least one.'</span>);
+0155                 <span class="keyword">catch</span> ex
+0156                     baseException = addCause(baseException,ex);
+0157                     isValid = false;
+0158                 <span class="keyword">end</span>
+0159                 <span class="keyword">try</span>
+0160                     assert(conf.UpperThreshold &gt;= conf.LowerThreshold,<span class="string">'VALIDATE:threshold'</span>,<span class="string">'Upper threshold must be greater or equal lower threshold'</span>);
+0161                 <span class="keyword">catch</span> ex
+0162                     baseException = addCause(baseException,ex);
+0163                     isValid = false;
+0164                 <span class="keyword">end</span>
+0165                 <span class="keyword">if</span> ~isValid
+0166                     throw(baseException);
+0167                 <span class="keyword">end</span>
+0168                 valid = true;
+0169             <span class="keyword">catch</span> ex
+0170                 title = ex.message;
+0171                 dialogMessage = sprintf(<span class="string">'Please verify your inputs: \n'</span>);
+0172                 <span class="keyword">for</span> c = 1:numel(ex.cause)
+0173                     nestedEx = ex.cause{c};
+0174                     dialogMessage = strcat([sprintf(<span class="string">'%s\n'</span>,dialogMessage),nestedEx.message]);
+0175                 <span class="keyword">end</span>
+0176                 warndlg(dialogMessage,title,<span class="string">'modal'</span>);
+0177                 valid = false;
+0178             <span class="keyword">end</span>
+0179         <span class="keyword">end</span>
+0180         
+0181         
+0182     <span class="keyword">end</span>
+0183 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 23-Aug-2015 14:25:11 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

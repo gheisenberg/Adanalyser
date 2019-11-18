@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Data</title>
+  <meta name="keywords" content="Data">
+  <meta name="description" content="Data representation of complete Data needed for analysis">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyser -->
+<h1>Data
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Data representation of complete Data needed for analysis</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Data representation of complete Data needed for analysis
+   Contains subject specific data and video definitions</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Data.html" class="code" title="">Data</a>	Data representation of complete Data needed for analysis</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Data.html" class="code" title="">Data</a>	Data representation of complete Data needed for analysis</li><li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function D = Data(subjects,videoDefs)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% Data representation of complete Data needed for analysis</span>
+0002 <span class="comment">%   Contains subject specific data and video definitions</span>
+0003 classdef <a href="Data.html" class="code" title="">Data</a>
+0004 
+0005     properties
+0006         subjects = {} <span class="comment">% cell array of subjects. See _Subject_</span>
+0007         videoDefs <span class="comment">% video definition. See _VideoDefinition_</span>
+0008         isValid = 0 
+0009     <span class="keyword">end</span>
+0010     
+0011     methods
+0012         <span class="comment">%% Constructor: Creates new data object and sets _Subject_s and __VideoDefinition</span>
+0013         <a name="_sub0" href="#_subfunctions" class="code">function D = Data(subjects,videoDefs)</a>
+0014             D.subjects = subjects; 
+0015             D.videoDefs = videoDefs; 
+0016         <span class="keyword">end</span>        
+0017     <span class="keyword">end</span>
+0018     
+0019 <span class="keyword">end</span>
+0020</pre></div>
+<hr><address>Generated on Sun 23-Aug-2015 14:25:11 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

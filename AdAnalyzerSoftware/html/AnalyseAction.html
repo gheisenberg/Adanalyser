@@ -1,0 +1,768 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>AnalyseAction</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-08-23"><meta name="DC.source" content="AnalyseAction.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Main function of this class</a></li><li><a href="#4">Counts valid subjects</a></li><li><a href="#5">Performs analysis for each subject</a></li><li><a href="#6">Performs analysis for each video of each subject</a></li><li><a href="#7">Method calculates mean of values and standard derivation, max, min for detrended values</a></li><li><a href="#8">Calculates staticstics for the different eeg frequencies</a></li><li><a href="#9">Calculates statistics for eda values including delays (Delta_t) and amplitudes</a></li><li><a href="#10">Calculates eda delays for given intervals</a></li><li><a href="#11">Splits eeg data into different frequencies</a></li><li><a href="#12">Subsamples the different eeg frequencies to a resoultion of 4Hz</a></li></ul></div><pre class="codeinput"><span class="comment">% Performs analyse calculation steps for valid subjects</span>
+<span class="comment">%   Starts when button "Analyse" was clicked</span>
+<span class="comment">%   Performs eeg frequency analysis</span>
+<span class="comment">%   Calculates statistics</span>
+<span class="comment">%   Plots eda figures, eeg frequency figures</span>
+<span class="comment">%   Calculates statistics</span>
+<span class="keyword">classdef</span> AnalyseAction &lt; handle
+
+    <span class="keyword">properties</span>
+        plotter = Plotter;
+        stringStatistics = StringStatistics;
+        frequencies;
+        frequencies4Hz;
+    <span class="keyword">end</span>
+
+    <span class="keyword">methods</span>
+</pre><h2>Main function of this class<a name="2"></a></h2><pre class="language-matlab">Performs <span class="string">"Analyse"</span> <span class="string">calculation</span> <span class="string">step</span> <span class="string">for</span> <span class="string">all</span> <span class="string">valid</span> <span class="string">subjects</span>
+</pre><pre class="codeinput">        <span class="keyword">function</span> analyse(self,data,config)
+            subjects = data.subjects;
+            videoDefs = data.videoDefs;
+            validSubjects = self.countValidSubjects(subjects);
+            message = [<span class="string">'Analysing data for '</span> num2str(validSubjects) <span class="string">' valid subject(s)'</span>];
+            wBar = waitbar(0,message);
+            <span class="keyword">for</span> i=1:length(subjects)
+                self.frequencies = cell(6,6);
+                self.frequencies4Hz = cell(6,6);
+                subject = subjects{i};
+                <span class="keyword">if</span> (subject.isValid)
+                    self.analyseSubject(subject,videoDefs,config);
+                <span class="keyword">end</span>
+                waitbar(i/validSubjects);
+            <span class="keyword">end</span>
+            close(wBar);
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+    methods(Access=private)
+</pre><h2>Counts valid subjects<a name="4"></a></h2><pre class="codeinput">        <span class="keyword">function</span> numValidSubjects = countValidSubjects(self,subjects)
+            numValidSubjects=0;
+            <span class="keyword">for</span> i=1:length(subjects)
+                <span class="keyword">if</span> (subjects{i}.isValid)
+                    numValidSubjects = numValidSubjects+1;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2>Performs analysis for each subject<a name="5"></a></h2><pre class="codeinput">        <span class="keyword">function</span> analyseSubject(self,subject,videoDefs,config)
+            filteredEEGPerVid = subject.filteredEEGPerVid;
+            edaPerVid = subject.edaPerVid;
+            eegComplete = double(subject.eegValues');
+            edaComplete = subject.edaValues;
+            numVideos = length(filteredEEGPerVid);
+            <span class="comment">% Plot eda</span>
+            <span class="keyword">if</span> (config.EDAFig)
+                self.plotter.plotEDA(videoDefs,[config.OutputDirectory,<span class="string">'/'</span> subject.name <span class="string">'_EDA'</span>,<span class="string">'.pdf'</span>],edaComplete,0);
+            <span class="keyword">end</span>
+            <span class="comment">% Plot eda detrended</span>
+            <span class="keyword">if</span> (config.DetrendedEDAFig)
+                self.plotter.plotEDA(videoDefs,[config.OutputDirectory,<span class="string">'/'</span> subject.name <span class="string">'_EDA_detrend'</span>,<span class="string">'.pdf'</span>],detrend(edaComplete),1);
+            <span class="keyword">end</span>
+            statsMat = cell(3,9);
+            statsMat(1,1) = {[<span class="string">'Statistics for subject '</span> subject.name]};
+            <span class="comment">% Calculate statitics for all eeg values</span>
+            statsMat(2,2:5) ={<span class="string">'mean[&micro;V]'</span>,<span class="string">'sd[&micro;V]'</span>,<span class="string">'dev-[&micro;V]'</span>,<span class="string">'dev+[&micro;V]'</span>};
+            [m,sd,devP,devM] = self.calculateStatistics(eegComplete);
+            statsMat(3,1:5) = {<span class="string">'EEG complete'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            <span class="keyword">for</span> videoNumber=1:numVideos
+                videoStatsMat = self.analyseVideo(subject,videoNumber,filteredEEGPerVid,edaPerVid,videoDefs,config);
+                statsMat = vertcat(statsMat,videoStatsMat);
+            <span class="keyword">end</span>
+            orientingResponse = self.getVideosByVideoType([VideoType.EDAOrientingResponse],videoDefs);
+            [amplitudes,delays] = self.calculateDelays(edaPerVid{orientingResponse},videoDefs{orientingResponse}.intervals);<span class="comment">%2</span>
+            edaVideos = self.getVideosByVideoType([VideoType.EDABaseline,VideoType.EDAOrientingResponse,VideoType.TVProgramm,VideoType.TVCommercial],videoDefs);
+            edaStatsMat = self.calculateEDAStatistics(edaVideos,edaPerVid,delays,amplitudes);
+            edaStatsMat = vertcat({<span class="string">'EDA statistics'</span>,<span class="string">''</span>,<span class="string">''</span>,<span class="string">''</span>,<span class="string">''</span>,<span class="string">''</span>,<span class="string">''</span>,<span class="string">''</span>,<span class="string">''</span>},edaStatsMat);
+            edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),<span class="string">' | '</span>);
+            delayString =  self.stringStatistics.delaysToString(edaStatsMat(end-1,:));
+            ampString =  self.stringStatistics.aplitudesToString(edaStatsMat(end,:));
+            statsMat = vertcat(statsMat,edaStatsMat);
+            statString =  self.stringStatistics.matrixToString(statsMat(1:end-2,:),<span class="string">' | '</span>);
+            <span class="comment">% Plot statistics</span>
+            <span class="keyword">if</span> (config.Statistics)
+                self.plotter.writeCSV([config.OutputDirectory <span class="string">'/'</span> subject.name <span class="string">'_statistics.csv'</span>],<span class="string">'%s;%s;%s;%s;%s;%s;%s;%s;%s\n'</span>,statsMat');
+                self.plotter.plotStatistics([statString char(10) char(10) delayString char(10) ampString],[config.OutputDirectory <span class="string">'/'</span> subject.name <span class="string">'_statistics.pdf'</span>]);
+            <span class="keyword">end</span>
+            <span class="comment">% Plot subvideo eda</span>
+            <span class="keyword">if</span> (config.SubVideoEDAFig)
+                self.plotter.plotSubVideoEDA(edaVideos,edaPerVid,videoDefs,subject.name,[config.OutputDirectory <span class="string">'/'</span> subject.name <span class="string">' EDA for videos '</span> mat2str(edaVideos)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
+            <span class="keyword">end</span>
+            <span class="comment">% Plot HRV figure</span>
+            <span class="keyword">if</span> (config.HRVFig)
+                self.plotter.plotHRV(subject.ecgValues,config.OutputDirectory,subject.name,videoDefs);
+            <span class="keyword">end</span>
+            <span class="comment">% Plot HRV Recurrence</span>
+            <span class="keyword">if</span> (config.RecurrenceFig)
+                self.plotter.recurrencePlot(subject,config,<span class="string">'HRV'</span>,subject.ecgValues);
+            <span class="keyword">end</span>
+            <span class="comment">%plot frequencies for baseline tvProgramm and tvCommercial with baseline magnitude</span>
+            <span class="keyword">if</span> (config.FrequencyFig)
+                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{3,:};
+                [~,tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s] = self.frequencies4Hz{4,:};
+                [~,tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s] = self.frequencies4Hz{5,:};
+                resolution = 4;
+                intervals = videoDefs{4}.intervals;
+                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{4})/512,<span class="keyword">...</span>
+                    [config.OutputDirectory <span class="string">'/'</span> subject.name <span class="string">'_alpha_beta_theta_TEI_tv_program.pdf'</span>],<span class="keyword">...</span>
+                    tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s,baselineTheta_s,<span class="keyword">...</span>
+                    baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,<span class="keyword">...</span>
+                    [<span class="string">'Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv program of subject '</span> subject.name]);
+                intervals = videoDefs{5}.intervals;
+                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{5})/512,<span class="keyword">...</span>
+                    [config.OutputDirectory <span class="string">'/'</span> subject.name  <span class="string">'_alpha_beta_theta_TEI_tv_commercial.pdf'</span>],<span class="keyword">...</span>
+                    tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s,<span class="keyword">...</span>
+                    baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,<span class="keyword">...</span>
+                    [<span class="string">'Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv commercial of subject '</span> subject.name]);
+            <span class="keyword">end</span>
+            <span class="comment">%transient = self.frequencyEstimation(edaComplete);</span>
+            <span class="comment">%self.plotter.plotMomentaryFrequency(transient,config,subject,videoDefs)</span>
+        <span class="keyword">end</span>
+
+        <span class="comment">%         %% Frequency estimation algorithmen</span>
+        <span class="comment">%         function resultFreq = frequencyEstimation(self, signalData)</span>
+        <span class="comment">%             mean1 = 0.0;</span>
+        <span class="comment">%             mean2 = 0.0;</span>
+        <span class="comment">%             mean3 = 0.0;</span>
+        <span class="comment">%             tMean = 0.005;</span>
+        <span class="comment">%             tFreq = 0.005;</span>
+        <span class="comment">%             k1 = 1;</span>
+        <span class="comment">%             k2 = 1;</span>
+        <span class="comment">%             w = 1;</span>
+        <span class="comment">%             [length,~] = size(signalData);</span>
+        <span class="comment">%             resultFreq = zeros(length,1);</span>
+        <span class="comment">%             for i=3:length</span>
+        <span class="comment">%                 mean1 = self.meanOperator(signalData(i),mean1,tMean);</span>
+        <span class="comment">%                 if (mean1 &lt; signalData(i-1))</span>
+        <span class="comment">%                     k1=0;</span>
+        <span class="comment">%                 end</span>
+        <span class="comment">%                 mean2 = self.meanOperator(signalData(i-1),mean2,tMean);</span>
+        <span class="comment">%                 if (mean2 &lt; signalData(i-2))</span>
+        <span class="comment">%                     k2=0;</span>
+        <span class="comment">%                 end</span>
+        <span class="comment">%                 if (k1~=k2)</span>
+        <span class="comment">%                     w=1;</span>
+        <span class="comment">%                 end</span>
+        <span class="comment">%                 mean3 = self.meanOperator(w, mean3, tFreq);</span>
+        <span class="comment">%                 resultFreq(i-2) = mean3/2;</span>
+        <span class="comment">%             end</span>
+        <span class="comment">%         end</span>
+        <span class="comment">%</span>
+        <span class="comment">%         function newMeanValue = meanOperator(self, datapoint, oldMeanValue, adaption_const)</span>
+        <span class="comment">%             newMeanValue = oldMeanValue + adaption_const * (datapoint - oldMeanValue);</span>
+        <span class="comment">%         end</span>
+</pre><h2>Performs analysis for each video of each subject<a name="6"></a></h2><pre class="codeinput">        <span class="keyword">function</span> videoStatsMat = analyseVideo(self,subject,videoNumber,filteredEEGPerVid,edaPerVid,videoDefs,config)
+            <span class="comment">% Calculate eeg statistics for each video</span>
+            videoStatsMat = cell(1,9);
+            videoStatsMat(1,1) = {[<span class="string">'EEG statistics for Video'</span> num2str(videoNumber)]};
+            videoLength = length(filteredEEGPerVid{videoNumber})/512;
+            videoDef = videoDefs{videoNumber};
+            [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerVid{videoNumber});
+            self.frequencies(videoNumber,:) = {delta,theta,alpha,beta1,beta2,task};
+            <span class="comment">% Calculate eeg statistics for each video and each frequency</span>
+            eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerVid{videoNumber},delta,theta,alpha,beta1,beta2,task);
+            videoStatsMat = vertcat(videoStatsMat,eegFreqStatsMat);
+            <span class="comment">% Reduce signal resolution to 4Hz</span>
+            [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task);
+            self.frequencies4Hz(videoNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
+            <span class="keyword">if</span>(config.BehaveFig)
+                self.plotter.plotBehavioralCharacteristics(subject.name,videoNumber,config.OutputDirectory,self.frequencies(videoNumber,:),videoDef.intervals)
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> (config.FrequencyFig)
+                resolution = 4;
+                self.plotter.plotFrequencys(videoLength,[config.OutputDirectory <span class="string">'\'</span> subject.name <span class="string">'_freq_bands_video'</span> num2str(videoNumber)],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,videoDef.intervals,edaPerVid{videoNumber});
+            <span class="keyword">end</span>
+            <span class="comment">% Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL</span>
+            <span class="keyword">if</span> (config.RecurrenceFig)
+                <span class="keyword">if</span> (videoDef.videoType==VideoType.TVCommercial)
+                    self.plotter.recurrencePlotEDA(subject,config,<span class="string">'EDA TV Spot'</span>,edaPerVid{videoNumber});
+                <span class="keyword">end</span>
+                <span class="keyword">if</span> (videoDef.videoType==VideoType.TVProgramm)
+                    self.plotter.recurrencePlotEDA(subject,config,<span class="string">'EDA Commercial'</span>,edaPerVid{videoNumber});
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2>Method calculates mean of values and standard derivation, max, min for detrended values<a name="7"></a></h2><pre class="language-matlab">Used <span class="string">to</span> <span class="string">create</span> <span class="string">statistics</span>
+</pre><pre class="codeinput">        <span class="keyword">function</span> [m,sd,devP,devM] = calculateStatistics(self,values)
+            m = mean(values);
+            detrended = detrend(values);
+            sd = std(detrended);
+            devP = max(detrended);
+            devM = min(detrended);
+        <span class="keyword">end</span>
+</pre><h2>Calculates staticstics for the different eeg frequencies<a name="8"></a></h2><pre class="codeinput">        <span class="keyword">function</span> statsMat = calculateEEGFrequencyStatistics(self,eeg,delta,theta,alpha,beta1,beta2,task)
+            statsMat = cell(7,9);
+            [m,sd,devP,devM] = self.calculateStatistics(eeg);
+            statsMat(1,1:5) = {<span class="string">'EEG'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            [m,sd,devP,devM] = self.calculateStatistics(delta);
+            statsMat(2,1:5) = {<span class="string">'EEG delta'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            [m,sd,devP,devM] = self.calculateStatistics(theta);
+            statsMat(3,1:5) = {<span class="string">'EEG theta'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            [m,sd,devP,devM] = self.calculateStatistics(alpha);
+            statsMat(4,1:5) = {<span class="string">'EEG alpha'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            [m,sd,devP,devM] = self.calculateStatistics(beta1);
+            statsMat(5,1:5) = {<span class="string">'EEG beta 1'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            [m,sd,devP,devM] = self.calculateStatistics(beta2);
+            statsMat(6,1:5) = {<span class="string">'EEG beta 2'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            [m,sd,devP,devM] = self.calculateStatistics(task);
+            statsMat(7,1:5) = {<span class="string">'TEI'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+        <span class="keyword">end</span>
+</pre><h2>Calculates statistics for eda values including delays (Delta_t) and amplitudes<a name="9"></a></h2><pre class="codeinput">        <span class="keyword">function</span> statsMat = calculateEDAStatistics(self,videos,edaValues,delays,amplitudes)
+            edaValuesForVideos = edaValues(videos);
+            numEdaVideos = length(edaValuesForVideos);
+            statsMat = cell(numEdaVideos+4,9);
+            statsMat(1,2:5) ={<span class="string">'mean[&micro;S]'</span>,<span class="string">'sd[&micro;S]'</span>,<span class="string">'dev-[&micro;S]'</span>,<span class="string">'dev+[&micro;S]'</span>} ;
+            completeEDA = cell2mat(edaValues');
+            [m,sd,devP,devM] = self.calculateStatistics(completeEDA);
+            statsMat(2,1:5) = {<span class="string">'EDA complete'</span>,num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            <span class="keyword">for</span> i=1:numEdaVideos
+                [m,sd,devP,devM] = self.calculateStatistics(edaValuesForVideos{i});
+                statsMat(i+2,1:5) = {[<span class="string">'EDA Video '</span> num2str(videos(i))],num2str(m,<span class="string">'%6.4f'</span>),num2str(sd,<span class="string">'%6.4f'</span>),num2str(devM,<span class="string">'%6.4f'</span>),num2str(devP,<span class="string">'%6.4f'</span>)};
+            <span class="keyword">end</span>
+            delaysNotNull = delays(delays~=0);
+            amplitudesNotNull = amplitudes(amplitudes~=0);
+            indicies = find(delays);
+            <span class="keyword">if</span> isempty(delaysNotNull)
+                s= <span class="string">'No valid peaks found for Delta_t'</span>;
+                statsMat{end-1,1}= s;
+            <span class="keyword">elseif</span> length(delaysNotNull)==1
+                statsMat{end-1,1} = [<span class="string">'Delta_t of Video 2 based on interval '</span> strtrim(num2str(indicies))];
+                statsMat{end-1,2} = num2str(delaysNotNull);
+            <span class="keyword">else</span>
+                delayMean = mean(delaysNotNull);
+                delayVar = var(delaysNotNull);
+                minVarDelay = delayMean - min(delaysNotNull);
+                maxVarDelay = max(delaysNotNull) - delayMean;
+                statsMat(end-1,1:5) = {
+                    [<span class="string">'Delta_t Video 2 for intervals '</span> strtrim(strrep(num2str(indicies),<span class="string">'  '</span>,<span class="string">','</span>))],<span class="keyword">...</span>
+                    [<span class="string">'mean='</span> num2str(delayMean,<span class="string">'%6.2f'</span>) <span class="string">'s'</span>],[<span class="string">'var='</span> num2str(delayVar,<span class="string">'%6.2f'</span>) <span class="string">'s'</span>],<span class="keyword">...</span>
+                    [<span class="string">'dev+='</span> num2str(minVarDelay,<span class="string">'%6.2f'</span>) <span class="string">'s'</span>],[<span class="string">'dev-='</span> num2str(maxVarDelay,<span class="string">'%6.2f'</span>) <span class="string">'s'</span>]
+                    };
+                numAmplitudes = length(amplitudesNotNull);
+                amplitudesAsString = cell(1,numAmplitudes+1);
+                amplitudesAsString(1,1) = {[<span class="string">'Amplitudes for intervals '</span> strtrim(strrep(num2str(indicies),<span class="string">'  '</span>,<span class="string">','</span>))]};
+                <span class="keyword">for</span> i=1:numAmplitudes
+                    amplitudesAsString(1,i+1) = {[num2str(amplitudesNotNull(i),<span class="string">'%6.2f'</span>) <span class="string">'&micro;S'</span>]};
+                <span class="keyword">end</span>
+                statsMat(end,1:length(amplitudesAsString)) = amplitudesAsString;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2>Calculates eda delays for given intervals<a name="10"></a></h2><pre class="codeinput">        <span class="keyword">function</span> [values,delays] = calculateDelays(self,edaValues,intervals)
+            edaValuesDetrend = detrend(edaValues);
+            numEDAValues = length(edaValuesDetrend);
+            edaPerSec = 5.0;
+            intervals(end+1)=numEDAValues/edaPerSec;
+            <span class="comment">%delays = zeros(1,length(intervals));</span>
+            <span class="comment">%values = zeros(1,length(intervals));</span>
+            <span class="comment">%             for i=1:length(intervals)-1;</span>
+            <span class="comment">%                 start = uint32(intervals(i)*5);</span>
+            <span class="comment">%                 ende = uint32(intervals(i+1)*5);</span>
+            <span class="comment">%                 offset = 10;</span>
+            <span class="comment">%                 valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);</span>
+            <span class="comment">%                 m = mean (smooth(valuesBetweenIntervals));</span>
+            <span class="comment">%                 [~,index] = findpeaks(smooth(valuesBetweenIntervals),'MINPEAKDISTANCE',3,'MINPEAKHEIGHT',(m*120)/100);</span>
+            <span class="comment">%                 if length(index)~=1</span>
+            <span class="comment">%                     delays(i) = 0;</span>
+            <span class="comment">%                     values(i) =0;</span>
+            <span class="comment">%                 else</span>
+            <span class="comment">%                     pos = start+offset+index;</span>
+            <span class="comment">%                     delays(i) = double(pos-(intervals(i)*5))/5.0;</span>
+            <span class="comment">%                     values(i) = edaValues(pos);</span>
+            <span class="comment">%                 end</span>
+            <span class="comment">%             end</span>
+            start = uint32(intervals(1)*5);
+            ende = uint32((intervals(2)+5)*5); <span class="comment">%end offset (project in next interval)</span>
+            offset = 10; <span class="comment">% start offset (start 10 datapoints later from interval start)</span>
+            valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);
+            m = mean (smooth(valuesBetweenIntervals));
+            delays = zeros(1,length(intervals));
+            values = zeros(1,length(intervals));
+            [peak,index] = findpeaks(smooth(valuesBetweenIntervals),<span class="string">'MINPEAKDISTANCE'</span>,5,<span class="string">'MINPEAKHEIGHT'</span>,(m*120)/100);
+            <span class="keyword">if</span> length(index)&gt;1
+                index = index(1); <span class="comment">%find(peak == max(peak))</span>
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> length(index)~=1 || max(peak) &lt; 0
+                delays(1) = 0;
+                values(1) =0;
+            <span class="keyword">else</span>
+                pos = start+offset+index;
+                delays(1) = double(pos-(intervals(1)*edaPerSec))/edaPerSec;
+                values(1) = edaValues(pos);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2>Splits eeg data into different frequencies<a name="11"></a></h2><pre class="codeinput">        <span class="keyword">function</span> [delta,theta,alpha,beta1,beta2,task] = analyseFrequencies(self,filteredEEGData)
+            <span class="comment">%--------------------- Delta (1-4 Hz)</span>
+            delta = sqrt((eegfiltfft(filteredEEGData,512,1,4)).^2);
+            <span class="comment">%--------------------- Theta(5-7 Hz)</span>
+            theta = sqrt((eegfiltfft(filteredEEGData,512,5,7)).^2);
+            <span class="comment">%--------------------- Alpha(8-13 Hz)</span>
+            alpha = sqrt((eegfiltfft(filteredEEGData,512,8,13)).^2);
+            <span class="comment">%--------------------- Beta1(14-24 Hz)</span>
+            beta1 = sqrt((eegfiltfft(filteredEEGData,512,14,24)).^2);
+            <span class="comment">%--------------------- Beta2(25-40 Hz)</span>
+            beta2 = sqrt((eegfiltfft(filteredEEGData,512,25,40)).^2);
+            <span class="comment">%--------------------- Task-Engagement</span>
+            task = beta1./(alpha+theta);
+        <span class="keyword">end</span>
+</pre><h2>Subsamples the different eeg frequencies to a resoultion of 4Hz<a name="12"></a></h2><pre class="codeinput">        <span class="keyword">function</span> [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task)
+            resolution = 4;
+            resolutionFac = double(512/resolution);
+            l = length(delta)/(resolutionFac);
+            delta_s = zeros(1,l);
+            theta_s = zeros(1,l);
+            alpha_s = zeros(1,l);
+            beta1_s= zeros(1,l);
+            beta2_s= zeros(1,l);
+            task_s= zeros(1,l);
+            <span class="keyword">for</span> i = 1:l
+                <span class="comment">% Build mean value between upper and lower bound for each frequency in order to</span>
+                <span class="comment">% reduce the signal resolution</span>
+                lower = (i-1)*(resolutionFac)+1;
+                upper = (i-1)*(resolutionFac)+(resolutionFac);
+                delta_s(i) = mean(delta(lower:upper));
+                theta_s(i) = mean(theta(lower:upper));
+                alpha_s(i) = mean(alpha(lower:upper));
+                beta1_s(i) = mean(beta1(lower:upper));
+                beta2_s(i) = mean(beta2(lower:upper));
+                task_s(i) = mean(task(lower:upper));
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> indicies = getVideosByVideoType(self, videoTypes, videoDefs)
+            numVideoDefs = length(videoDefs);
+            indicies = zeros(1,numVideoDefs);
+            <span class="keyword">for</span> i = 1:numVideoDefs
+                vd = videoDefs{i};
+                type = vd.videoType;
+                <span class="keyword">if</span> (ismember(type,videoTypes))
+                    indicies(i)= i;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            indicies = indicies(indicies~=0);
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+% Performs analyse calculation steps for valid subjects
+%   Starts when button "Analyse" was clicked
+%   Performs eeg frequency analysis
+%   Calculates statistics
+%   Plots eda figures, eeg frequency figures
+%   Calculates statistics
+classdef AnalyseAction < handle
+    
+    properties
+        plotter = Plotter;
+        stringStatistics = StringStatistics;
+        frequencies;
+        frequencies4Hz;
+    end
+    
+    methods
+        %% Main function of this class
+        %   Performs "Analyse" calculation step for all valid subjects
+        function analyse(self,data,config)
+            subjects = data.subjects;
+            videoDefs = data.videoDefs;
+            validSubjects = self.countValidSubjects(subjects);
+            message = ['Analysing data for ' num2str(validSubjects) ' valid subject(s)'];
+            wBar = waitbar(0,message);
+            for i=1:length(subjects)
+                self.frequencies = cell(6,6);
+                self.frequencies4Hz = cell(6,6);
+                subject = subjects{i};
+                if (subject.isValid)
+                    self.analyseSubject(subject,videoDefs,config);
+                end
+                waitbar(i/validSubjects);
+            end
+            close(wBar);
+        end
+    end
+    methods(Access=private)
+        %% Counts valid subjects
+        function numValidSubjects = countValidSubjects(self,subjects)
+            numValidSubjects=0;
+            for i=1:length(subjects)
+                if (subjects{i}.isValid)
+                    numValidSubjects = numValidSubjects+1;
+                end
+            end
+        end
+        
+        %% Performs analysis for each subject
+        function analyseSubject(self,subject,videoDefs,config)
+            filteredEEGPerVid = subject.filteredEEGPerVid;
+            edaPerVid = subject.edaPerVid;
+            eegComplete = double(subject.eegValues');
+            edaComplete = subject.edaValues;
+            numVideos = length(filteredEEGPerVid);
+            % Plot eda
+            if (config.EDAFig)
+                self.plotter.plotEDA(videoDefs,[config.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
+            end
+            % Plot eda detrended
+            if (config.DetrendedEDAFig)
+                self.plotter.plotEDA(videoDefs,[config.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
+            end
+            statsMat = cell(3,9);
+            statsMat(1,1) = {['Statistics for subject ' subject.name]};
+            % Calculate statitics for all eeg values
+            statsMat(2,2:5) ={'mean[µV]','sd[µV]','dev-[µV]','dev+[µV]'};
+            [m,sd,devP,devM] = self.calculateStatistics(eegComplete);
+            statsMat(3,1:5) = {'EEG complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            for videoNumber=1:numVideos
+                videoStatsMat = self.analyseVideo(subject,videoNumber,filteredEEGPerVid,edaPerVid,videoDefs,config);
+                statsMat = vertcat(statsMat,videoStatsMat);
+            end
+            orientingResponse = self.getVideosByVideoType([VideoType.EDAOrientingResponse],videoDefs);
+            [amplitudes,delays] = self.calculateDelays(edaPerVid{orientingResponse},videoDefs{orientingResponse}.intervals);%2
+            edaVideos = self.getVideosByVideoType([VideoType.EDABaseline,VideoType.EDAOrientingResponse,VideoType.TVProgramm,VideoType.TVCommercial],videoDefs);
+            edaStatsMat = self.calculateEDAStatistics(edaVideos,edaPerVid,delays,amplitudes);
+            edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
+            edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | ');
+            delayString =  self.stringStatistics.delaysToString(edaStatsMat(end-1,:));
+            ampString =  self.stringStatistics.aplitudesToString(edaStatsMat(end,:));
+            statsMat = vertcat(statsMat,edaStatsMat);
+            statString =  self.stringStatistics.matrixToString(statsMat(1:end-2,:),' | ');
+            % Plot statistics
+            if (config.Statistics)
+                self.plotter.writeCSV([config.OutputDirectory '/' subject.name '_statistics.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
+                self.plotter.plotStatistics([statString char(10) char(10) delayString char(10) ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
+            end
+            % Plot subvideo eda
+            if (config.SubVideoEDAFig)
+                self.plotter.plotSubVideoEDA(edaVideos,edaPerVid,videoDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for videos ' mat2str(edaVideos)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
+            end
+            % Plot HRV figure
+            if (config.HRVFig)
+                self.plotter.plotHRV(subject.ecgValues,config.OutputDirectory,subject.name,videoDefs);
+            end
+            % Plot HRV Recurrence
+            if (config.RecurrenceFig)
+                self.plotter.recurrencePlot(subject,config,'HRV',subject.ecgValues);
+            end
+            %plot frequencies for baseline tvProgramm and tvCommercial with baseline magnitude
+            if (config.FrequencyFig)
+                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{3,:};
+                [~,tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s] = self.frequencies4Hz{4,:};
+                [~,tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s] = self.frequencies4Hz{5,:};
+                resolution = 4;
+                intervals = videoDefs{4}.intervals;
+                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{4})/512,...
+                    [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_tv_program.pdf'],...
+                    tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s,baselineTheta_s,...
+                    baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
+                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv program of subject ' subject.name]);
+                intervals = videoDefs{5}.intervals;
+                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{5})/512,...
+                    [config.OutputDirectory '/' subject.name  '_alpha_beta_theta_TEI_tv_commercial.pdf'],...
+                    tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s,...
+                    baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
+                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv commercial of subject ' subject.name]);
+            end
+            %transient = self.frequencyEstimation(edaComplete);
+            %self.plotter.plotMomentaryFrequency(transient,config,subject,videoDefs)
+        end
+        
+        %         %% Frequency estimation algorithmen
+        %         function resultFreq = frequencyEstimation(self, signalData)
+        %             mean1 = 0.0;
+        %             mean2 = 0.0;
+        %             mean3 = 0.0;
+        %             tMean = 0.005;
+        %             tFreq = 0.005;
+        %             k1 = 1;
+        %             k2 = 1;
+        %             w = 1;
+        %             [length,~] = size(signalData);
+        %             resultFreq = zeros(length,1);
+        %             for i=3:length
+        %                 mean1 = self.meanOperator(signalData(i),mean1,tMean);
+        %                 if (mean1 < signalData(i-1))
+        %                     k1=0;
+        %                 end
+        %                 mean2 = self.meanOperator(signalData(i-1),mean2,tMean);
+        %                 if (mean2 < signalData(i-2))
+        %                     k2=0;
+        %                 end
+        %                 if (k1~=k2)
+        %                     w=1;
+        %                 end
+        %                 mean3 = self.meanOperator(w, mean3, tFreq);
+        %                 resultFreq(i-2) = mean3/2;
+        %             end
+        %         end
+        %
+        %         function newMeanValue = meanOperator(self, datapoint, oldMeanValue, adaption_const)
+        %             newMeanValue = oldMeanValue + adaption_const * (datapoint - oldMeanValue);
+        %         end
+        
+        %% Performs analysis for each video of each subject
+        function videoStatsMat = analyseVideo(self,subject,videoNumber,filteredEEGPerVid,edaPerVid,videoDefs,config)
+            % Calculate eeg statistics for each video
+            videoStatsMat = cell(1,9);
+            videoStatsMat(1,1) = {['EEG statistics for Video' num2str(videoNumber)]};
+            videoLength = length(filteredEEGPerVid{videoNumber})/512;
+            videoDef = videoDefs{videoNumber};
+            [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerVid{videoNumber});
+            self.frequencies(videoNumber,:) = {delta,theta,alpha,beta1,beta2,task};
+            % Calculate eeg statistics for each video and each frequency
+            eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerVid{videoNumber},delta,theta,alpha,beta1,beta2,task);
+            videoStatsMat = vertcat(videoStatsMat,eegFreqStatsMat);
+            % Reduce signal resolution to 4Hz
+            [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task);
+            self.frequencies4Hz(videoNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
+            if(config.BehaveFig)
+                self.plotter.plotBehavioralCharacteristics(subject.name,videoNumber,config.OutputDirectory,self.frequencies(videoNumber,:),videoDef.intervals)
+            end
+            if (config.FrequencyFig)
+                resolution = 4;
+                self.plotter.plotFrequencys(videoLength,[config.OutputDirectory '\' subject.name '_freq_bands_video' num2str(videoNumber)],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,videoDef.intervals,edaPerVid{videoNumber});
+            end
+            % Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL
+            if (config.RecurrenceFig)
+                if (videoDef.videoType==VideoType.TVCommercial)
+                    self.plotter.recurrencePlotEDA(subject,config,'EDA TV Spot',edaPerVid{videoNumber});
+                end
+                if (videoDef.videoType==VideoType.TVProgramm)
+                    self.plotter.recurrencePlotEDA(subject,config,'EDA Commercial',edaPerVid{videoNumber});
+                end
+            end
+        end
+        
+        
+        %% Method calculates mean of values and standard derivation, max, min for detrended values
+        %   Used to create statistics
+        function [m,sd,devP,devM] = calculateStatistics(self,values)
+            m = mean(values);
+            detrended = detrend(values);
+            sd = std(detrended);
+            devP = max(detrended);
+            devM = min(detrended);
+        end
+        
+        %% Calculates staticstics for the different eeg frequencies
+        function statsMat = calculateEEGFrequencyStatistics(self,eeg,delta,theta,alpha,beta1,beta2,task)
+            statsMat = cell(7,9);
+            [m,sd,devP,devM] = self.calculateStatistics(eeg);
+            statsMat(1,1:5) = {'EEG',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            [m,sd,devP,devM] = self.calculateStatistics(delta);
+            statsMat(2,1:5) = {'EEG delta',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            [m,sd,devP,devM] = self.calculateStatistics(theta);
+            statsMat(3,1:5) = {'EEG theta',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            [m,sd,devP,devM] = self.calculateStatistics(alpha);
+            statsMat(4,1:5) = {'EEG alpha',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            [m,sd,devP,devM] = self.calculateStatistics(beta1);
+            statsMat(5,1:5) = {'EEG beta 1',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            [m,sd,devP,devM] = self.calculateStatistics(beta2);
+            statsMat(6,1:5) = {'EEG beta 2',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            [m,sd,devP,devM] = self.calculateStatistics(task);
+            statsMat(7,1:5) = {'TEI',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+        end
+        
+        %% Calculates statistics for eda values including delays (Delta_t) and amplitudes
+        function statsMat = calculateEDAStatistics(self,videos,edaValues,delays,amplitudes)
+            edaValuesForVideos = edaValues(videos);
+            numEdaVideos = length(edaValuesForVideos);
+            statsMat = cell(numEdaVideos+4,9);
+            statsMat(1,2:5) ={'mean[µS]','sd[µS]','dev-[µS]','dev+[µS]'} ;
+            completeEDA = cell2mat(edaValues');
+            [m,sd,devP,devM] = self.calculateStatistics(completeEDA);
+            statsMat(2,1:5) = {'EDA complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            for i=1:numEdaVideos
+                [m,sd,devP,devM] = self.calculateStatistics(edaValuesForVideos{i});
+                statsMat(i+2,1:5) = {['EDA Video ' num2str(videos(i))],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            end
+            delaysNotNull = delays(delays~=0);
+            amplitudesNotNull = amplitudes(amplitudes~=0);
+            indicies = find(delays);
+            if isempty(delaysNotNull)
+                s= 'No valid peaks found for Delta_t';
+                statsMat{end-1,1}= s;
+            elseif length(delaysNotNull)==1
+                statsMat{end-1,1} = ['Delta_t of Video 2 based on interval ' strtrim(num2str(indicies))];
+                statsMat{end-1,2} = num2str(delaysNotNull);
+            else
+                delayMean = mean(delaysNotNull);
+                delayVar = var(delaysNotNull);
+                minVarDelay = delayMean - min(delaysNotNull);
+                maxVarDelay = max(delaysNotNull) - delayMean;
+                statsMat(end-1,1:5) = {
+                    ['Delta_t Video 2 for intervals ' strtrim(strrep(num2str(indicies),'  ',','))],...
+                    ['mean=' num2str(delayMean,'%6.2f') 's'],['var=' num2str(delayVar,'%6.2f') 's'],...
+                    ['dev+=' num2str(minVarDelay,'%6.2f') 's'],['dev-=' num2str(maxVarDelay,'%6.2f') 's']
+                    };
+                numAmplitudes = length(amplitudesNotNull);
+                amplitudesAsString = cell(1,numAmplitudes+1);
+                amplitudesAsString(1,1) = {['Amplitudes for intervals ' strtrim(strrep(num2str(indicies),'  ',','))]};
+                for i=1:numAmplitudes
+                    amplitudesAsString(1,i+1) = {[num2str(amplitudesNotNull(i),'%6.2f') 'µS']};
+                end
+                statsMat(end,1:length(amplitudesAsString)) = amplitudesAsString;
+            end
+        end
+        
+        %% Calculates eda delays for given intervals
+        function [values,delays] = calculateDelays(self,edaValues,intervals)
+            edaValuesDetrend = detrend(edaValues);
+            numEDAValues = length(edaValuesDetrend);
+            edaPerSec = 5.0;
+            intervals(end+1)=numEDAValues/edaPerSec;
+            %delays = zeros(1,length(intervals));
+            %values = zeros(1,length(intervals));
+            %             for i=1:length(intervals)-1;
+            %                 start = uint32(intervals(i)*5);
+            %                 ende = uint32(intervals(i+1)*5);
+            %                 offset = 10;
+            %                 valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);
+            %                 m = mean (smooth(valuesBetweenIntervals));
+            %                 [~,index] = findpeaks(smooth(valuesBetweenIntervals),'MINPEAKDISTANCE',3,'MINPEAKHEIGHT',(m*120)/100);
+            %                 if length(index)~=1
+            %                     delays(i) = 0;
+            %                     values(i) =0;
+            %                 else
+            %                     pos = start+offset+index;
+            %                     delays(i) = double(pos-(intervals(i)*5))/5.0;
+            %                     values(i) = edaValues(pos);
+            %                 end
+            %             end
+            start = uint32(intervals(1)*5);
+            ende = uint32((intervals(2)+5)*5); %end offset (project in next interval)
+            offset = 10; % start offset (start 10 datapoints later from interval start)
+            valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);
+            m = mean (smooth(valuesBetweenIntervals));
+            delays = zeros(1,length(intervals));
+            values = zeros(1,length(intervals));
+            [peak,index] = findpeaks(smooth(valuesBetweenIntervals),'MINPEAKDISTANCE',5,'MINPEAKHEIGHT',(m*120)/100);
+            if length(index)>1
+                index = index(1); %find(peak == max(peak))
+            end
+            if length(index)~=1 || max(peak) < 0
+                delays(1) = 0;
+                values(1) =0;
+            else
+                pos = start+offset+index;
+                delays(1) = double(pos-(intervals(1)*edaPerSec))/edaPerSec;
+                values(1) = edaValues(pos);
+            end
+        end
+        
+        %% Splits eeg data into different frequencies
+        function [delta,theta,alpha,beta1,beta2,task] = analyseFrequencies(self,filteredEEGData)
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- Delta (1-4 Hz)
+            delta = sqrt((eegfiltfft(filteredEEGData,512,1,4)).^2);
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- Theta(5-7 Hz)
+            theta = sqrt((eegfiltfft(filteredEEGData,512,5,7)).^2);
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- Alpha(8-13 Hz)
+            alpha = sqrt((eegfiltfft(filteredEEGData,512,8,13)).^2);
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- Beta1(14-24 Hz)
+            beta1 = sqrt((eegfiltfft(filteredEEGData,512,14,24)).^2);
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- Beta2(25-40 Hz)
+            beta2 = sqrt((eegfiltfft(filteredEEGData,512,25,40)).^2);
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- Task-Engagement
+            task = beta1./(alpha+theta);
+        end
+        
+        %% Subsamples the different eeg frequencies to a resoultion of 4Hz
+        function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task)
+            resolution = 4;
+            resolutionFac = double(512/resolution);
+            l = length(delta)/(resolutionFac);
+            delta_s = zeros(1,l);
+            theta_s = zeros(1,l);
+            alpha_s = zeros(1,l);
+            beta1_s= zeros(1,l);
+            beta2_s= zeros(1,l);
+            task_s= zeros(1,l);
+            for i = 1:l
+                % Build mean value between upper and lower bound for each frequency in order to
+                % reduce the signal resolution
+                lower = (i-1)*(resolutionFac)+1;
+                upper = (i-1)*(resolutionFac)+(resolutionFac);
+                delta_s(i) = mean(delta(lower:upper));
+                theta_s(i) = mean(theta(lower:upper));
+                alpha_s(i) = mean(alpha(lower:upper));
+                beta1_s(i) = mean(beta1(lower:upper));
+                beta2_s(i) = mean(beta2(lower:upper));
+                task_s(i) = mean(task(lower:upper));
+            end
+        end
+        
+        function indicies = getVideosByVideoType(self, videoTypes, videoDefs)
+            numVideoDefs = length(videoDefs);
+            indicies = zeros(1,numVideoDefs);
+            for i = 1:numVideoDefs
+                vd = videoDefs{i};
+                type = vd.videoType;
+                if (ismember(type,videoTypes))
+                    indicies(i)= i;
+                end
+            end
+            indicies = indicies(indicies~=0);
+        end
+        
+        
+        
+    end
+end
+
+
+##### SOURCE END #####
+--></body></html>

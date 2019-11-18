@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Config</title>
+  <meta name="keywords" content="Config">
+  <meta name="description" content="Data representation for seetings set by the user using the gui window">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyser -->
+<h1>Config
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Data representation for seetings set by the user using the gui window</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Data representation for seetings set by the user using the gui window
+   Stores all file paths and settings needed for analysis</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Config.html" class="code" title="">Config</a>	Data representation for seetings set by the user using the gui window</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="AdAnalyser.html" class="code" title="function varargout = AdAnalyser(varargin)">AdAnalyser</a>	adanalyser class</li><li><a href="Config.html" class="code" title="">Config</a>	Data representation for seetings set by the user using the gui window</li><li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function str = toString(self)</a></li><li><a href="#_sub2" class="code">function str = cellArrayToString(self,cellArray)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% Data representation for seetings set by the user using the gui window</span>
+0002 <span class="comment">%   Stores all file paths and settings needed for analysis</span>
+0003 classdef <a href="Config.html" class="code" title="">Config</a>
+0004     
+0005     properties
+0006         <span class="comment">% File paths</span>
+0007         EDAFiles = cell(0)
+0008         EEGFiles = cell(0)
+0009         ECGFiles = cell(0)
+0010         VideoDef = <span class="string">''</span>
+0011         OutputDirectory = <span class="string">''</span>
+0012         <span class="comment">% Output flags</span>
+0013         EEGFig = 0
+0014         FrequencyFig = 0
+0015         EDAFig = 0
+0016         DetrendedEDAFig = 0 
+0017         RecurrenceFig = 0 
+0018         HRVFig = 0 
+0019         SubVideoEDAFig = 0
+0020         QualityFig = 0
+0021         BehaveFig = 0 
+0022         Statistics = 0 
+0023         <span class="comment">% Quality Settings</span>
+0024         LowerThreshold = -100
+0025         UpperThreshold = 100
+0026         QualityIndex = 10
+0027         <span class="comment">% Recurrence Treshhold</span>
+0028         RecurrenceThreshold = 0
+0029     <span class="keyword">end</span>
+0030     
+0031     methods
+0032         <span class="comment">%% Generates string representation of config object</span>
+0033         <span class="comment">%   Used to store config objects as file See:_ConfigManager_</span>
+0034         <a name="_sub0" href="#_subfunctions" class="code">function str = toString(self)</a>
+0035             edaTxt = self.cellArrayToString(self.EDAFiles); 
+0036             eegTxt = self.cellArrayToString(self.EEGFiles); 
+0037             ecgTxt = self.cellArrayToString(self.ECGFiles); 
+0038             str = [<span class="keyword">...</span>
+0039                 <span class="string">'OutputDirectory='</span>,self.OutputDirectory,char(10),<span class="keyword">...</span>
+0040                 <span class="string">'EDAFiles='</span>,edaTxt,char(10),<span class="keyword">...</span>
+0041                 <span class="string">'EEGFiles='</span>,eegTxt,char(10),<span class="keyword">...</span>
+0042                 <span class="string">'ECGFiles='</span>,ecgTxt,char(10),<span class="keyword">...</span>
+0043                 <span class="string">'VideoDef='</span>,self.VideoDef,char(10),<span class="keyword">...</span>
+0044                 <span class="string">'EEGFig='</span>,num2str(self.EEGFig),char(10),<span class="keyword">...</span>
+0045                 <span class="string">'EDAFig='</span>,num2str(self.EDAFig),char(10),<span class="keyword">...</span>
+0046                 <span class="string">'HRVFig='</span>,num2str(self.EDAFig),char(10),<span class="keyword">...</span>
+0047                 <span class="string">'SubVideoEDAFig='</span>,num2str(self.SubVideoEDAFig),char(10),<span class="keyword">...</span>
+0048                 <span class="string">'Statistics='</span>,num2str(self.Statistics),char(10),<span class="keyword">...</span>
+0049                 <span class="string">'BehaveFig='</span>,num2str(self.BehaveFig),char(10),<span class="keyword">...</span>
+0050                 <span class="string">'DetrendedEDAFig='</span>,num2str(self.DetrendedEDAFig),char(10),<span class="keyword">...</span>
+0051                 <span class="string">'RecurrenceFig='</span>,num2str(self.RecurrenceFig),char(10),<span class="keyword">...</span>
+0052                 <span class="string">'QualityFig='</span>,num2str(self.QualityFig),char(10),<span class="keyword">...</span>
+0053                 <span class="string">'FrequencyFig='</span>,num2str(self.FrequencyFig),char(10),<span class="keyword">...</span>
+0054                 <span class="string">'LowerThreshold='</span>,num2str(self.LowerThreshold),char(10),<span class="keyword">...</span>
+0055                 <span class="string">'UpperThreshold='</span>,num2str(self.UpperThreshold),char(10),<span class="keyword">...</span>
+0056                 <span class="string">'QualityIndex='</span>,num2str(self.QualityIndex),char(10),<span class="keyword">...</span>
+0057                 <span class="string">'RecurrenceTreshold='</span>,num2str(self.RecurrenceTreshold)
+0058                 ];
+0059         <span class="keyword">end</span>
+0060     <span class="keyword">end</span>
+0061    methods(Access=private)
+0062        <a name="_sub1" href="#_subfunctions" class="code">function str = cellArrayToString(self,cellArray)</a>
+0063             cellArray(cellfun(<span class="string">'isempty'</span>,cellArray)) = [];
+0064             cellArrayTxt = sprintf(<span class="string">'%s,'</span>,cellArray{:});
+0065             str = cellArrayTxt(1:end-1);
+0066        <span class="keyword">end</span> 
+0067    <span class="keyword">end</span>
+0068     
+0069 <span class="keyword">end</span>
+0070</pre></div>
+<hr><address>Generated on Sun 23-Aug-2015 14:25:11 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

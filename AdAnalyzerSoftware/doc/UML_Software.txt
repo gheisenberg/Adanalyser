@@ -1,0 +1,1 @@
+Die UML-Dateien mit der Endung ".simp" lassen sich mit dem Programm  "Software Ideas Modeler" (https://www.softwareideas.net/) editieren.
