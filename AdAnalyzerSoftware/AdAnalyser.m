@@ -195,7 +195,7 @@ if filename~=0
     set(handles.videoDef,'String',conf.VideoDef);
 end
 
-%% Starts _AnalyseAction_ when analyse button was prest
+%% Starts _AnalyseAction_ when analyse button was pressed
 function analyse_Callback(hObject, eventdata, handles)
 global conf;
 global data;
@@ -203,7 +203,7 @@ a = AnalyseAction();
 a.analyse(data,conf);
 disp('Done');
 
-%% Reads data from files using _DataFactory_ when prepare button was prest
+%% Reads data from files using _DataFactory_ when prepare button was pressed
 function prepare_Callback(hObject, eventdata, handles)
 global conf; 
 global data; 
@@ -214,7 +214,7 @@ if (data.isValid)
     set(handles.filter,'enable','on');
 end
 
-%% Starts _FilterAction_ when filter button was prest
+%% Starts _FilterAction_ when filter button was pressed
 function filter_Callback(hObject, eventdata, handles)
 global conf
 global data
