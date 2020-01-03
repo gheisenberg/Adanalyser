@@ -253,7 +253,6 @@ end
 
 function edaFiles_Callback(hObject, eventdata, handles)
 
-
 function eegFiles_Callback(hObject, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -292,12 +291,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 % --- Executes on button press in settings.
 function settings_Callback(hObject, eventdata, handles)
 ConfigDialog; 
-
 
 % --- Executes on button press in electrodesSettings.
 function electrodesSettings_Callback(hObject, eventdata, handles)
