@@ -1,2 +1,2 @@
 # Adanalyser
-MatLab-Software für Auswertung von EEG-, ECG- und GSR-Messung. - Liest Daten ein - Bereitet Daten für das Analysieren vor - Analysiert und wertet Daten aus
+MatLab Software for the analysis of EEG-, ECG- and GSR data. The software reads time series, transforms and analyses them. The result is a bunch of analysis charts stored as pdf files on disk!

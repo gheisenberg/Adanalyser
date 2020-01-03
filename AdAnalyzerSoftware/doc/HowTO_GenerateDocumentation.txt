@@ -5,7 +5,8 @@ A : Using mat2html
  2. Add mat2html to matlab path 
  3. Download and install GraphViz: http://www.graphviz.org/Download.php
  4. Make sure path to Graphviz bin folder is part of your windows path variable 
- 5. Run from Matlab with current folder above Kadence2: m2html('mfiles','Kadence2', 'htmldir','doc', 'recursive','on', 'global','on','template','frame', 'index','menu', 'graph','on');
+ 5. Run from Matlab with current folder above 'AdAnalyzerSoftware': 
+	m2html('mfiles','AdAnalyzerSoftware', 'htmldir','doc', 'recursive','on', 'global','on','template','frame', 'index','menu', 'graph','on');
 
 B : Using matlab build in "publish" function 
 Simply run: publish('<Filename>'); 

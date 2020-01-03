@@ -1,0 +1,55 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  AdAnalyser -> AnalyseAction;
+  AdAnalyser -> Config;
+  AdAnalyser -> ConfigDialog;
+  AdAnalyser -> ConfigManager;
+  AdAnalyser -> ElectrodesDialog;
+  AdAnalyser -> FilterAction;
+  AdAnalyser -> PrepareAction;
+  AnalyseAction -> AnalyseAction;
+  AnalyseAction -> Plotter;
+  AnalyseAction -> StringStatistics;
+  Config -> Config;
+  ConfigManager -> Config;
+  ConfigManager -> ConfigManager;
+  Data -> Data;
+  DataFactory -> Data;
+  DataFactory -> DataFactory;
+  DataFactory -> SubjectFactory;
+  DataFactory -> VideoDefinition;
+  ElectrodeEEGData -> ElectrodeEEGData;
+  Electrodes -> Electrodes;
+  FilterAction -> FilterAction;
+  FilterAction -> Plotter;
+  Plotter -> Plotter;
+  PrepareAction -> ConfigManager;
+  PrepareAction -> DataFactory;
+  PrepareAction -> PrepareAction;
+  StringStatistics -> StringStatistics;
+  Subject -> Subject;
+  SubjectFactory -> ElectrodeEEGData;
+  SubjectFactory -> Subject;
+  SubjectFactory -> SubjectFactory;
+  VideoDefinition -> VideoDefinition;
+  VideoType -> VideoType;
+
+  AdAnalyser [URL="AdAnalyser.html"];
+  AnalyseAction [URL="AnalyseAction.html"];
+  Config [URL="Config.html"];
+  ConfigDialog [URL="ConfigDialog.html"];
+  ConfigManager [URL="ConfigManager.html"];
+  Data [URL="Data.html"];
+  DataFactory [URL="DataFactory.html"];
+  ElectrodeEEGData [URL="ElectrodeEEGData.html"];
+  Electrodes [URL="Electrodes.html"];
+  ElectrodesDialog [URL="ElectrodesDialog.html"];
+  FilterAction [URL="FilterAction.html"];
+  Plotter [URL="Plotter.html"];
+  PrepareAction [URL="PrepareAction.html"];
+  StringStatistics [URL="StringStatistics.html"];
+  Subject [URL="Subject.html"];
+  SubjectFactory [URL="SubjectFactory.html"];
+  VideoDefinition [URL="VideoDefinition.html"];
+  VideoType [URL="VideoType.html"];
+}

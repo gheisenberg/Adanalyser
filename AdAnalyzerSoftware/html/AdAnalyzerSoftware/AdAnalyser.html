@@ -1,0 +1,373 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of AdAnalyser</title>
+  <meta name="keywords" content="AdAnalyser">
+  <meta name="description" content="adanalyser class">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyzerSoftware -->
+<h1>AdAnalyser
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>adanalyser class</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function varargout = AdAnalyser(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> adanalyser class
+ gui controller
+ ADANALYSER MATLAB code for AdAnalyser.fig
+      ADANALYSER, by itself, creates a new ADANALYSER or raises the existing
+      singleton*.
+
+      H = ADANALYSER returns the handle to a new ADANALYSER or the handle to
+      the existing singleton*.
+
+      ADANALYSER('CALLBACK',hObject,eventData,handles,...) calls the local
+      function named CALLBACK in ADANALYSER.M with the given input arguments.
+
+      ADANALYSER('Property','Value',...) creates a new ADANALYSER or raises the
+      existing singleton*.  Starting from the left, property value pairs are
+      applied to the GUI before AdAnalyser_OpeningFcn gets called.  An
+      unrecognized property name or invalid value makes property application
+      stop.  All inputs are passed to AdAnalyser_OpeningFcn via varargin.
+
+      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
+      instance to run (singleton)&quot;.
+
+ See also: GUIDE, GUIDATA, GUIHANDLES</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analyse calculation steps for valid subjects</li><li><a href="Config.html" class="code" title="">Config</a>	Data representation for seetings set by the user using the gui window</li><li><a href="ConfigDialog.html" class="code" title="function varargout = ConfigDialog(varargin)">ConfigDialog</a>	CONFIGDIALOG MATLAB code for ConfigDialog.fig</li><li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li><li><a href="ElectrodesDialog.html" class="code" title="function varargout = ElectrodesDialog(varargin)">ElectrodesDialog</a>	ELECTRODESDIALOG MATLAB code for ElectrodesDialog.fig</li><li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function AdAnalyser_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = AdAnalyser_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function saveSettings_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub4" class="code">function loadSettings_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function updateUI(handles)</a></li><li><a href="#_sub6" class="code">function browseEDA_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub7" class="code">function browseEEG_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub8" class="code">function browseECG_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub9" class="code">function browseVideoDefinitions_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub10" class="code">function browseOutput_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub11" class="code">function analyse_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub12" class="code">function prepare_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub13" class="code">function filter_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub14" class="code">function outputDir_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub15" class="code">function videoDef_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub16" class="code">function outputDir_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub17" class="code">function edaFiles_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub18" class="code">function edaFiles_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub19" class="code">function eegFiles_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub20" class="code">function eegFiles_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub21" class="code">function lowerEEGThreshold_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub22" class="code">function videoDef_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub23" class="code">function upperEEGThreshold_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub24" class="code">function qualityIndex_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub25" class="code">function ecgFiles_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub26" class="code">function settings_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub27" class="code">function electrodesSettings_Callback(hObject, eventdata, handles)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% adanalyser class</span>
+0002 <span class="comment">% gui controller</span>
+0003 <a name="_sub0" href="#_subfunctions" class="code">function varargout = AdAnalyser(varargin)</a>
+0004 <span class="comment">% ADANALYSER MATLAB code for AdAnalyser.fig</span>
+0005 <span class="comment">%      ADANALYSER, by itself, creates a new ADANALYSER or raises the existing</span>
+0006 <span class="comment">%      singleton*.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%      H = ADANALYSER returns the handle to a new ADANALYSER or the handle to</span>
+0009 <span class="comment">%      the existing singleton*.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%      ADANALYSER('CALLBACK',hObject,eventData,handles,...) calls the local</span>
+0012 <span class="comment">%      function named CALLBACK in ADANALYSER.M with the given input arguments.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%      ADANALYSER('Property','Value',...) creates a new ADANALYSER or raises the</span>
+0015 <span class="comment">%      existing singleton*.  Starting from the left, property value pairs are</span>
+0016 <span class="comment">%      applied to the GUI before AdAnalyser_OpeningFcn gets called.  An</span>
+0017 <span class="comment">%      unrecognized property name or invalid value makes property application</span>
+0018 <span class="comment">%      stop.  All inputs are passed to AdAnalyser_OpeningFcn via varargin.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
+0021 <span class="comment">%      instance to run (singleton)&quot;.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
+0024 
+0025 <span class="comment">% Edit the above text to modify the response to help AdAnalyser</span>
+0026 
+0027 <span class="comment">% Last Modified by GUIDE v2.5 14-Sep-2015 15:39:56</span>
+0028 
+0029 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
+0030 gui_Singleton = 1;
+0031 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+0032     <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+0033     <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction AdAnalyser_OpeningFcn(hObject, eventdata, handles, varargin)">AdAnalyser_OpeningFcn</a>, <span class="keyword">...</span>
+0034     <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = AdAnalyser_OutputFcn(hObject, eventdata, handles)">AdAnalyser_OutputFcn</a>, <span class="keyword">...</span>
+0035     <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+0036     <span class="string">'gui_Callback'</span>,   []);
+0037 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+0038     gui_State.gui_Callback = str2func(varargin{1});
+0039 <span class="keyword">end</span>
+0040 
+0041 <span class="keyword">if</span> nargout
+0042     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+0043 <span class="keyword">else</span>
+0044     gui_mainfcn(gui_State, varargin{:});
+0045 <span class="keyword">end</span>
+0046 <span class="comment">% End initialization code - DO NOT EDIT</span>
+0047 
+0048 
+0049 <span class="comment">%% Executes just before AdAnalyser is made visible.</span>
+0050 <span class="comment">%   global variables initialisation happens here</span>
+0051 <a name="_sub1" href="#_subfunctions" class="code">function AdAnalyser_OpeningFcn(hObject, eventdata, handles, varargin)</a>
+0052 handles.output = hObject;
+0053 guidata(hObject, handles);
+0054 <span class="keyword">global</span> conf
+0055 <span class="keyword">global</span> configManager
+0056 conf = <a href="Config.html" class="code" title="">Config</a>;
+0057 configManager = <a href="ConfigManager.html" class="code" title="">ConfigManager</a>; 
+0058 
+0059 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0060 <a name="_sub2" href="#_subfunctions" class="code">function varargout = AdAnalyser_OutputFcn(hObject, eventdata, handles)</a>
+0061 varargout{1} = handles.output;
+0062 
+0063 <span class="comment">%%% BUTTONS</span>
+0064 
+0065 <span class="comment">% % --- Executes on button press in allOutputs.</span>
+0066 <span class="comment">% function allOutputs_Callback(hObject, eventdata, handles)</span>
+0067 <span class="comment">% global conf</span>
+0068 <span class="comment">% conf.EEGFig = 1;</span>
+0069 <span class="comment">% conf.FrequencyFig = 1;</span>
+0070 <span class="comment">% conf.EDAFig = 1;</span>
+0071 <span class="comment">% conf.DetrendedEDAFig = 1;</span>
+0072 <span class="comment">% conf.HRVFig = 1;</span>
+0073 <span class="comment">% conf.SubVideoEDAFig = 1;</span>
+0074 <span class="comment">% conf.QualityFig = 1;</span>
+0075 <span class="comment">% conf.BehaveFig = 1;</span>
+0076 <span class="comment">% conf.Statistics = 1;</span>
+0077 <span class="comment">% conf.RecurrenceFig = 1;</span>
+0078 <span class="comment">% updateUI(handles);</span>
+0079 
+0080 <span class="comment">% % --- Executes on button press in noOutputs.</span>
+0081 <span class="comment">% function noOutputs_Callback(hObject, eventdata, handles)</span>
+0082 <span class="comment">% global conf</span>
+0083 <span class="comment">% conf.EEGFig = 0;</span>
+0084 <span class="comment">% conf.FrequencyFig = 0;</span>
+0085 <span class="comment">% conf.EDAFig = 0;</span>
+0086 <span class="comment">% conf.DetrendedEDAFig = 0;</span>
+0087 <span class="comment">% conf.HRVFig = 0;</span>
+0088 <span class="comment">% conf.SubVideoEDAFig = 0;</span>
+0089 <span class="comment">% conf.QualityFig = 0;</span>
+0090 <span class="comment">% conf.BehaveFig = 0;</span>
+0091 <span class="comment">% conf.Statistics = 0;</span>
+0092 <span class="comment">% conf.RecurrenceFig =0;</span>
+0093 <span class="comment">% updateUI(handles)</span>
+0094 
+0095 <span class="comment">%% Executes when save config button pressed.</span>
+0096 <span class="comment">%   Uses _ConfigManager_ to save config</span>
+0097 <a name="_sub3" href="#_subfunctions" class="code">function saveSettings_Callback(hObject, eventdata, handles)</a>
+0098 <span class="keyword">global</span> conf;
+0099 <span class="keyword">global</span> configManager
+0100 configManager.save(conf);
+0101 
+0102 <span class="comment">%% Executes on button press in loadconf.</span>
+0103 <span class="comment">%   Loads _Config_ from file using global _ConfigManager_ instance</span>
+0104 <span class="comment">%   TODO error handling</span>
+0105 <a name="_sub4" href="#_subfunctions" class="code">function loadSettings_Callback(hObject, eventdata, handles)</a>
+0106 <span class="keyword">global</span> conf;
+0107 <span class="keyword">global</span> configManager;
+0108 conf = configManager.load();
+0109 <a href="#_sub5" class="code" title="subfunction updateUI(handles)">updateUI</a>(handles);
+0110 
+0111 <span class="comment">%% Helper method to update ui on base of _Config_ values</span>
+0112 <a name="_sub5" href="#_subfunctions" class="code">function updateUI(handles)</a>
+0113 <span class="keyword">global</span> conf;
+0114 set(handles.outputDirectory,<span class="string">'String'</span>,conf.OutputDirectory);
+0115 set(handles.videoDef,<span class="string">'String'</span>,conf.VideoDef);
+0116 set(handles.edaFiles,<span class="string">'String'</span>,conf.EDAFiles);
+0117 set(handles.eegFiles,<span class="string">'String'</span>,conf.EEGFiles);
+0118 set(handles.ecgFiles,<span class="string">'String'</span>,conf.ECGFiles);
+0119 
+0120 <span class="comment">%% Brings up choose file dialog and saves choosen EDA files in _Config_</span>
+0121 <a name="_sub6" href="#_subfunctions" class="code">function browseEDA_Callback(hObject, eventdata, handles)</a>
+0122 <span class="keyword">global</span> conf;
+0123 [filenames, pathname] = uigetfile(<span class="string">'*.txt;*.csv'</span>, <span class="string">'Select EDA files'</span>,<span class="string">'MultiSelect'</span>, <span class="string">'on'</span>);
+0124 empty = isempty(pathname) || pathname(1:1)==0;
+0125 <span class="keyword">if</span> empty==0
+0126     <span class="keyword">if</span> ~iscell(filenames) &amp;&amp; ischar(filenames)
+0127         filenames = {filenames}; <span class="comment">% force it to be a cell array of strings</span>
+0128     <span class="keyword">end</span>
+0129     edaFiles = cell(size(filenames))
+0130     <span class="keyword">for</span> file = 1:numel(filenames)
+0131         fullpath = fullfile(pathname,filenames{file});
+0132         edaFiles = [edaFiles, fullpath];
+0133     <span class="keyword">end</span>
+0134     edaFiles(cellfun(<span class="string">'isempty'</span>,edaFiles)) = [];
+0135     conf.EDAFiles = edaFiles;
+0136     set(handles.edaFiles,<span class="string">'Value'</span>,1); <span class="comment">%needed to avoid selection error</span>
+0137     set(handles.edaFiles,<span class="string">'String'</span>,conf.EDAFiles);
+0138 <span class="keyword">end</span>
+0139 
+0140 <span class="comment">%% Brings up choose file dialog and saves choosen EEG files in _Config_</span>
+0141 <a name="_sub7" href="#_subfunctions" class="code">function browseEEG_Callback(hObject, eventdata, handles)</a>
+0142 <span class="keyword">global</span> conf;
+0143 [filenames, pathname] = uigetfile(<span class="string">'*.txt;*.csv'</span>, <span class="string">'Select EEG files'</span>,<span class="string">'MultiSelect'</span>, <span class="string">'on'</span>);
+0144 empty = isempty(pathname) || pathname(1:1)==0;
+0145 <span class="keyword">if</span> empty==0
+0146     <span class="keyword">if</span> ~iscell(filenames) &amp;&amp; ischar(filenames)
+0147         filenames = {filenames}; <span class="comment">% force it to be a cell array of strings</span>
+0148     <span class="keyword">end</span>
+0149     eegFiles = cell(size(filenames));
+0150     <span class="keyword">for</span> file = 1:numel(filenames)
+0151         fullpath = fullfile(pathname,filenames{file});
+0152         eegFiles = [eegFiles, fullpath];
+0153     <span class="keyword">end</span>
+0154     eegFiles(cellfun(<span class="string">'isempty'</span>,eegFiles)) = [];
+0155     conf.EEGFiles = eegFiles;
+0156     set(handles.eegFiles,<span class="string">'Value'</span>,1); <span class="comment">%needed to avoid selection error</span>
+0157     set(handles.eegFiles,<span class="string">'String'</span>,conf.EEGFiles);
+0158 <span class="keyword">end</span>
+0159 
+0160 <span class="comment">% --- Executes on button press in browseECG.</span>
+0161 <a name="_sub8" href="#_subfunctions" class="code">function browseECG_Callback(hObject, eventdata, handles)</a>
+0162 <span class="keyword">global</span> conf;
+0163 [filenames, pathname] = uigetfile(<span class="string">'*.txt;*.csv'</span>, <span class="string">'Select ECG files'</span>,<span class="string">'MultiSelect'</span>, <span class="string">'on'</span>);
+0164 empty = isempty(pathname) || pathname(1:1)==0;
+0165 <span class="keyword">if</span> empty==0
+0166     <span class="keyword">if</span> ~iscell(filenames) &amp;&amp; ischar(filenames)
+0167         filenames = {filenames}; <span class="comment">% force it to be a cell array of strings</span>
+0168     <span class="keyword">end</span>
+0169     ecgFiles = cell(size(filenames));
+0170     <span class="keyword">for</span> file = 1:numel(filenames)
+0171         fullpath = fullfile(pathname,filenames{file});
+0172         ecgFiles = [ecgFiles, fullpath];
+0173     <span class="keyword">end</span>
+0174     ecgFiles(cellfun(<span class="string">'isempty'</span>,ecgFiles)) = [];
+0175     conf.ECGFiles = ecgFiles;
+0176     set(handles.ecgFiles,<span class="string">'Value'</span>,1); <span class="comment">%needed to avoid selection error</span>
+0177     set(handles.ecgFiles,<span class="string">'String'</span>,conf.ECGFiles);
+0178 <span class="keyword">end</span>
+0179 
+0180 <span class="comment">%% Brings up choose file dialog and saves choosen video definition file in _Config_</span>
+0181 <a name="_sub9" href="#_subfunctions" class="code">function browseVideoDefinitions_Callback(hObject, eventdata, handles)</a>
+0182 <span class="keyword">global</span> conf;
+0183 [filename, pathname]=uigetfile(<span class="string">'*.txt;*.csv'</span>,<span class="string">'Select a File with Video Definitions'</span>);
+0184 <span class="keyword">if</span> filename~=0
+0185     conf.VideoDef = fullfile(pathname, filename);
+0186     set(handles.videoDef,<span class="string">'String'</span>,conf.VideoDef);
+0187 <span class="keyword">end</span>
+0188 
+0189 <span class="comment">%% Brings up choose directory dialog and saves value in _Config_</span>
+0190 <a name="_sub10" href="#_subfunctions" class="code">function browseOutput_Callback(hObject, eventdata, handles)</a>
+0191 <span class="keyword">global</span> conf;
+0192 outputDirectory=uigetdir(ctfroot,<span class="string">'Choose an Output Directory'</span>);
+0193 <span class="keyword">if</span> outputDirectory~=0
+0194     conf.OutputDirectory=outputDirectory;
+0195     set(handles.outputDirectory,<span class="string">'String'</span>,conf.OutputDirectory);
+0196 <span class="keyword">end</span>
+0197 
+0198 <span class="comment">%% Starts _AnalyseAction_ when analyse button was pressed</span>
+0199 <a name="_sub11" href="#_subfunctions" class="code">function analyse_Callback(hObject, eventdata, handles)</a>
+0200 <span class="keyword">global</span> conf;
+0201 <span class="keyword">global</span> data;
+0202 a = <a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>();
+0203 a.analyse(data,conf);
+0204 disp(<span class="string">'Done'</span>);
+0205 
+0206 <span class="comment">%% Reads data from files using _DataFactory_ when prepare button was pressed</span>
+0207 <a name="_sub12" href="#_subfunctions" class="code">function prepare_Callback(hObject, eventdata, handles)</a>
+0208 <span class="keyword">global</span> conf; 
+0209 <span class="keyword">global</span> data; 
+0210 action = <a href="PrepareAction.html" class="code" title="">PrepareAction</a>(); 
+0211 data = action.prepare(conf); 
+0212 <span class="keyword">if</span> (data.isValid)
+0213     disp(<span class="string">'Done'</span>);
+0214     set(handles.filter,<span class="string">'enable'</span>,<span class="string">'on'</span>);
+0215 <span class="keyword">end</span>
+0216 
+0217 <span class="comment">%% Starts _FilterAction_ when filter button was pressed</span>
+0218 <a name="_sub13" href="#_subfunctions" class="code">function filter_Callback(hObject, eventdata, handles)</a>
+0219 <span class="keyword">global</span> conf
+0220 <span class="keyword">global</span> data
+0221 filter = <a href="FilterAction.html" class="code" title="">FilterAction</a>();
+0222 data = filter.filter(data,conf);
+0223 set(handles.analyse,<span class="string">'enable'</span>,<span class="string">'on'</span>);
+0224 disp(<span class="string">'Done'</span>);
+0225 
+0226 <span class="comment">%% Output directory textfield</span>
+0227 <a name="_sub14" href="#_subfunctions" class="code">function outputDir_Callback(hObject, eventdata, handles)</a>
+0228 <span class="keyword">global</span> conf
+0229 input = get(hObject,<span class="string">'String'</span>);
+0230 conf.OutputDirectory = input;
+0231 
+0232 <span class="comment">%% Video definition textfield</span>
+0233 <a name="_sub15" href="#_subfunctions" class="code">function videoDef_Callback(hObject, eventdata, handles)</a>
+0234 <span class="keyword">global</span> conf
+0235 input = get(hObject,<span class="string">'String'</span>);
+0236 conf.VideoDef = input;
+0237 
+0238 
+0239 
+0240 <span class="comment">%%% Create functions and unused callbacks generated by matlab gui editor</span>
+0241 
+0242 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0243 <a name="_sub16" href="#_subfunctions" class="code">function outputDir_CreateFcn(hObject, eventdata, handles)</a>
+0244 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0245     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0246 <span class="keyword">end</span>
+0247 
+0248 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0249 <a name="_sub17" href="#_subfunctions" class="code">function edaFiles_CreateFcn(hObject, eventdata, handles)</a>
+0250 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0251     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0252 <span class="keyword">end</span>
+0253 
+0254 <a name="_sub18" href="#_subfunctions" class="code">function edaFiles_Callback(hObject, eventdata, handles)</a>
+0255 
+0256 
+0257 <a name="_sub19" href="#_subfunctions" class="code">function eegFiles_Callback(hObject, eventdata, handles)</a>
+0258 
+0259 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0260 <a name="_sub20" href="#_subfunctions" class="code">function eegFiles_CreateFcn(hObject, eventdata, handles)</a>
+0261 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0262     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0263 <span class="keyword">end</span>
+0264 
+0265 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0266 <a name="_sub21" href="#_subfunctions" class="code">function lowerEEGThreshold_CreateFcn(hObject, eventdata, handles)</a>
+0267 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0268     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0269 <span class="keyword">end</span>
+0270 
+0271 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0272 <a name="_sub22" href="#_subfunctions" class="code">function videoDef_CreateFcn(hObject, eventdata, handles)</a>
+0273 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0274     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0275 <span class="keyword">end</span>
+0276 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0277 
+0278 <a name="_sub23" href="#_subfunctions" class="code">function upperEEGThreshold_CreateFcn(hObject, eventdata, handles)</a>
+0279 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0280     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0281 <span class="keyword">end</span>
+0282 
+0283 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0284 <a name="_sub24" href="#_subfunctions" class="code">function qualityIndex_CreateFcn(hObject, eventdata, handles)</a>
+0285 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0286     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0287 <span class="keyword">end</span>
+0288 
+0289 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0290 <a name="_sub25" href="#_subfunctions" class="code">function ecgFiles_CreateFcn(hObject, eventdata, handles)</a>
+0291 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0292     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0293 <span class="keyword">end</span>
+0294 
+0295 
+0296 
+0297 <span class="comment">% --- Executes on button press in settings.</span>
+0298 <a name="_sub26" href="#_subfunctions" class="code">function settings_Callback(hObject, eventdata, handles)</a>
+0299 <a href="ConfigDialog.html" class="code" title="function varargout = ConfigDialog(varargin)">ConfigDialog</a>; 
+0300 
+0301 
+0302 <span class="comment">% --- Executes on button press in electrodesSettings.</span>
+0303 <a name="_sub27" href="#_subfunctions" class="code">function electrodesSettings_Callback(hObject, eventdata, handles)</a>
+0304 <a href="ElectrodesDialog.html" class="code" title="function varargout = ElectrodesDialog(varargin)">ElectrodesDialog</a>;</pre></div>
+<hr><address>Generated on Fri 03-Jan-2020 18:19:42 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

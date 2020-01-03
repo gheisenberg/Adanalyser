@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of SubjectFactory</title>
+  <meta name="keywords" content="SubjectFactory">
+  <meta name="description" content="Creates new Subjects">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyzerSoftware -->
+<h1>SubjectFactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Creates new Subjects</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Creates new Subjects
+   Reads subject related files and creates appropriate data representation -&gt; See: Subject</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ElectrodeEEGData.html" class="code" title="">ElectrodeEEGData</a>	</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Creates new Subjects</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Creates new Subjects</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function subjects=createSubjects(self,config,videoLength)</a></li><li><a href="#_sub2" class="code">function electrodeEEGdata = parseEEGFile(self,eegFile,videoLength)</a></li><li><a href="#_sub3" class="code">function ecgValues = parseECGFile(self,ecgFile)</a></li><li><a href="#_sub4" class="code">function edaValues = parseEDAGFile(self,edaFile,videoLength)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%Creates new Subjects</span>
+0002 <span class="comment">%   Reads subject related files and creates appropriate data representation -&gt; See: Subject</span>
+0003 classdef <a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>
+0004     
+0005     properties
+0006     <span class="keyword">end</span>
+0007     
+0008     methods
+0009         <span class="comment">%% Creates new Subjects on base of the file paths stored in Config Object.</span>
+0010         <span class="comment">%   See: Config.m</span>
+0011         <a name="_sub0" href="#_subfunctions" class="code">function subjects=createSubjects(self,config,videoLength)</a>
+0012             eegFilePaths = config.EEGFiles;
+0013             edaFilePaths = config.EDAFiles;
+0014             ecgFilePaths = config.ECGFiles;
+0015             numberOfSubjects =  length(edaFilePaths);  
+0016             message = [<span class="string">'Reading raw data for '</span> num2str(numberOfSubjects) <span class="string">' subject(s)'</span>];
+0017             bar = waitbar(0,message);  <span class="comment">% open waitbar dialog with message</span>
+0018             subjects=cell(1,numberOfSubjects);
+0019             <span class="keyword">for</span> i = 1:numberOfSubjects
+0020                 <span class="comment">% get subject name and electrode name from eeg file name</span>
+0021                 edaFileForSubject = edaFilePaths{i};
+0022                 [~,name,~] = fileparts(edaFileForSubject);
+0023                 splitFileName =  textscan(name,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'_'</span>);
+0024                 subjectName = splitFileName{1}{2};
+0025                 <span class="comment">% get eeg files for subject by subject name</span>
+0026                 matches = strfind(eegFilePaths,subjectName);
+0027                 eegFileIndicies = find(~cellfun(@isempty,matches));
+0028                 subject = <a href="Subject.html" class="code" title="">Subject</a>();
+0029                 <span class="keyword">for</span> j = 1:length(eegFileIndicies)
+0030                    eegFileForSubject = eegFilePaths{eegFileIndicies(j)}; 
+0031                    subject.eegValuesForElectrodes{j} = self.parseEEGFile(eegFileForSubject,videoLength);
+0032                 <span class="keyword">end</span>
+0033                 <span class="comment">% get eda file for subject by subject name</span>
+0034                 matches = strfind(edaFilePaths,subjectName);
+0035                 edaFileIndex = ~cellfun(@isempty,matches);
+0036                 edaFileForSubject = edaFilePaths{edaFileIndex};
+0037                 <span class="comment">% get ecg file for subject by subject name</span>
+0038                 matches = strfind(ecgFilePaths,subjectName);
+0039                 ecgFileIndex = ~cellfun(@isempty,matches);
+0040                 ecgFileForSubject = ecgFilePaths{ecgFileIndex};
+0041                 <span class="comment">% create the subject</span>
+0042                 subject.name = subjectName;
+0043                 subject.edaValues = self.parseEDAGFile(edaFileForSubject,videoLength);
+0044                 subject.ecgValues = self.parseECGFile(ecgFileForSubject);    
+0045                 subjects{i}=subject; 
+0046                 <span class="comment">% update waitbar</span>
+0047                 waitbar(i /numberOfSubjects);
+0048             <span class="keyword">end</span>
+0049             close(bar);
+0050         <span class="keyword">end</span>
+0051     <span class="keyword">end</span>
+0052     methods(Access=private)
+0053  
+0054         
+0055         <span class="comment">%% Parses EEG file to int array</span>
+0056         <a name="_sub1" href="#_subfunctions" class="code">function electrodeEEGdata = parseEEGFile(self,eegFile,videoLength)</a>
+0057             [~,name,~] = fileparts(eegFile);
+0058             splitFileName = textscan(name,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'_'</span>);
+0059             electrodeName = splitFileName{1}{3};
+0060             fileID = fopen(eegFile);
+0061             fileContents = textscan(fileID,<span class="string">'%d'</span>,<span class="string">'Headerlines'</span>,1);
+0062             fclose(fileID);
+0063             eegRawValues =  fileContents{1};
+0064             electrodeEEGdata = <a href="ElectrodeEEGData.html" class="code" title="">ElectrodeEEGData</a>();
+0065             electrodeEEGdata.electrode = Electrodes.(electrodeName); 
+0066             eegOffset = 10;
+0067             eegValuesPerSec = 512;
+0068             start = eegOffset*eegValuesPerSec;
+0069             ende = start+(videoLength*eegValuesPerSec);
+0070             <span class="comment">% Cut of egg values and create eeg matrix for each subject</span>
+0071             eegValsCutoff = eegRawValues(start:ende-1);
+0072             eegValsMatrix = reshape(eegValsCutoff,eegValuesPerSec,videoLength);
+0073             electrodeEEGdata.eegValues = eegValsCutoff;
+0074             electrodeEEGdata.eegMatrix = double(eegValsMatrix');
+0075         <span class="keyword">end</span>
+0076         
+0077         <span class="comment">%% Parses ECG file to double array</span>
+0078         <a name="_sub2" href="#_subfunctions" class="code">function ecgValues = parseECGFile(self,ecgFile)</a>
+0079             fileID = fopen(ecgFile);
+0080             fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+0081             fclose(fileID);
+0082             ecgValues = fileContents(:,2);
+0083             ecgValues = ecgValues{1};
+0084         <span class="keyword">end</span>
+0085         
+0086         
+0087         <span class="comment">%% Parses EDA file to double array</span>
+0088         <a name="_sub3" href="#_subfunctions" class="code">function edaValues = parseEDAGFile(self,edaFile,videoLength)</a>
+0089             edaValuesPerSec = 5;
+0090             fileID = fopen(edaFile);
+0091             fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'HeaderLines'</span>,1,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+0092             fclose(fileID);
+0093             edaValues = fileContents(:,2);
+0094             edaValues = edaValues{1}(1:edaValuesPerSec*videoLength);
+0095         <span class="keyword">end</span>
+0096         
+0097     <span class="keyword">end</span>
+0098 <span class="keyword">end</span>
+0099 
+0100</pre></div>
+<hr><address>Generated on Fri 03-Jan-2020 18:19:42 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

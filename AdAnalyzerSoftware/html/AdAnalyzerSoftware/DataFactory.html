@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of DataFactory</title>
+  <meta name="keywords" content="DataFactory">
+  <meta name="description" content="Factory class creating _Data_ objects">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyzerSoftware -->
+<h1>DataFactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Factory class creating _Data_ objects</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Factory class creating _Data_ objects
+   Parses video definitions
+   Cut off eeg and eda values for each subject
+   Creates eegMatrix for each subject</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Data.html" class="code" title="">Data</a>	Data representation of complete Data needed for analysis</li><li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Creates new Subjects</li><li><a href="VideoDefinition.html" class="code" title="">VideoDefinition</a>	Data representation of a VideoDefinition.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function data = createData(self, conf)</a></li><li><a href="#_sub2" class="code">function videoDefs = parseVideoDefinitions(self,videoDefFile)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% Factory class creating _Data_ objects</span>
+0002 <span class="comment">%   Parses video definitions</span>
+0003 <span class="comment">%   Cut off eeg and eda values for each subject</span>
+0004 <span class="comment">%   Creates eegMatrix for each subject</span>
+0005 classdef <a href="DataFactory.html" class="code" title="">DataFactory</a>
+0006     
+0007     properties
+0008     <span class="keyword">end</span>
+0009     
+0010     methods
+0011         <span class="comment">%% Creates new _Data_ object</span>
+0012         <span class="comment">%   Cut off first 10 seconds of eeg values</span>
+0013         <span class="comment">%   Cut off eda values at the end</span>
+0014         <span class="comment">%   Sets eeg matrix</span>
+0015         <a name="_sub0" href="#_subfunctions" class="code">function data = createData(self, conf)</a>
+0016             videoDefs = self.parseVideoDefinitions(conf.VideoDef);
+0017             videoLength = 0;
+0018             <span class="comment">% Calculate complete video length</span>
+0019             <span class="keyword">for</span> i=1:length(videoDefs)
+0020                 videoLength = videoLength + videoDefs{i}.length;
+0021             <span class="keyword">end</span>
+0022             subjectFactory = <a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>();
+0023             subjects = subjectFactory.createSubjects(conf,videoLength);
+0024             data = <a href="Data.html" class="code" title="">Data</a>(subjects,videoDefs);
+0025         <span class="keyword">end</span>
+0026     <span class="keyword">end</span>
+0027     
+0028     methods(Access=private)
+0029         <span class="comment">%% Parses video definitions</span>
+0030         <a name="_sub1" href="#_subfunctions" class="code">function videoDefs = parseVideoDefinitions(self,videoDefFile)</a>
+0031             fileID = fopen(videoDefFile);
+0032             fileContents = textscan(fileID,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'\n'</span>);
+0033             fclose(fileID);
+0034             fileContents = fileContents{1};
+0035             [numVideoDefs,~] = size(fileContents);
+0036             videoDefs = cell(1,numVideoDefs);
+0037             <span class="keyword">for</span> i = 1:numVideoDefs
+0038                 videoDef = fileContents{i};
+0039                 values = textscan(videoDef,<span class="string">'%u'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+0040                 values = values{1};
+0041                 videoLength = values(2);
+0042                 type = values(1);
+0043                 intervals=values(setdiff(1:length(values),[1 2]));
+0044                 videoDefs{i} = <a href="VideoDefinition.html" class="code" title="">VideoDefinition</a>(videoLength,type,intervals);
+0045             <span class="keyword">end</span>
+0046         <span class="keyword">end</span>
+0047     <span class="keyword">end</span>
+0048 <span class="keyword">end</span>
+0049</pre></div>
+<hr><address>Generated on Fri 03-Jan-2020 18:19:42 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
