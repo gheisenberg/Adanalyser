@@ -1,4 +1,4 @@
-% Performs analyse calculation steps for valid subjects
+% Performs analysis steps for valid subjects
 %   Starts when button "Analyse" was clicked
 %   Performs eeg frequency analysis
 %   Calculates statistics
