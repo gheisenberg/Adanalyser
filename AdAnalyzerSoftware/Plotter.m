@@ -626,7 +626,7 @@ classdef Plotter
                 legend(massAndTime,'alpha baseline mean');
             else
                 h= legend(massAndTime,'Stimulus','alpha baseline mean');
-                %leg_line=findobj(h,'Type','Line');
+                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(h(:,2), 'Color', 'b');
             end
             grid;
@@ -646,7 +646,7 @@ classdef Plotter
                 legend(massAndTime,'beta1 baseline mean');
             else
                 h= legend(massAndTime,'Stimulus','beta1 baseline mean');
-                %leg_line=findobj(h,'Type','Line');
+                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(leg_line(2), 'Color', 'b');
             end
             grid;
@@ -666,7 +666,7 @@ classdef Plotter
                 legend(massAndTime,'beta2 baseline mean');
             else
                 h=legend(massAndTime,'Stimulus','beta2 baseline mean');
-                %leg_line=findobj(h,'Type','Line');
+                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(leg_line(2), 'Color', 'b');
             end
             grid;
@@ -686,7 +686,7 @@ classdef Plotter
                 legend(massAndTime,'TEI baseline mean');
             else
                 h=legend(massAndTime,'Stimulus','TEI baseline mean');
-                %leg_line=findobj(h,'Type','Line');
+                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(leg_line(2), 'Color', 'b');
             end
             grid;
