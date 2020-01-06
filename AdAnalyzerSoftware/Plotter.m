@@ -594,17 +594,19 @@ classdef Plotter
             
 			%subplots
 			subplot(6,1,1)
+            hold on
             plot(theta_s,'Color',[65/255 105/255 225/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
             m = mean(baselineTheta);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
             grid;
+            hold off
             massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
             
             if(isempty(intervals))
                 legend(massAndTime,'theta baseline mean');
             else
-                h=legend(massAndTime,'Stimulus','theta baseline mean');
+                h=legend(massAndTime,'theta baseline mean','Stimulus');
                 %leg_line=findobj(h,'Type','Line'); %%Das funktioniert nicht mehr (Gernot)
                 %set(leg_line(2), 'Color', 'b');
             end
@@ -615,17 +617,17 @@ classdef Plotter
 			title(t_title);
 			
 			subplot(6,1,2);
-            plot(alpha_s,'Color',[0/255 128/255 0/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            m = mean(baselineAlpha);
             hold on;
+            plot(alpha_s,'Color',[0/255 128/255 0/255]);
+            m = mean(baselineAlpha);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
             hold off;
             massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
             if(isempty(intervals))
                 legend(massAndTime,'alpha baseline mean');
             else
-                h= legend(massAndTime,'Stimulus','alpha baseline mean');
+                h= legend(massAndTime,'alpha baseline mean','Stimulus');
                 %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(h(:,2), 'Color', 'b');
             end
@@ -635,17 +637,17 @@ classdef Plotter
             set(gca,'XTick',xtime,'XTickLabel',xname);
                         
             subplot(6,1,3);
-            plot(beta1_s,'Color',[255/255 128/255 0/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            m = mean(baselineBeta1);
             hold on;
+            plot(beta1_s,'Color',[255/255 128/255 0/255]);
+            m = mean(baselineBeta1);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            hold off;
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
             massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
+            hold off;
             if(isempty(intervals))
                 legend(massAndTime,'beta1 baseline mean');
             else
-                h= legend(massAndTime,'Stimulus','beta1 baseline mean');
+                h= legend(massAndTime,'beta1 baseline mean','Stimulus');
                 %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(leg_line(2), 'Color', 'b');
             end
@@ -655,17 +657,17 @@ classdef Plotter
             set(gca,'XTick',xtime,'XTickLabel',xname);
             
             subplot(6,1,4);
-            plot(beta2_s,'Color',[255/255 69/255 0/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            m = mean(baselineBeta2);
             hold on;
+            plot(beta2_s,'Color',[255/255 69/255 0/255]);
+            m = mean(baselineBeta2);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            hold off;
             massAndTime = self.calculateMassAndTime(beta2_s,numDataPoints,mean(baselineBeta2));
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            hold off;
             if(isempty(intervals))
                 legend(massAndTime,'beta2 baseline mean');
             else
-                h=legend(massAndTime,'Stimulus','beta2 baseline mean');
+                h=legend(massAndTime,'beta2 baseline mean','Stimulus');
                 %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(leg_line(2), 'Color', 'b');
             end
@@ -675,17 +677,17 @@ classdef Plotter
             set(gca,'XTick',xtime,'XTickLabel',xname);
 			
 			subplot(6,1,5);
-            plot(task_s,'k');
-			self.plotIntervals(intervals,[0, (1.2*max(task_s))],max(xtime)/max(xname),labels,'r');
-            m = mean(baselineTEI);
             hold on;
+            plot(task_s,'k');
+            m = mean(baselineTEI);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            hold off;
             massAndTime = self.calculateMassAndTime(task_s,numDataPoints,mean(baselineTEI));
+            self.plotIntervals(intervals,[0, (1.2*max(task_s))],max(xtime)/max(xname),labels,'r');
+            hold off;
             if(isempty(intervals))
                 legend(massAndTime,'TEI baseline mean');
             else
-                h=legend(massAndTime,'Stimulus','TEI baseline mean');
+                legend(massAndTime,'TEI baseline mean','Stimulus');
                 %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
                 %set(leg_line(2), 'Color', 'b');
             end
