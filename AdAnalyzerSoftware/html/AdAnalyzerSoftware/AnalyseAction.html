@@ -4,7 +4,7 @@
 <head>
   <title>Description of AnalyseAction</title>
   <meta name="keywords" content="AnalyseAction">
-  <meta name="description" content="Performs analyse calculation steps for valid subjects">
+  <meta name="description" content="Performs analysis steps for valid subjects">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -20,13 +20,13 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>Performs analyse calculation steps for valid subjects</strong></div>
+<div class="box"><strong>Performs analysis steps for valid subjects</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box"><strong>This is a script file. </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Performs analyse calculation steps for valid subjects
+<div class="fragment"><pre class="comment"> Performs analysis steps for valid subjects
    Starts when button &quot;Analyse&quot; was clicked
    Performs eeg frequency analysis
    Calculates statistics
@@ -37,10 +37,10 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analyse calculation steps for valid subjects</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Encapsulates functionality to plot PDF figures and write csv files.</li><li><a href="StringStatistics.html" class="code" title="">StringStatistics</a>	Utility class to cast statistic values to String and format them for print output.</li></ul>
+<li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analysis steps for valid subjects</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Encapsulates functionality to plot PDF figures and write csv files.</li><li><a href="StringStatistics.html" class="code" title="">StringStatistics</a>	Utility class to cast statistic values to String and format them for print output.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="AdAnalyser.html" class="code" title="function varargout = AdAnalyser(varargin)">AdAnalyser</a>	adanalyser class</li><li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analyse calculation steps for valid subjects</li></ul>
+<li><a href="AdAnalyser.html" class="code" title="function varargout = AdAnalyser(varargin)">AdAnalyser</a>	adanalyser class</li><li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analysis steps for valid subjects</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -48,7 +48,7 @@ This function is called by:
 <li><a href="#_sub1" class="code">function analyse(self,data,config)</a></li><li><a href="#_sub2" class="code">function numValidSubjects = countValidSubjects(self,subjects)</a></li><li><a href="#_sub3" class="code">function analyseSubject(self,subject,videoDefs,config)</a></li><li><a href="#_sub4" class="code">function meanEEGPerVid = calculateMeanEEGValuesForVideo(self,subject)</a></li><li><a href="#_sub5" class="code">function videoStatsMat = analyseVideo(self,subject,videoNumber,filteredEEGPerVid,edaPerVid,videoDefs,config)</a></li><li><a href="#_sub6" class="code">function [m,sd,devP,devM] = calculateStatistics(self,values)</a></li><li><a href="#_sub7" class="code">function statsMat = calculateEEGFrequencyStatistics(self,eeg,delta,theta,alpha,beta1,beta2,task)</a></li><li><a href="#_sub8" class="code">function statsMat = calculateEDAStatistics(self,videos,edaValues,delays,amplitudes)</a></li><li><a href="#_sub9" class="code">function [values,delays] = calculateDelays(self,edaValues,intervals)</a></li><li><a href="#_sub10" class="code">function [delta,theta,alpha,beta1,beta2,task] = analyseFrequencies(self,filteredEEGData)</a></li><li><a href="#_sub11" class="code">function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task)</a></li><li><a href="#_sub12" class="code">function indicies = getVideosByVideoType(self, videoTypes, videoDefs)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <span class="comment">% Performs analyse calculation steps for valid subjects</span>
+<div class="fragment"><pre>0001 <span class="comment">% Performs analysis steps for valid subjects</span>
 0002 <span class="comment">%   Starts when button &quot;Analyse&quot; was clicked</span>
 0003 <span class="comment">%   Performs eeg frequency analysis</span>
 0004 <span class="comment">%   Calculates statistics</span>
@@ -453,6 +453,6 @@ This function is called by:
 0403     <span class="keyword">end</span>
 0404 <span class="keyword">end</span>
 0405</pre></div>
-<hr><address>Generated on Fri 03-Jan-2020 18:19:42 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 06-Jan-2020 10:33:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

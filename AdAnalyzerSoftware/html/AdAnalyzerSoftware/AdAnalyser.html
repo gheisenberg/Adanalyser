@@ -53,7 +53,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analyse calculation steps for valid subjects</li><li><a href="Config.html" class="code" title="">Config</a>	Data representation for seetings set by the user using the gui window</li><li><a href="ConfigDialog.html" class="code" title="function varargout = ConfigDialog(varargin)">ConfigDialog</a>	CONFIGDIALOG MATLAB code for ConfigDialog.fig</li><li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li><li><a href="ElectrodesDialog.html" class="code" title="function varargout = ElectrodesDialog(varargin)">ElectrodesDialog</a>	ELECTRODESDIALOG MATLAB code for ElectrodesDialog.fig</li><li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
+<li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analysis steps for valid subjects</li><li><a href="Config.html" class="code" title="">Config</a>	Data representation for seetings set by the user using the gui window</li><li><a href="ConfigDialog.html" class="code" title="function varargout = ConfigDialog(varargin)">ConfigDialog</a>	CONFIGDIALOG MATLAB code for ConfigDialog.fig</li><li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li><li><a href="ElectrodesDialog.html" class="code" title="function varargout = ElectrodesDialog(varargin)">ElectrodesDialog</a>	ELECTRODESDIALOG MATLAB code for ElectrodesDialog.fig</li><li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -319,55 +319,51 @@ This function is called by:
 0253 
 0254 <a name="_sub18" href="#_subfunctions" class="code">function edaFiles_Callback(hObject, eventdata, handles)</a>
 0255 
-0256 
-0257 <a name="_sub19" href="#_subfunctions" class="code">function eegFiles_Callback(hObject, eventdata, handles)</a>
-0258 
-0259 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0260 <a name="_sub20" href="#_subfunctions" class="code">function eegFiles_CreateFcn(hObject, eventdata, handles)</a>
-0261 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0262     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0263 <span class="keyword">end</span>
-0264 
-0265 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0266 <a name="_sub21" href="#_subfunctions" class="code">function lowerEEGThreshold_CreateFcn(hObject, eventdata, handles)</a>
-0267 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0268     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0269 <span class="keyword">end</span>
-0270 
-0271 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0272 <a name="_sub22" href="#_subfunctions" class="code">function videoDef_CreateFcn(hObject, eventdata, handles)</a>
-0273 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0274     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0275 <span class="keyword">end</span>
-0276 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0277 
-0278 <a name="_sub23" href="#_subfunctions" class="code">function upperEEGThreshold_CreateFcn(hObject, eventdata, handles)</a>
-0279 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0280     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0281 <span class="keyword">end</span>
-0282 
-0283 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0284 <a name="_sub24" href="#_subfunctions" class="code">function qualityIndex_CreateFcn(hObject, eventdata, handles)</a>
-0285 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0286     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0287 <span class="keyword">end</span>
-0288 
-0289 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0290 <a name="_sub25" href="#_subfunctions" class="code">function ecgFiles_CreateFcn(hObject, eventdata, handles)</a>
-0291 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0292     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0293 <span class="keyword">end</span>
-0294 
-0295 
-0296 
-0297 <span class="comment">% --- Executes on button press in settings.</span>
-0298 <a name="_sub26" href="#_subfunctions" class="code">function settings_Callback(hObject, eventdata, handles)</a>
-0299 <a href="ConfigDialog.html" class="code" title="function varargout = ConfigDialog(varargin)">ConfigDialog</a>; 
-0300 
-0301 
-0302 <span class="comment">% --- Executes on button press in electrodesSettings.</span>
-0303 <a name="_sub27" href="#_subfunctions" class="code">function electrodesSettings_Callback(hObject, eventdata, handles)</a>
-0304 <a href="ElectrodesDialog.html" class="code" title="function varargout = ElectrodesDialog(varargin)">ElectrodesDialog</a>;</pre></div>
-<hr><address>Generated on Fri 03-Jan-2020 18:19:42 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0256 <a name="_sub19" href="#_subfunctions" class="code">function eegFiles_Callback(hObject, eventdata, handles)</a>
+0257 
+0258 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0259 <a name="_sub20" href="#_subfunctions" class="code">function eegFiles_CreateFcn(hObject, eventdata, handles)</a>
+0260 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0261     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0262 <span class="keyword">end</span>
+0263 
+0264 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0265 <a name="_sub21" href="#_subfunctions" class="code">function lowerEEGThreshold_CreateFcn(hObject, eventdata, handles)</a>
+0266 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0267     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0268 <span class="keyword">end</span>
+0269 
+0270 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0271 <a name="_sub22" href="#_subfunctions" class="code">function videoDef_CreateFcn(hObject, eventdata, handles)</a>
+0272 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0273     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0274 <span class="keyword">end</span>
+0275 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0276 
+0277 <a name="_sub23" href="#_subfunctions" class="code">function upperEEGThreshold_CreateFcn(hObject, eventdata, handles)</a>
+0278 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0279     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0280 <span class="keyword">end</span>
+0281 
+0282 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0283 <a name="_sub24" href="#_subfunctions" class="code">function qualityIndex_CreateFcn(hObject, eventdata, handles)</a>
+0284 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0285     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0286 <span class="keyword">end</span>
+0287 
+0288 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0289 <a name="_sub25" href="#_subfunctions" class="code">function ecgFiles_CreateFcn(hObject, eventdata, handles)</a>
+0290 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0291     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0292 <span class="keyword">end</span>
+0293 
+0294 <span class="comment">% --- Executes on button press in settings.</span>
+0295 <a name="_sub26" href="#_subfunctions" class="code">function settings_Callback(hObject, eventdata, handles)</a>
+0296 <a href="ConfigDialog.html" class="code" title="function varargout = ConfigDialog(varargin)">ConfigDialog</a>; 
+0297 
+0298 <span class="comment">% --- Executes on button press in electrodesSettings.</span>
+0299 <a name="_sub27" href="#_subfunctions" class="code">function electrodesSettings_Callback(hObject, eventdata, handles)</a>
+0300 <a href="ElectrodesDialog.html" class="code" title="function varargout = ElectrodesDialog(varargin)">ElectrodesDialog</a>;</pre></div>
+<hr><address>Generated on Mon 06-Jan-2020 10:33:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
