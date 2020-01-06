@@ -560,9 +560,7 @@ classdef Plotter
             print(['-f',int2str(fig.Number)],'-dpdf',[fPath,'.pdf']);
             close(fig);
         end
-        
-        
-        
+               
         %% Plots eeg frequency bands for video
         %   videoLength: Length in seconds as double
         %   fPath: Path to output file as String 
@@ -607,8 +605,6 @@ classdef Plotter
                 legend(massAndTime,'theta baseline mean');
             else
                 h=legend(massAndTime,'theta baseline mean','Stimulus');
-                %leg_line=findobj(h,'Type','Line'); %%Das funktioniert nicht mehr (Gernot)
-                %set(leg_line(2), 'Color', 'b');
             end
             ylabel('Theta [µV]');
             axis([0 length(theta_s) 0 maxscale]);
@@ -628,8 +624,6 @@ classdef Plotter
                 legend(massAndTime,'alpha baseline mean');
             else
                 h= legend(massAndTime,'alpha baseline mean','Stimulus');
-                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
-                %set(h(:,2), 'Color', 'b');
             end
             grid;
             ylabel('Alpha [µV]');
@@ -648,8 +642,6 @@ classdef Plotter
                 legend(massAndTime,'beta1 baseline mean');
             else
                 h= legend(massAndTime,'beta1 baseline mean','Stimulus');
-                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
-                %set(leg_line(2), 'Color', 'b');
             end
             grid;
             ylabel('Beta1 [µV]');
@@ -668,8 +660,6 @@ classdef Plotter
                 legend(massAndTime,'beta2 baseline mean');
             else
                 h=legend(massAndTime,'beta2 baseline mean','Stimulus');
-                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
-                %set(leg_line(2), 'Color', 'b');
             end
             grid;
             ylabel('Beta2 [µV]');
@@ -688,8 +678,6 @@ classdef Plotter
                 legend(massAndTime,'TEI baseline mean');
             else
                 legend(massAndTime,'TEI baseline mean','Stimulus');
-                %leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)
-                %set(leg_line(2), 'Color', 'b');
             end
             grid;
             ylabel('TEI');
