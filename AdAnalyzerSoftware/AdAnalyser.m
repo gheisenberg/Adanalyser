@@ -55,6 +55,7 @@ global conf
 global configManager
 conf = Config;
 configManager = ConfigManager; 
+%global eegDevice edaDevice hrvDevice
 
 % --- Outputs from this function are returned to the command line.
 function varargout = AdAnalyser_OutputFcn(hObject, eventdata, handles)
