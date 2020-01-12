@@ -68,12 +68,12 @@ varargout{1} = handles.output;
 function ok_Callback(hObject, eventdata, handles)
 global conf
 % Output flags
-conf.EEGFig = get(handles.rawEEG,'Value'); 
+conf.EEG_DEVICE_USED = get(handles.rawEEG,'Value'); 
 conf.FrequencyFig = get(handles.frequency,'Value');
-conf.EDAFig = get(handles.rawEDA,'Value');
+conf.EDA_DEVICE_USED = get(handles.rawEDA,'Value');
 conf.DetrendedEDAFig = get(handles.detrendedEDA,'Value');
 conf.RecurrenceFig = get(handles.recurrenceFig,'Value');
-conf.HRVFig = get(handles.rawHRV,'Value');
+conf.HRV_DEVICE_USED = get(handles.rawHRV,'Value');
 conf.SubVideoEDAFig = get(handles.subvideoEDA,'Value');
 conf.QualityFig = get(handles.qualityFigures,'Value');
 conf.BehaveFig = get(handles.behavioralCharacteristics,'Value');
@@ -163,8 +163,6 @@ set(handles.behavioralCharacteristics,'Value',1);
 set(handles.rawHRV,'Value',1);
 set(handles.subvideoEDA,'Value',1);
 
-
-
 % --- Executes on button press in noOutputs.
 function noOutputs_Callback(hObject, eventdata, handles)
 set(handles.rawEEG,'Value',0);
@@ -178,26 +176,23 @@ set(handles.behavioralCharacteristics,'Value',0);
 set(handles.rawHRV,'Value',0);
 set(handles.subvideoEDA,'Value',0);
 
-
-
 %% Helper method to update ui on base of _Config_ values
 function updateUI(handles)
 global conf;
-set(handles.rawEEG,'Value',conf.EEGFig);
-set(handles.rawEDA,'Value',conf.EDAFig);
+set(handles.rawEEG,'Value',conf.EEG_DEVICE_USED);
+set(handles.rawEDA,'Value',conf.EDA_DEVICE_USED);
 set(handles.qualityFigures,'Value',conf.QualityFig);
 set(handles.detrendedEDA,'Value',conf.DetrendedEDAFig); 
 set(handles.frequency,'Value',conf.FrequencyFig);
 set(handles.statistics,'Value',conf.Statistics);
 set(handles.recurrenceFig,'Value',conf.RecurrenceFig);
 set(handles.behavioralCharacteristics,'Value',conf.BehaveFig);
-set(handles.rawHRV,'Value',conf.HRVFig);
+set(handles.rawHRV,'Value',conf.HRV_DEVICE_USED);
 set(handles.subvideoEDA,'Value',conf.SubVideoEDAFig);
 set(handles.upperEEGThreshold,'String',conf.UpperThreshold);
 set(handles.lowerEEGThreshold,'String',conf.LowerThreshold);
 set(handles.qualityIndex,'String',conf.QualityIndex);
 set(handles.recurrenceTreshold,'String',conf.RecurrenceThreshold); 
-
 
 function lowerEEGThreshold_Callback(hObject, eventdata, handles)
 % hObject    handle to lowerEEGThreshold (see GCBO)
@@ -208,7 +203,6 @@ function lowerEEGThreshold_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of lowerEEGThreshold as a double
 
 
-
 function upperEEGThreshold_Callback(hObject, eventdata, handles)
 % hObject    handle to upperEEGThreshold (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -216,7 +210,6 @@ function upperEEGThreshold_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of upperEEGThreshold as text
 %        str2double(get(hObject,'String')) returns contents of upperEEGThreshold as a double
-
 
 
 function qualityIndex_Callback(hObject, eventdata, handles)

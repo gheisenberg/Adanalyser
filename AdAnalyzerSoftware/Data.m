@@ -9,7 +9,7 @@ classdef Data
     end
     
     methods
-        %% Constructor: Creates new data object and sets _Subject_s and __VideoDefinition 
+        %% Constructor: Creates new data object and sets _Subjects_ and _VideoDefinitions_ 
         function D = Data(subjects,videoDefs)
             D.subjects = subjects; 
             D.videoDefs = videoDefs; 

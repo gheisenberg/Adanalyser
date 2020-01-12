@@ -27,17 +27,26 @@ classdef ConfigManager
                         if strcmp(splitLine{1},'VideoDef')
                             conf.VideoDef=splitLine{2};
                         end
-                        if strcmp(splitLine{1},'EEGFig')
-                            conf.EEGFig=str2num(splitLine{2});
+                        if strcmp(splitLine{1},'EEG_DEVICE_USED')
+                            conf.EEG_DEVICE_USED=str2num(splitLine{2});
                         end
-                        if strcmp(splitLine{1},'EDAFig')
-                            conf.EDAFig=str2num(splitLine{2});
+                        if strcmp(splitLine{1},'EDA_DEVICE_USED')
+                            conf.EDA_DEVICE_USED=str2num(splitLine{2});
                         end
-                        if strcmp(splitLine{1},'DetrendedEDAFig')
+                        if strcmp(splitLine{1},'HRV_DEVICE_USED')
+                            conf.HRV_DEVICE_USED=str2num(splitLine{2});
+                        end
+                        if strcmp(splitLine{1},'EEG_DEVICE')
+                            conf.EEG_DEVICE=splitLine{2};
+                        end
+						if strcmp(splitLine{1},'EDA_DEVICE')
+                            conf.EDA_DEVICE=splitLine{2};
+                        end
+						if strcmp(splitLine{1},'HRV_DEVICE')
+                            conf.HRV_DEVICE=splitLine{2};
+                        end
+						if strcmp(splitLine{1},'DetrendedEDAFig')
                             conf.DetrendedEDAFig=str2num(splitLine{2});
-                        end
-                        if strcmp(splitLine{1},'HRVFig')
-                            conf.HRVFig=str2num(splitLine{2});
                         end
                         if strcmp(splitLine{1},'SubVideoEDAFig')
                             conf.SubVideoEDAFig=str2num(splitLine{2});
