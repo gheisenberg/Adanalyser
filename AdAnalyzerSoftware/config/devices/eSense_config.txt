@@ -1,0 +1,2 @@
+EDA_DEVICE_NAME="eSense-Skin-Response"
+EDA_SAMPLING_FREQUENCY=5
