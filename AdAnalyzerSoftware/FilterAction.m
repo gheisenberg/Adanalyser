@@ -21,6 +21,7 @@ classdef FilterAction < handle
             numVideos = length(data.videoDefs);
             numSubjects = length(data.subjects);
             edaValsPerSec = 5;
+            %edaValsPerSec = edaDevice.samplingRate;
             unfilteredQuality = zeros(numSubjects,numVideos);
             filteredQuality = zeros(numSubjects,numVideos);
             for i=1:numSubjects
@@ -34,7 +35,7 @@ classdef FilterAction < handle
                     filteredList = eegfiltfft(rawList,eegValsPerSec,1,49);
                     percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
                     percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
-                    if (config.EEGFig)
+                    if (config.EEG_DEVICE_USED)
                         self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject.name,eegValues.electrode,config);
                     end
                     %calculate eeg and eda values per video
