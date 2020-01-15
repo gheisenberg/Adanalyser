@@ -60,7 +60,7 @@ classdef DeviceFactory
                 if values(1) == "EEG_DEVICE_NAME"
                     EEGDeviceName = values(2);
                 elseif values(1)== "EEG_SAMPLING_FREQUENCY"
-                    EEGDeviceSamplingRate = values(2);
+                    EEGDeviceSamplingRate = str2double(values(2));
                 elseif values(1) == "EEG_ELECTRODES_POSITIONS"
                     %split the Electrode positions by the comma delimiter
                     %and make it a cell
@@ -88,7 +88,7 @@ classdef DeviceFactory
                 if values(1) == "EDA_DEVICE_NAME"
                     EDADeviceName = values(2);
                 elseif values(1)== "EDA_SAMPLING_FREQUENCY"
-                    EDADeviceSamplingRate = values(2);
+                    EDADeviceSamplingRate = str2double(values(2));
                 else
                     %do nothing
                 end

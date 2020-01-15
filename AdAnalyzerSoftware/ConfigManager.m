@@ -124,6 +124,8 @@ classdef ConfigManager
         %% Saves _Config_ objects to file using toString method of config object
         function save(self,conf)
             text = conf.toString();
+            %disp(text);
+            
             [file,path] = uiputfile('*.txt','Save conf');
             if file~=0
                 fid = fopen(fullfile(path,file),'wt');

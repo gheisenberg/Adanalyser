@@ -15,13 +15,12 @@ classdef FilterAction < handle
         %   3. calculates eeg and eda values per video
         %   4. rates qualiyt
         %   5. plots eeg quality figures using _Plotter_
-        function data = filter(self,data,config)
+        function data = filter(self,data,config,eegDevice,edaDevice,hrvDevice)
             message = ['Filtering data for ', num2str(length(data.subjects)), ' subject(s)'];
             h = waitbar(0,message);
             numVideos = length(data.videoDefs);
             numSubjects = length(data.subjects);
-            edaValsPerSec = 5;
-            %edaValsPerSec = edaDevice.samplingRate;
+            edaValsPerSec = edaDevice.samplingRate;
             unfilteredQuality = zeros(numSubjects,numVideos);
             filteredQuality = zeros(numSubjects,numVideos);
             for i=1:numSubjects

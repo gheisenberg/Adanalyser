@@ -5,14 +5,14 @@ classdef Data
     properties
         subjects = {} % cell array of subjects. See _Subject_ 
         videoDefs % video definition. See _VideoDefinition_
-        isValid = 0 
+        isValid = 0
     end
     
     methods
         %% Constructor: Creates new data object and sets _Subjects_ and _VideoDefinitions_ 
         function D = Data(subjects,videoDefs)
             D.subjects = subjects; 
-            D.videoDefs = videoDefs; 
+            D.videoDefs = videoDefs;
         end        
     end
     

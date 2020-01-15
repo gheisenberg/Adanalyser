@@ -29,6 +29,7 @@ classdef Config
         QualityIndex = 10
         % Recurrence Treshhold
         RecurrenceThreshold = 0
+        
     end
     
     methods

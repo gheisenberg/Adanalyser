@@ -16,7 +16,7 @@ classdef AnalyseAction < handle
     methods
         %% Main function of this class
         %   Performs "Analyse" calculation step for all valid subjects
-        function analyse(self,data,config)
+        function analyse(self,data,config,eegDevice,edaDevice,hrvDevice)
             subjects = data.subjects;
             videoDefs = data.videoDefs;
             validSubjects = self.countValidSubjects(subjects);
@@ -51,7 +51,7 @@ classdef AnalyseAction < handle
             edaComplete = subject.edaValues;
             numVideos = length(edaPerVid);
             % Plot eda
-            if (config.EDAFig)
+            if (config.EDA_DEVICE_USED)
                 self.plotter.plotEDA(videoDefs,[config.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
             end
             % Plot eda detrended
@@ -106,7 +106,7 @@ classdef AnalyseAction < handle
                 self.plotter.plotSubStimuIntEDA(edaVideos,edaPerVid,videoDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for videos ' mat2str(edaVideos)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
             end
             % Plot HRV figure
-            if (config.HRVFig)
+            if (config.HRV_DEVICE_USED)
                 self.plotter.plotHRV(subject.ecgValues,config.OutputDirectory,subject.name,videoDefs);
             end
             % Plot HRV Recurrence
