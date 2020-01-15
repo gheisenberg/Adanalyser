@@ -9,7 +9,7 @@ classdef ConfigManager
         %% Loads saved config files and creates _Config_ object from loaded data
         function conf = load(self)
             conf = Config();
-            [file, path]=uigetfile('*.txt','Select conf file');
+            [file, path]=uigetfile('.\config\*.txt','Select conf file');
             try
                 if file~=0
                     fid = fopen(fullfile(path, file),'r');
@@ -123,10 +123,40 @@ classdef ConfigManager
         
         %% Saves _Config_ objects to file using toString method of config object
         function save(self,conf)
-            text = conf.toString();
-            %disp(text);
             
-            [file,path] = uiputfile('*.txt','Save conf');
+            % cut the config text into pieces
+            conf_text_all = conf.toString();
+            conf_text_1= regexp(conf_text_all,'EEG_DEVICE_USED=1','split');
+            conf_text_up = conf_text_1(1); % this noe contains the upper part
+            conf_text_mid = strcat("EEG_DEVICE_USED=1",conf_text_1(2));
+            conf_text_2= regexp(conf_text_mid,'SubVideoEDAFig=1','split');
+            conf_text_mid = conf_text_2(1);% this one contains the mid part
+            conf_text_low = strcat("SubVideoEDAFig=1",conf_text_2(2));% this one contains the lower part
+
+            % Set the formatting elements 
+            braid = "----------------------------" + newline;
+            path_text       = "PATHS" + newline;
+            device_text     = "DEVICES" + newline;
+            settings_text   = "SETTINGS" + newline;
+            
+            % start the formatting here now
+            % the path section
+            text = strcat(braid,path_text);
+            text = strcat(text,braid);
+            text = strcat(text,conf_text_up);
+            % the device section
+            text = strcat(text, braid);
+            text = strcat(text,device_text);
+            text = strcat(text, braid);
+            text = strcat(text,conf_text_mid);
+            % the settings section
+            text = strcat(text, braid);
+            text = strcat(text,settings_text);
+            text = strcat(text, braid);
+            text = strcat(text,conf_text_low);
+            
+            % write text to file
+            [file,path] = uiputfile('.\config\*.txt','Save conf');
             if file~=0
                 fid = fopen(fullfile(path,file),'wt');
                 fprintf(fid,'%s',text);
