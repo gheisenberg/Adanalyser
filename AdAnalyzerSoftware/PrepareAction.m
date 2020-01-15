@@ -30,11 +30,6 @@ classdef PrepareAction
                 data  = self.dataFactory.createData(conf);
                 data.isValid = 1; 
             end
-
-            % this works - but I cannot pass them out as global vars :-(
-            disp(eegDevice.electrodePositions(1));
-            disp(edaDevice.samplingRate);
-            disp(hrvDevice.samplingRate);
         end
     end
     
