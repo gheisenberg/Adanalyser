@@ -31,9 +31,9 @@ classdef Plotter
         %% Prints recurrence plots for ECG
         %  subjectName: Name of the Subject as String
         %  config: Config 
-        %  videoName: String
+        %  StimuIntName: String
         %  ecgData: ECG values for Subject as double[] 
-        function plotECGRecurrence(self,subjectName,config,videoName,ecgData)
+        function plotECGRecurrence(self,subjectName,config,StimuIntName,ecgData)
             N = length(ecgData);
             S = zeros(N, N);
             time = zeros(N,1);
@@ -59,7 +59,7 @@ classdef Plotter
             freez = cbfreeze(h);
             cblabel('Time [ms]');
             set(freez, 'Position', [0.75 0.585 0.05 0.34]);
-            title(['Distance map of ' videoName ' phase space trajectory for subject' subjectName]);
+            title(['Distance map of ' StimuIntName ' phase space trajectory for subject' subjectName]);
             
             subplot(2,1,2);
             maxDiff = max(max(S) - min(S))*0.001;
@@ -72,17 +72,17 @@ classdef Plotter
             xlabel('Time [s]');
             ylabel('Time [s]');
             set(gca,'YDir','normal')
-            title([videoName ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_' videoName ' _recurrence.pdf'];
+            title([StimuIntName ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
+            fName = [config.OutputDirectory '/' subjectName '_' StimuIntName ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
         %%Prints recurrence plots for EDA
         %  subjectName: Name of the Subject as String
         %  config: Config 
-        %  videoName: String
+        %  StimuIntName: String
         %  edaData: EDA values for Subject as double[] 
-        function plotEDARecurrence(self,subjectName,config,videoName,edaData)
+        function plotEDARecurrence(self,subjectName,config,StimuIntName,edaData)
             N = length(edaData);
             S = zeros(N, N);
             time = zeros(N,1);
@@ -108,7 +108,7 @@ classdef Plotter
             freez = cbfreeze(h);
             cblabel('Skin Conductance [µS]');
             set(freez, 'Position', [0.75 0.585 0.05 0.34]);
-            title(['Distance map of ' videoName ' phase space trajectory for subject' subjectName]);    
+            title(['Distance map of ' StimuIntName ' phase space trajectory for subject' subjectName]);    
             subplot(2,1,2);
             maxDiff = max(max(S) - min(S))*0.001;
             if (config.RecurrenceThreshold ~= 0)
@@ -120,18 +120,18 @@ classdef Plotter
             xlabel('Time [s]');
             ylabel('Time [s]');
             set(gca,'YDir','normal')
-            title([videoName ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_' videoName ' _recurrence.pdf'];
+            title([StimuIntName ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
+            fName = [config.OutputDirectory '/' subjectName '_' StimuIntName ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
         %% Plots behavioral characteristics
         %  subjectName: String 
-        %  videoNum: Number of the video
+        %  StimuIntNum: Number of the StimulusInterval
         %  outputDir: Path to output directory as String
         %  frequencies: eeg frequency data for subject as CellArray of double[] 
         %  intervals: intervals of interest as int[]
-        function plotBehavioralCharacteristics(self,subjectName,videoNum,outputDir,frequencies,intervals)
+        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,intervals)
             lengthInSeconds = length(frequencies{1,1})/512; 
             stepWith = 1;
             if lengthInSeconds > 30
@@ -175,7 +175,7 @@ classdef Plotter
             bar(valuesToPlot','stack');
             grid; 
             self.plotIntervals(intervals,[0, 100],stepWith,[],'r');
-            title(['Behavioral characteristics for subject' subjectName ' video ' num2str(videoNum)]);
+            title(['Behavioral characteristics for subject' subjectName ' StimulusInterval ' num2str(StimuIntNum)]);
             warning('off','MATLAB:legend:IgnoringExtraEntries'); 
             legend('Sleepiness','Thinking','Relaxation','Attention','Stress','TEI','Stimulus');
             warning('on','MATLAB:legend:IgnoringExtraEntries'); 
@@ -187,16 +187,16 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            fName = [outputDir '/' subjectName '_video' num2str(videoNum) '_characteristics.pdf'];
+            fName = [outputDir '/' subjectName '_StimulusInterval' num2str(StimuIntNum) '_characteristics.pdf'];
             print(fName,'-dpdf',fig);
             close(fig);
         end
         
 %         %% Plots momentary frequency
-%         function plotMomentaryFrequency(self,values,conf,subjectName,videoDef)
+%         function plotMomentaryFrequency(self,values,conf,subjectName,StimuIntDef)
 %             maxscale = max(values);
 %             minscale=min(values);
-%             [videoStartPoints,videoLabels,intervals,completeVidLength] = self.calculateVideoStartPointsAndIntervals(videoDef);
+%             [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
 %             xName = 0:10:completeVidLength;
 %             xTime = xName .* 5;
 %             fig = figure('Visible','off');
@@ -205,7 +205,7 @@ classdef Plotter
 %             axis([1 length(values) minscale maxscale]);
 %             set(gca,'XTick',xTime,'XTickLabel',xName);
 %             ylabel('momentary frequencie [µS]');
-%             self.plotVideoStartPoints(videoStartPoints,videoLabels,[minscale, maxscale],max(xTime)/max(xName));
+%             self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[minscale, maxscale],max(xTime)/max(xName));
 %             self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],'r');
 %             xlabel('time [s]');
 %             title(['Momentary frequency for subject' subjectName]);
@@ -223,8 +223,8 @@ classdef Plotter
         %  ecgValues: ecgValues for Subject as double[]
         %  outputDir: Path to output directory as String
         %  subjName: The name of the Subject
-        %  videoDef: VideoDefinition
-        function plotHRV(self,ecgValues,outputDir,subjName,videoDef)
+        %  StimuIntDef: StimulusInterval Definition
+        function plotHRV(self,ecgValues,outputDir,subjName,StimuIntDef)
             fig = figure('Visible','off');
             time = zeros(length(ecgValues),1);
             % Calculate time in seconds for x axis
@@ -236,8 +236,8 @@ classdef Plotter
             xTime = time(1:20:end);
             yMin = min(ecgValues);
             yMax = max(ecgValues);
-            [videoStartPoints,videoLabels,intervals,~] = self.calculateVideoStartPointsAndIntervals(videoDef);
-            self.plotVideoStartPoints(videoStartPoints,videoLabels,[yMin, yMax],1);
+            [StimuIntStartPoints,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
+            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[yMin, yMax],1);
             self.plotIntervals(intervals,[yMin, yMax],1,[],'r');
             axis([1 max(xTime) yMin yMax]);
             set(gca,'XTick',xTime,'XTickLabel',xTime);
@@ -262,7 +262,7 @@ classdef Plotter
         %   rawValues. Second is percent outside for filtered values
         %   subjectName: The name of the subject as String
         %   config: Config  
-        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subjectName,electrode,config)
+        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subjectName,electrode,config,data)
             numRawValues = length(rawValues);
             numFilteredValues = length(filteredValues);
             fig = figure('visible', 'off');
@@ -299,23 +299,23 @@ classdef Plotter
             close(fig);
         end
         
-        %% Plots quality index figures for subjects and videos
+        %% Plots quality index figures for subjects and StimulusIntervals
         %   unfilteredQuality: Percentage of unfiltered eeg values outside interval for each subject
-        %   and video as double[][]
+        %   and StimuInt as double[][]
         %   filteredQuality: Percentage of filtered eeg values outside interval for each subject
-        %   and video as double[][]
-        %   validVideosPerSubject: Number of valid baseline eeg, tv
-        %   programm and tv commercial videos per subject as double[][]
+        %   and StimuInt as double[][]
+        %   validStimuIntsPerSubject: Number of valid baseline eeg, tv
+        %   programm and tv commercial StimulusIntervals per subject as double[][]
         %   validSubjects: Total number of valid subjects as double
-        %   videoDefs: Video definitions as Cell<VideoDef>
+        %   StimuIntDefs: StimulusInterval definitions as Cell<StimuIntDef>
         %   config: Config
         %   numSubjects: total number of subjects as double
-        function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validVideosPerSubject,validSubjects,videoDefs,config,numSubjects)
-            videos = length(videoDefs);
+        function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects)
+            StimuIntIndex = length(StimuIntDefs);
             outputFolder= config.OutputDirectory;
-            h = waitbar(0,['Writing EEG quality figures for ' num2str(videos) ' video(s)']);
+            h = waitbar(0,['Writing EEG quality figures for ' num2str(StimuIntIndex) ' StimulusInterval(s)']);
             xtick = 0:numSubjects;
-            for i = 1:videos
+            for i = 1:StimuIntIndex
                 fig = figure('Visible','off');
                 numberExcluded = length(find(filteredQuality(:,i) >= config.QualityIndex));
                 plot(unfilteredQuality(:,i),'b');
@@ -327,7 +327,9 @@ classdef Plotter
                 hold off;
                 legend('Unfiltered EEG Data','Filtered EEG Data',[num2str(config.QualityIndex) '% cutoff for filtered EEG data']);
                 thresholdString = ['[' num2str(config.LowerThreshold) ',' num2str(config.UpperThreshold) ']'];
-                title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for video',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);
+                StimuIntClass = StimuIntDefs{1,i}(1);    %Call of class in each aray 1-6
+                StimuIntType = StimuIntClass.videoType;  %Get value of videotype in class
+                title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for ',int2str(StimuIntType),' ',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);
                 ylabel('Quality index [%]');
                 xlabel('subject [#]');
                 axis([1 numSubjects 0 100]);
@@ -337,23 +339,23 @@ classdef Plotter
                 set(fig, 'PaperUnits', 'centimeters');
                 set(fig, 'PaperPositionMode', 'auto');
                 set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
-                print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality Index_video',int2str(i),'.pdf']);
+                print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality StimulusInterval',int2str(i),'.pdf']);
                 close(fig);
-                waitbar(i/videos);
+                waitbar(i/StimuIntIndex);
             end
             fig = figure('Visible','off');
-            ytick = 0:videos;
+            ytick = 0:StimuIntIndex;
             xtick = 0:numSubjects;
-            bar(validVideosPerSubject,'stack');
+            bar(validStimuIntsPerSubject,'stack');
             grid on;
             legend('Baseline','TV commercial','TV program');
-            [~,y] = size(validVideosPerSubject);
+            [~,y] = size(validStimuIntsPerSubject);
             axis([0 numSubjects+1 0 y+1]);
             set(gca,'YTick',ytick,'yTickLabel',ytick);
             set(gca,'XTick',xtick,'xTickLabel',xtick);
             tMessage = ['Number of subjects reaching EEG quality criteria: ',int2str(validSubjects)];
             title(tMessage);
-            ylabel('Number of videos [#]');
+            ylabel('Number of StimulusInterval [#]');
             xlabel('subject [#]');
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'landscape');
@@ -364,42 +366,42 @@ classdef Plotter
             close(h);
         end
         
-        %% Plots EDA figures for given videos to given file name
-        %   videos: video indicies of videos to plot as doubel[]
+        %% Plots EDA figures for given StimulusIntervals to given file name
+        %   StimuIntIndex: StimulusInterval indicies of StimulusIntervals to plot as doubel[]
         %   edaValues: eda values of subject as Cell of double[]
-        %   videoDefs: Cell<VideoDefinition>
+        %   StimuIntDefs: Cell<StimuIntDefinition>
         %   subjectName: the name of the subject as String
         %   fPath: file path as String 
         %   stats: eda statistics for subject as String 
-        function plotSubVideoEDA(self,videos,edaValues,videoDefs,subjectName,fPath,stats)
+        function plotSubStimuIntEDA(self,StimuIntIndex,edaValues,StimuIntDefs,subjectName,fPath,stats)
             fig = figure('Visible','off');
-            allValues=  edaValues(videos);
+            allValues=  edaValues(StimuIntIndex);
             allValues = vertcat(allValues{:});
             yMin = min(allValues);
             yMax = max(allValues);
             yL = [yMin yMax];
-            % choose x axis interval on base of video length
-            for i=1:length(videos);
-                videoNum = videos(i);
-                videoLength = videoDefs{videoNum}.length;
+            % choose x axis interval on base of StimulusInterval length
+            for i=1:length(StimuIntIndex);
+                StimuIntNum = StimuIntIndex(i);
+                StimuIntLength = StimuIntDefs{StimuIntNum}.length;
                 labels = [];
-                if videoLength > 30
-                    xName = 0:5:videoLength;
-                    labels = videoDefs{videoNum}.intervals;
+                if StimuIntLength > 30
+                    xName = 0:5:StimuIntLength;
+                    labels = StimuIntDefs{StimuIntNum}.intervals;
                 else
-                    xName = 0:videoLength;
+                    xName = 0:StimuIntLength;
                 end
                 xTime = xName .* 5;
                 subplot(6,1,i);
-                plot(edaValues{videoNum},'k');
-                self.plotIntervals(videoDefs{videoNum}.intervals,yL,max(xTime)/max(xName),labels,'r');
+                plot(edaValues{StimuIntNum},'k');
+                self.plotIntervals(StimuIntDefs{StimuIntNum}.intervals,yL,max(xTime)/max(xName),labels,'r');
                 grid;
-                ylabel(['Video ' num2str(videoNum) ' [µS]']);
-                l = length(edaValues{videoNum});
+                ylabel(['StimulusInterval ' num2str(StimuIntNum) ' [µS]']);
+                l = length(edaValues{StimuIntNum});
                 axis([1,l, yL]);
                 set(gca,'XTick',xTime,'XTickLabel',xName);
                 if (i==1)
-                    title(['EDA values for the videos ' mat2str(videos) ' of subject ' subjectName]);
+                    title(['EDA values for the StimulusInterval ' mat2str(StimuIntIndex) ' of subject ' subjectName]);
                 end
             end
             xlabel('Time [s]');
@@ -415,14 +417,14 @@ classdef Plotter
         end
         
         %% Plots complete EDA figure to given file name
-        %   videoDef: Cell<VideoDefinition>
+        %   StimuIntDef: Cell<StimuIntDefinition>
         %   fPath: Output file path
         %   edaValues: EDA values as double[]
         %   detrended: boolean 
-        function plotEDA(self,videoDef,fPath,edaValues,detrended)
+        function plotEDA(self,StimuIntDef,fPath,edaValues,detrended)
             maxscale = max(edaValues);
             minscale=min(edaValues);
-            [videoStartPoints,videoLabels,intervals,completeVidLength] = self.calculateVideoStartPointsAndIntervals(videoDef);
+            [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
             xName = 0:10:completeVidLength;
             xTime = xName .* 5;
             fig = figure('Visible','off');
@@ -431,7 +433,7 @@ classdef Plotter
             axis([1 length(edaValues) minscale maxscale]);
             set(gca,'XTick',xTime,'XTickLabel',xName);
             xlabel('Time [s]');
-            self.plotVideoStartPoints(videoStartPoints,videoLabels,[minscale, maxscale],max(xTime)/max(xName));
+            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[minscale, maxscale],max(xTime)/max(xName));
             self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],'r');
             ylabel('Skin Conductance [µS]');
             if (detrended)
@@ -449,8 +451,8 @@ classdef Plotter
             close(fig);
         end
         
-        %% Plots eeg frequency bands for video
-        %   videoLength: Length of the video in seconds as double
+        %% Plots eeg frequency bands for StimulusInterval
+        %   StimuIntLength: Length of the StimulusInterval in seconds as double
         %   fPath: Output file path as String
         %   theta_s: Theta values as double[]
         %   alpha_s: Alpha values as double[]
@@ -459,16 +461,16 @@ classdef Plotter
         %   task_s: TEI values as double[]
         %   resolution: values per second as double 
         %   intervals: intervals of interest as int[]
-        %   edaSubVideoList: EDA values of video as double[]
-        function plotFrequencys(self,videoLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,intervals,edaSubVideoList)
+        %   edaSubStimuIntList: EDA values of StimulusInterval as double[]
+        function plotFrequencys(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,intervals,edaSubStimuIntList)
             fig = figure('Visible','off');
             maxscale = max([max(theta_s) max(alpha_s) max(beta1_s) max(beta2_s) ]);
             labels = [];
-            if videoLength > 30
-                xname = 0:5:videoLength;
+            if StimuIntLength > 30
+                xname = 0:5:StimuIntLength;
                 labels = intervals;
             else
-                xname = 0:videoLength;
+                xname = 0:StimuIntLength;
             end
             xtime = xname .* resolution;
             edaXTime = xname .* 5;
@@ -488,7 +490,7 @@ classdef Plotter
             axis([1 length(theta_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xname);
             [~,subjName,~] = fileparts(fPath);
-            t = title(['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_video',' video')]);
+            t = title(['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_StimulusInterval',' StimulusInterval')]);
             tP = get(t,'Position');
             set(t,'Position',[tP(1) tP(2)+0.3 tP(3)]);
             set(t,'FontSize',12);
@@ -527,18 +529,18 @@ classdef Plotter
             set(gca,'XTick',xtime,'XTickLabel',xname);
             
             subplot(6,1,6);
-            plot(edaSubVideoList,'k');
-            yL = [min(edaSubVideoList) max(edaSubVideoList)];
+            plot(edaSubStimuIntList,'k');
+            yL = [min(edaSubStimuIntList) max(edaSubStimuIntList)];
             self.plotIntervals(intervals,yL,max(edaXTime)/max(xname),labels,'r');
             grid;
             ylabel('EDA [µS]');
-            l = length(edaSubVideoList);
+            l = length(edaSubStimuIntList);
             axis([1,l, yL]);
             set(gca,'XTick',edaXTime,'XTickLabel',xname);
             %             subplot(7,1,7);
-            %             t=0:1/5:videoLength;
+            %             t=0:1/5:StimuIntLength;
             %             t = t(1:end-1);
-            %             dydt = diff(edaSubVideoList)./diff(t);
+            %             dydt = diff(edaSubStimuIntList)./diff(t);
             %             dydt(end+1) = dydt(end);
             %             plot(dydt,'k');
             %             yL = [min(dydt) max(dydt)];
@@ -561,8 +563,8 @@ classdef Plotter
             close(fig);
         end
                
-        %% Plots eeg frequency bands for video
-        %   videoLength: Length in seconds as double
+        %% Plots eeg frequency bands for StimulusInterval
+        %   StimuIntLength: Length in seconds as double
         %   fPath: Path to output file as String 
         %   theta_s: Theta values as double[]
         %   alpha_s: Alpha values as double[]
@@ -577,16 +579,16 @@ classdef Plotter
         %   resolution: values per second as double 
         %   intervals: intervals of interest as int[]
         %   t_title: Diagramm title as String 
-        function plotFrequencysWithBaselineMagnitude(self,videoLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)
+        function plotFrequencysWithBaselineMagnitude(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)
             fig = figure('Visible','off');
 			maxscale = 1.2*(max([max(alpha_s) max(beta1_s) max(beta2_s) max(theta_s)])); %Add 20% to the maxscale for providing more space for the legend
-            numDataPoints = videoLength*resolution;
+            numDataPoints = StimuIntLength*resolution;
             labels = [];
-            if videoLength > 30
-                xname = 0:5:videoLength;
+            if StimuIntLength > 30
+                xname = 0:5:StimuIntLength;
                 labels = intervals;
             else
-                xname = 0:videoLength;
+                xname = 0:StimuIntLength;
             end
             xtime = xname .* resolution;
             
@@ -706,22 +708,22 @@ classdef Plotter
             massAndTime = [num2str(time) '% time | ' num2str(mass) '% weighted mass is over baseline'];
         end
         
-        %% Helper method to calculate intervals and video start points
-        function [videoStartPoints,videoLabels,intervals,completeVidLength] = calculateVideoStartPointsAndIntervals(self,videoDef)
-            videoStartPoints = [];
-            videoLabels={};
+        %% Helper method to calculate intervals and StimulusInterval start points
+        function [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = calculateStimuIntStartPointsAndIntervals(self,StimuIntDef)
+            StimuIntStartPoints = [];
+            StimuIntLabels={};
             intervals = [];
             completeVidLength =0;
-            for i=1:length(videoDef)
-                completeVidLength = completeVidLength + videoDef{i}.length;
-                videoLabels{i} = ['Video' num2str(i)];
+            for i=1:length(StimuIntDef)
+                completeVidLength = completeVidLength + StimuIntDef{i}.length;
+                StimuIntLabels{i} = ['StimulusInterval' num2str(i)];
                 if i==1
-                    videoStartPoints(i) = 0;
+                    StimuIntStartPoints(i) = 0;
                 else
-                    videoStartPoints(i) = videoDef{i-1}.length + videoStartPoints(i-1);
+                    StimuIntStartPoints(i) = StimuIntDef{i-1}.length + StimuIntStartPoints(i-1);
                 end
-                curIntervals = videoDef{i}.intervals;
-                curIntervals= curIntervals +videoStartPoints(i);
+                curIntervals = StimuIntDef{i}.intervals;
+                curIntervals= curIntervals +StimuIntStartPoints(i);
                 intervals = horzcat(intervals,curIntervals');
             end
         end
@@ -739,8 +741,8 @@ classdef Plotter
             end
         end
         
-        %% Helper method to plot the video start points
-        function plotVideoStartPoints(self,startPoints,labels,yPos,scaleFac)
+        %% Helper method to plot the StimulusInterval start points
+        function plotStimuIntStartPoints(self,startPoints,labels,yPos,scaleFac)
             for i=1:length(startPoints)
                 xPosition = startPoints(i);
                 xPosition = double(xPosition*scaleFac);

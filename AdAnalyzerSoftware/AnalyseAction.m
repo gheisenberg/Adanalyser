@@ -103,7 +103,7 @@ classdef AnalyseAction < handle
             end
             % Plot subvideo eda
             if (config.SubVideoEDAFig)
-                self.plotter.plotSubVideoEDA(edaVideos,edaPerVid,videoDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for videos ' mat2str(edaVideos)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
+                self.plotter.plotSubStimuIntEDA(edaVideos,edaPerVid,videoDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for videos ' mat2str(edaVideos)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
             end
             % Plot HRV figure
             if (config.HRVFig)
@@ -214,11 +214,11 @@ classdef AnalyseAction < handle
             % Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL
             if (config.RecurrenceFig)
                 if (videoDef.videoType==VideoType.TVCommercial)
-                    self.plotter.plotEDARecurrence(subject.name,config,'EDA TV Spot',edaPerVid{videoNumber});
+                    self.plotter.plotEDARecurrence(subject.name,config,'EDA TV Spot',edaPerVid{videoNumber}); %Tim
                 end
                 if (videoDef.videoType==VideoType.TVProgramm)
-                    self.plotter.plotEDARecurrence(subject.name,config,'EDA Commercial',edaPerVid{videoNumber});
-                end
+                    self.plotter.plotEDARecurrence(subject.name,config,'EDA Commercial',edaPerVid{videoNumber}); %Tim
+                end 
             end
         end
         
@@ -263,7 +263,7 @@ classdef AnalyseAction < handle
             statsMat(2,1:5) = {'EDA complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             for i=1:numEdaVideos
                 [m,sd,devP,devM] = self.calculateStatistics(edaValuesForVideos{i});
-                statsMat(i+2,1:5) = {['EDA Video ' num2str(videos(i))],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+                statsMat(i+2,1:5) = {['StimulusInterval ' num2str(videos(i))],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             end
             delaysNotNull = delays(delays~=0);
             amplitudesNotNull = amplitudes(amplitudes~=0);
