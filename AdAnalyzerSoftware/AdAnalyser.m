@@ -126,7 +126,7 @@ set(handles.ecgFiles,'String',conf.ECGFiles);
 %% Brings up choose file dialog and saves choosen EDA files in _Config_
 function browseEDA_Callback(hObject, eventdata, handles)
 global conf;
-[filenames, pathname] = uigetfile('*.txt;*.csv', 'Select EDA files','MultiSelect', 'on');
+[filenames, pathname] = uigetfile('.\data\*.txt;*.csv', 'Select EDA files','MultiSelect', 'on');
 empty = isempty(pathname) || pathname(1:1)==0;
 if empty==0
     if ~iscell(filenames) && ischar(filenames)
@@ -146,7 +146,7 @@ end
 %% Brings up choose file dialog and saves choosen EEG files in _Config_
 function browseEEG_Callback(hObject, eventdata, handles)
 global conf;
-[filenames, pathname] = uigetfile('*.txt;*.csv', 'Select EEG files','MultiSelect', 'on');
+[filenames, pathname] = uigetfile('.\data\*.txt;*.csv', 'Select EEG files','MultiSelect', 'on');
 empty = isempty(pathname) || pathname(1:1)==0;
 if empty==0
     if ~iscell(filenames) && ischar(filenames)
@@ -166,7 +166,7 @@ end
 % --- Executes on button press in browseECG.
 function browseECG_Callback(hObject, eventdata, handles)
 global conf;
-[filenames, pathname] = uigetfile('*.txt;*.csv', 'Select ECG files','MultiSelect', 'on');
+[filenames, pathname] = uigetfile('.\data\*.txt;*.csv', 'Select ECG files','MultiSelect', 'on');
 empty = isempty(pathname) || pathname(1:1)==0;
 if empty==0
     if ~iscell(filenames) && ischar(filenames)
@@ -186,7 +186,7 @@ end
 %% Brings up choose file dialog and saves choosen video definition file in _Config_
 function browseVideoDefinitions_Callback(hObject, eventdata, handles)
 global conf;
-[filename, pathname]=uigetfile('*.txt;*.csv','Select a File with Video Definitions');
+[filename, pathname]=uigetfile('.\config\AdIndex\*.txt;*.csv','Select a File with Video Definitions');
 if filename~=0
     conf.VideoDef = fullfile(pathname, filename);
     set(handles.videoDef,'String',conf.VideoDef);
@@ -195,7 +195,10 @@ end
 %% Brings up choose directory dialog and saves value in _Config_
 function browseOutput_Callback(hObject, eventdata, handles)
 global conf;
-outputDirectory=uigetdir(ctfroot,'Choose an Output Directory');
+% this results in 'C:\Program Files\MATLAB\R2019b'
+%outputDirectory=uigetdir(ctfroot,'Choose an Output Directory');
+% so it is better to set it to ".\"
+outputDirectory=uigetdir(".\",'Choose an Output Directory');
 if outputDirectory~=0
     conf.OutputDirectory=outputDirectory;
     set(handles.outputDirectory,'String',conf.OutputDirectory);
