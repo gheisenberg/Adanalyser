@@ -55,7 +55,12 @@ global conf
 global configManager
 conf = Config;
 configManager = ConfigManager; 
-%global eegDevice edaDevice hrvDevice
+
+%global edadevice
+%global DeviceFactory
+%edaDevice = Device;
+%global edaDevice; 
+%global hrvDevice;
 
 % --- Outputs from this function are returned to the command line.
 function varargout = AdAnalyser_OutputFcn(hObject, eventdata, handles)
@@ -196,20 +201,13 @@ if outputDirectory~=0
     set(handles.outputDirectory,'String',conf.OutputDirectory);
 end
 
-%% Starts _AnalyseAction_ when analyse button was pressed
-function analyse_Callback(hObject, eventdata, handles)
-global conf;
-global data;
-a = AnalyseAction();
-a.analyse(data,conf);
-disp('Done');
-
 %% Reads data from files using _DataFactory_ when prepare button was pressed
 function prepare_Callback(hObject, eventdata, handles)
 global conf; 
-global data; 
+global data;
+global eegdevice edadevice hrvdevice;
 action = PrepareAction(); 
-data = action.prepare(conf); 
+[data,eegdevice,edadevice,hrvdevice] = action.prepare(conf); 
 if (data.isValid)
     disp('Done');
     set(handles.filter,'enable','on');
@@ -219,9 +217,20 @@ end
 function filter_Callback(hObject, eventdata, handles)
 global conf
 global data
+global eegdevice edadevice hrvdevice;
 filter = FilterAction();
-data = filter.filter(data,conf);
+data = filter.filter(data,conf,eegdevice,edadevice,hrvdevice);
 set(handles.analyse,'enable','on');
+disp('Done');
+
+
+%% Starts _AnalyseAction_ when analyse button was pressed
+function analyse_Callback(hObject, eventdata, handles)
+global conf;
+global data;
+global eegdevice edadevice hrvdevice;
+a = AnalyseAction();
+a.analyse(data,conf,eegdevice,edadevice,hrvdevice);
 disp('Done');
 
 %% Output directory textfield
