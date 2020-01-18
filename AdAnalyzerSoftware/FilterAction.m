@@ -12,17 +12,17 @@ classdef FilterAction < handle
         %% Main function of this class
         %   1. substracts mean for each column from eegMatrix column values
         %   2. calculates values outside allowed interval for filtered and unfiltered eeg values
-        %   3. calculates eeg and eda values per video
+        %   3. calculates eeg and eda values per StimulusInterval
         %   4. rates qualiyt
         %   5. plots eeg quality figures using _Plotter_
         function data = filter(self,data,config,eegDevice,edaDevice,hrvDevice)
             message = ['Filtering data for ', num2str(length(data.subjects)), ' subject(s)'];
             h = waitbar(0,message);
-            numVideos = length(data.videoDefs);
+            numStimuInt = length(data.stimuIntDefs);
             numSubjects = length(data.subjects);
             edaValsPerSec = edaDevice.samplingRate;
-            unfilteredQuality = zeros(numSubjects,numVideos);
-            filteredQuality = zeros(numSubjects,numVideos);
+            unfilteredQuality = zeros(numSubjects,numStimuInt);
+            filteredQuality = zeros(numSubjects,numStimuInt);
             for i=1:numSubjects
                 subject = data.subjects{i};
                 numElectrodes = length(subject.eegValuesForElectrodes);
@@ -37,16 +37,16 @@ classdef FilterAction < handle
                     if (config.EEG_DEVICE_USED)
                         self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject.name,eegValues.electrode,config);
                     end
-                    %calculate eeg and eda values per video
-                    edaValuesPerVid = self.getValuesPerVideo(1,edaValsPerSec,data.videoDefs,subject.edaValues);
-                    eegValuesPerVid = self.getValuesPerVideo(1,eegValsPerSec,data.videoDefs,rawList);
-                    filteredEEGValuesPerVid = self.getValuesPerVideo(1,512,data.videoDefs,filteredList);
-                    subject.edaPerVid = edaValuesPerVid;
+                    %calculate eeg and eda values per StimulusInterval
+                    edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
+                    eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
+                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,512,data.stimuIntDefs,filteredList);
+                    subject.edaPerVid = edaValuesPerStim;
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
                     subject.eegValuesForElectrodes{j} = eegValues;
                     if (eegValues.electrode == Electrodes.FZ)
-                        for v=1:numVideos
-                            unfilteredEEGVid = eegValuesPerVid{v};
+                        for v=1:numStimuInt
+                            unfilteredEEGVid = eegValuesPerStim{v};
                             filteredEEGVid = filteredEEGValuesPerVid{v};
                             unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
                             filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
@@ -58,10 +58,10 @@ classdef FilterAction < handle
             end
             close(h);
             % rate quality
-            [data.subjects,validVideosPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.videoDefs,config.QualityIndex);
+            [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
             % plot quality figures
             if (config.QualityFig)
-                self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validVideosPerSubject,validSubjects,data.videoDefs,config,numSubjects);
+                self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
             end
         end
     end
@@ -87,27 +87,27 @@ classdef FilterAction < handle
             percentOutside = (outside/numValues)*100;
         end
         
-        %% Splits given values per video using given videoDefs and video start point
-        function splittedValues = getValuesPerVideo(self,videoStart,valuesPerSec,videoDefs,values)
-            numVideos = length(videoDefs);
-            splittedValues = cell(1,numVideos);
-            for v=1:numVideos
-                curVid = videoDefs{v};
-                eegVideoLength = double(curVid.length*valuesPerSec);
-                eegVideoEnd = videoStart+eegVideoLength-1;
-                splittedValues{v} = values(videoStart:eegVideoEnd);
-                videoStart = videoStart+eegVideoLength;
+        %% Splits given values per StimulusInterval using given StimuIntDefs and StimulusInterval start point
+        function splittedValues = getValuesPerStimuInt(self,StimuIntStart,valuesPerSec,stimuIntDefs,values)
+            numStimuInt = length(stimuIntDefs);
+            splittedValues = cell(1,numStimuInt);
+            for v=1:numStimuInt
+                curVid = stimuIntDefs{v};
+                eegStimuIntLength = double(curVid.length*valuesPerSec);
+                eegStimuIntEnd = StimuIntStart+eegStimuIntLength-1;
+                splittedValues{v} = values(StimuIntStart:eegStimuIntEnd);
+                StimuIntStart = StimuIntStart+eegStimuIntLength;
             end
         end
         
-        %% Calculates valid videos per subject regarding the relevant video types
-        %   Stores number of valid videos for each subject and video type in _qualityIndex_
-        %   Calculates total number of valid video See: _totalValidVideo_
+        %% Calculates valid StimulusInterval per subject regarding the relevant StimulusInterval types
+        %   Stores number of valid StimulusInterval for each subject and StimulusInterval type in _qualityIndex_
+        %   Calculates total number of valid StimulusInterval See: _totalValidStimuInt_
         %   Sets isValid flag for each Subject
-        function [subjects,qualityIndex,totalValidVideo] = rateQuality(self,subjects,quality,videoDefs,qualityThreshold)
-            videos = length(videoDefs);
+        function [subjects,qualityIndex,totalValidStimuInt] = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold)
+            StimuInt = length(stimuIntDefs);
             numSubjects = length(subjects);
-            [baselines,ads,other,clips] = self.getVideoIndiciesByType(videoDefs);
+            [baselines,ads,other,clips] = self.getStimuIntIndiciesByType(stimuIntDefs);
             qualityIndex = zeros(numSubjects,3);
             for i = 1:numSubjects
                 for j = 1:length(clips)
@@ -126,32 +126,32 @@ classdef FilterAction < handle
                     end
                 end
             end
-            validVideosPerSubject = sum(qualityIndex,2);
-            numRelevantVideos = videos - length(other);
-            totalValidVideo = length(find(validVideosPerSubject >= numRelevantVideos));
+            validStimuIntPerSubject = sum(qualityIndex,2);
+            numRelevantStimuInts = StimuInt - length(other);
+            totalValidStimuInt = length(find(validStimuIntPerSubject >= numRelevantStimuInts));
             for i=1:numSubjects
-                numValidVideosForSubject = validVideosPerSubject(i);
-                if (numValidVideosForSubject >= numRelevantVideos)
+                numValidStimuIntsForSubject = validStimuIntPerSubject(i);
+                if (numValidStimuIntsForSubject >= numRelevantStimuInts)
                     subjects{i}.isValid = 1;
                 end
             end
         end
         
-        %% Splits given videoDefs based on there _VideoType_
-        %   Returns videos by _VideoType_
-        function [baselines,ads,other,clips]= getVideoIndiciesByType(self,videoDefs)
-            numVideoDefs = length(videoDefs);
-            baselines = zeros(1,numVideoDefs);
-            ads = zeros(1,numVideoDefs);
-            other = zeros(1,numVideoDefs);
-            clips = zeros(1,numVideoDefs);
-            for i=1:numVideoDefs
-                vid = videoDefs{i};
-                if (vid.videoType==VideoType.EEGBaseline)
+        %% Splits given StimuIntDef based on there SimulationsInterval
+        %   Returns StimulusIntervals by their SimulationsInterval
+        function [baselines,ads,other,clips]= getStimuIntIndiciesByType(self,stimuIntDefs)
+            numStimuIntDefs = length(stimuIntDefs);
+            baselines = zeros(1,numStimuIntDefs);
+            ads = zeros(1,numStimuIntDefs);
+            other = zeros(1,numStimuIntDefs);
+            clips = zeros(1,numStimuIntDefs);
+            for i=1:numStimuIntDefs
+                vid = stimuIntDefs{i};
+                if (vid.StimuIntType==StimuIntType.EEGBaseline)
                     baselines(i) = i;
-                elseif (vid.videoType==VideoType.TVCommercial)
+                elseif (vid.StimuIntType==StimuIntType.TVCommercial)
                     ads(i) = i;
-                elseif (vid.videoType==VideoType.TVProgramm)
+                elseif (vid.StimuIntType==StimuIntType.TVProgramm)
                     clips(i) = i;
                 else
                     other(i) = i;

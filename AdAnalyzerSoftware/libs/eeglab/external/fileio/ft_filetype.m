@@ -549,7 +549,7 @@ elseif filetype_check_extension(filename, '.nts')  && filetype_check_header(file
 elseif filetype_check_extension(filename, '.nvt')
   type = 'neuralynx_nvt';
   manufacturer = 'Neuralynx';
-  content = 'video tracker';
+  content = 'StimuInt tracker';
 elseif filetype_check_extension(filename, '.nst')
   type = 'neuralynx_nst';
   manufacturer = 'Neuralynx';

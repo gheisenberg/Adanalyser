@@ -22,7 +22,7 @@ function varargout = ConfigDialog(varargin)
 
 % Edit the above text to modify the response to help ConfigDialog
 
-% Last Modified by GUIDE v2.5 05-Jul-2015 23:26:03
+% Last Modified by GUIDE v2.5 18-Jan-2020 15:18:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,7 +74,7 @@ conf.EDA_DEVICE_USED = get(handles.rawEDA,'Value');
 conf.DetrendedEDAFig = get(handles.detrendedEDA,'Value');
 conf.RecurrenceFig = get(handles.recurrenceFig,'Value');
 conf.HRV_DEVICE_USED = get(handles.rawHRV,'Value');
-conf.SubVideoEDAFig = get(handles.subvideoEDA,'Value');
+conf.SubStimuIntEDAFig = get(handles.subStimuIntEDA,'Value');
 conf.QualityFig = get(handles.qualityFigures,'Value');
 conf.BehaveFig = get(handles.behavioralCharacteristics,'Value');
 conf.Statistics = get(handles.statistics,'Value');
@@ -161,7 +161,7 @@ set(handles.statistics,'Value',1);
 set(handles.recurrenceFig,'Value',1);
 set(handles.behavioralCharacteristics,'Value',1);
 set(handles.rawHRV,'Value',1);
-set(handles.subvideoEDA,'Value',1);
+set(handles.subStimuIntEDA,'Value',1);
 
 % --- Executes on button press in noOutputs.
 function noOutputs_Callback(hObject, eventdata, handles)
@@ -174,7 +174,7 @@ set(handles.statistics,'Value',0);
 set(handles.recurrenceFig,'Value',0);
 set(handles.behavioralCharacteristics,'Value',0);
 set(handles.rawHRV,'Value',0);
-set(handles.subvideoEDA,'Value',0);
+set(handles.subStimuIntEDA,'Value',0);
 
 %% Helper method to update ui on base of _Config_ values
 function updateUI(handles)
@@ -188,7 +188,7 @@ set(handles.statistics,'Value',conf.Statistics);
 set(handles.recurrenceFig,'Value',conf.RecurrenceFig);
 set(handles.behavioralCharacteristics,'Value',conf.BehaveFig);
 set(handles.rawHRV,'Value',conf.HRV_DEVICE_USED);
-set(handles.subvideoEDA,'Value',conf.SubVideoEDAFig);
+set(handles.subStimuIntEDA,'Value',conf.SubStimuIntEDAFig);
 set(handles.upperEEGThreshold,'String',conf.UpperThreshold);
 set(handles.lowerEEGThreshold,'String',conf.LowerThreshold);
 set(handles.qualityIndex,'String',conf.QualityIndex);
@@ -266,13 +266,13 @@ function frequency_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of frequency
 
 
-% --- Executes on button press in subvideoEDA.
-function subvideoEDA_Callback(hObject, eventdata, handles)
-% hObject    handle to subvideoEDA (see GCBO)
+% --- Executes on button press in subStimuIntEDA.
+function subStimuIntEDA_Callback(hObject, eventdata, handles)
+% hObject    handle to subStimuIntEDA (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of subvideoEDA
+% Hint: get(hObject,'Value') returns toggle state of subStimuIntEDA
 
 
 % --- Executes on button press in qualityFigures.
@@ -332,3 +332,10 @@ function recurrenceTreshold_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes during object creation, after setting all properties.
+function figure1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called

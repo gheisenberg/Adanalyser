@@ -131,7 +131,9 @@ classdef Plotter
         %  outputDir: Path to output directory as String
         %  frequencies: eeg frequency data for subject as CellArray of double[] 
         %  intervals: intervals of interest as int[]
-        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,intervals)
+        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef)
+            intervals = StimuIntDef.intervals;
+            stimuIntDescrp = StimuIntDef.stimuIntDescrp;
             lengthInSeconds = length(frequencies{1,1})/512; 
             stepWith = 1;
             if lengthInSeconds > 30
@@ -175,7 +177,7 @@ classdef Plotter
             bar(valuesToPlot','stack');
             grid; 
             self.plotIntervals(intervals,[0, 100],stepWith,[],'r');
-            title(['Behavioral characteristics for subject' subjectName ' StimulusInterval ' num2str(StimuIntNum)]);
+            title(['Behavioral characteristics for subject' subjectName ' ' stimuIntDescrp ' ' num2str(StimuIntNum)]);
             warning('off','MATLAB:legend:IgnoringExtraEntries'); 
             legend('Sleepiness','Thinking','Relaxation','Attention','Stress','TEI','Stimulus');
             warning('on','MATLAB:legend:IgnoringExtraEntries'); 
@@ -187,7 +189,7 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            fName = [outputDir '/' subjectName '_StimulusInterval' num2str(StimuIntNum) '_characteristics.pdf'];
+            fName = [outputDir '/' subjectName '_' stimuIntDescrp num2str(StimuIntNum) '_characteristics.pdf'];
             print(fName,'-dpdf',fig);
             close(fig);
         end
@@ -327,9 +329,8 @@ classdef Plotter
                 hold off;
                 legend('Unfiltered EEG Data','Filtered EEG Data',[num2str(config.QualityIndex) '% cutoff for filtered EEG data']);
                 thresholdString = ['[' num2str(config.LowerThreshold) ',' num2str(config.UpperThreshold) ']'];
-                StimuIntClass = StimuIntDefs{1,i}(1);    %Call of class in each aray 1-6
-                StimuIntType = StimuIntClass.videoType;  %Get value of videotype in class
-                title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for ',int2str(StimuIntType),' ',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);
+                StimuIntClass = StimuIntDefs{1,i}(1);
+                title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for ',StimuIntClass.stimuIntDescrp,' ',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);
                 ylabel('Quality index [%]');
                 xlabel('subject [#]');
                 axis([1 numSubjects 0 100]);
@@ -339,7 +340,7 @@ classdef Plotter
                 set(fig, 'PaperUnits', 'centimeters');
                 set(fig, 'PaperPositionMode', 'auto');
                 set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
-                print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality StimulusInterval',int2str(i),'.pdf']);
+                print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality ',StimuIntClass.stimuIntDescrp,'.pdf']);
                 close(fig);
                 waitbar(i/StimuIntIndex);
             end
@@ -381,7 +382,8 @@ classdef Plotter
             yMax = max(allValues);
             yL = [yMin yMax];
             % choose x axis interval on base of StimulusInterval length
-            for i=1:length(StimuIntIndex);
+            for i=1:length(StimuIntIndex)
+                StimuIntClass = StimuIntDefs{1,i}(1);
                 StimuIntNum = StimuIntIndex(i);
                 StimuIntLength = StimuIntDefs{StimuIntNum}.length;
                 labels = [];
@@ -401,7 +403,7 @@ classdef Plotter
                 axis([1,l, yL]);
                 set(gca,'XTick',xTime,'XTickLabel',xName);
                 if (i==1)
-                    title(['EDA values for the StimulusInterval ' mat2str(StimuIntIndex) ' of subject ' subjectName]);
+                    title(['EDA values for the ' StimuIntClass.stimuIntDescrp ' ' mat2str(StimuIntIndex) ' of subject ' subjectName]);
                 end
             end
             xlabel('Time [s]');

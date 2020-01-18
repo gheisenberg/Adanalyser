@@ -8,7 +8,7 @@ classdef SubjectFactory
     methods
         %% Creates new Subjects on base of the file paths stored in Config Object.
         %   See: Config.m
-        function subjects=createSubjects(self,config,videoLength)
+        function subjects=createSubjects(self,config,StimuIntLength)
             eegFilePaths = config.EEGFiles;
             edaFilePaths = config.EDAFiles;
             ecgFilePaths = config.ECGFiles;
@@ -28,7 +28,7 @@ classdef SubjectFactory
                 subject = Subject();
                 for j = 1:length(eegFileIndicies)
                    eegFileForSubject = eegFilePaths{eegFileIndicies(j)}; 
-                   subject.eegValuesForElectrodes{j} = self.parseEEGFile(eegFileForSubject,videoLength);
+                   subject.eegValuesForElectrodes{j} = self.parseEEGFile(eegFileForSubject,StimuIntLength);
                 end
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
@@ -40,7 +40,7 @@ classdef SubjectFactory
                 ecgFileForSubject = ecgFilePaths{ecgFileIndex};
                 % create the subject
                 subject.name = subjectName;
-                subject.edaValues = self.parseEDAGFile(edaFileForSubject,videoLength);
+                subject.edaValues = self.parseEDAGFile(edaFileForSubject,StimuIntLength);
                 subject.ecgValues = self.parseECGFile(ecgFileForSubject);    
                 subjects{i}=subject; 
                 % update waitbar
@@ -53,7 +53,7 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to int array
-        function electrodeEEGdata = parseEEGFile(self,eegFile,videoLength)
+        function electrodeEEGdata = parseEEGFile(self,eegFile,StimuIntLength)
             [~,name,~] = fileparts(eegFile);
             splitFileName = textscan(name,'%s','Delimiter','_');
             electrodeName = splitFileName{1}{3};
@@ -66,10 +66,10 @@ classdef SubjectFactory
             eegOffset = 10;
             eegValuesPerSec = 512;
             start = eegOffset*eegValuesPerSec;
-            ende = start+(videoLength*eegValuesPerSec);
+            ende = start+(StimuIntLength*eegValuesPerSec);
             % Cut of egg values and create eeg matrix for each subject
             eegValsCutoff = eegRawValues(start:ende-1);
-            eegValsMatrix = reshape(eegValsCutoff,eegValuesPerSec,videoLength);
+            eegValsMatrix = reshape(eegValsCutoff,eegValuesPerSec,StimuIntLength);
             electrodeEEGdata.eegValues = eegValsCutoff;
             electrodeEEGdata.eegMatrix = double(eegValsMatrix');
         end
@@ -85,13 +85,13 @@ classdef SubjectFactory
         
         
         %% Parses EDA file to double array
-        function edaValues = parseEDAGFile(self,edaFile,videoLength)
+        function edaValues = parseEDAGFile(self,edaFile,StimuIntLength)
             edaValuesPerSec = 5;
             fileID = fopen(edaFile);
             fileContents = textscan(fileID,'%f %f','HeaderLines',1,'Delimiter',',');
             fclose(fileID);
             edaValues = fileContents(:,2);
-            edaValues = edaValues{1}(1:edaValuesPerSec*videoLength);
+            edaValues = edaValues{1}(1:edaValuesPerSec*StimuIntLength);
         end
         
     end

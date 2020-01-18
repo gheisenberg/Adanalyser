@@ -46,7 +46,7 @@ classdef StringStatistics
                 delayString = [delays(1) ': ' delays(2) 'sec'%', ' delays(3) ', ' delays(4) ', ' delays(5)
                     ];
             end
-            delayString = strtrim(sprintf('%s' ,delayString{:})); % Delta_t Video X for intervals: ...  
+            delayString = strtrim(sprintf('%s' ,delayString{:})); % Delta_t StimulusInterval X for intervals: ...  
         end
     end
     

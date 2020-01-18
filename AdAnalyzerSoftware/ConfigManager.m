@@ -24,8 +24,8 @@ classdef ConfigManager
                         if strcmp(splitLine{1},'OutputDirectory')
                             conf.OutputDirectory=splitLine{2};
                         end
-                        if strcmp(splitLine{1},'VideoDef')
-                            conf.VideoDef=splitLine{2};
+                        if strcmp(splitLine{1},'StimuIntDef')
+                            conf.StimuIntDef=splitLine{2};
                         end
                         if strcmp(splitLine{1},'EEG_DEVICE_USED')
                             conf.EEG_DEVICE_USED=str2num(splitLine{2});
@@ -48,8 +48,8 @@ classdef ConfigManager
 						if strcmp(splitLine{1},'DetrendedEDAFig')
                             conf.DetrendedEDAFig=str2num(splitLine{2});
                         end
-                        if strcmp(splitLine{1},'SubVideoEDAFig')
-                            conf.SubVideoEDAFig=str2num(splitLine{2});
+                        if strcmp(splitLine{1},'SubStimuIntEDAFig')
+                            conf.SubStimuIntEDAFig=str2num(splitLine{2});
                         end
                         if strcmp(splitLine{1},'QualityFig')
                             conf.QualityFig=str2num(splitLine{2});
@@ -129,9 +129,9 @@ classdef ConfigManager
             conf_text_1= regexp(conf_text_all,'EEG_DEVICE_USED=1','split');
             conf_text_up = conf_text_1(1); % this noe contains the upper part
             conf_text_mid = strcat("EEG_DEVICE_USED=1",conf_text_1(2));
-            conf_text_2= regexp(conf_text_mid,'SubVideoEDAFig=1','split');
+            conf_text_2= regexp(conf_text_mid,'SubStimuIntEDAFig=1','split');
             conf_text_mid = conf_text_2(1);% this one contains the mid part
-            conf_text_low = strcat("SubVideoEDAFig=1",conf_text_2(2));% this one contains the lower part
+            conf_text_low = strcat("SubStimuIntEDAFig=1",conf_text_2(2));% this one contains the lower part
 
             % Set the formatting elements 
             braid = "----------------------------" + newline;
@@ -178,7 +178,7 @@ classdef ConfigManager
                     isValid = false;
                 end
                 try
-                    assert(exist(conf.VideoDef,'file')==2,'VALIDATE:videodef','Path to Video definitions file is not valid.');
+                    assert(exist(conf.StimuIntDef,'file')==2,'VALIDATE:StimuIntDef','Path to StimuInt definitions file is not valid.');
                 catch ex
                     baseException = addCause(baseException,ex);
                     isValid = false;

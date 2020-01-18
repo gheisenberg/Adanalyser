@@ -1,5 +1,5 @@
 % Factory class creating _Data_ objects
-%   Parses video definitions
+%   Parses StimulusInterval definitions
 %   Cut off eeg and eda values for each subject
 %   Creates eegMatrix for each subject
 classdef DataFactory
@@ -13,35 +13,35 @@ classdef DataFactory
         %   Cut off eda values at the end
         %   Sets eeg matrix
         function data = createData(self, conf)
-            videoDefs = self.parseVideoDefinitions(conf.VideoDef);
-            videoLength = 0;
-            % Calculate complete video length
-            for i=1:length(videoDefs)
-                videoLength = videoLength + videoDefs{i}.length;
+            stimuIntDefs = self.parseStimuIntDefinition(conf.StimuIntDef);
+            StimuIntLength = 0;
+            % Calculate complete StimulusInterval length
+            for i=1:length(stimuIntDefs)
+                StimuIntLength = StimuIntLength + stimuIntDefs{i}.length;
             end
             subjectFactory = SubjectFactory();
-            subjects = subjectFactory.createSubjects(conf,videoLength);
-            data = Data(subjects,videoDefs);
+            subjects = subjectFactory.createSubjects(conf,StimuIntLength);
+            data = Data(subjects,stimuIntDefs);
         end
     end
     
     methods(Access=private)
-        %% Parses video definitions
-        function videoDefs = parseVideoDefinitions(self,videoDefFile)
-            fileID = fopen(videoDefFile);
+        %% Parses StimulusInterval definitions
+        function StimuIntDefs = parseStimuIntDefinition(self,StimuIntDefFile)
+            fileID = fopen(StimuIntDefFile);
             fileContents = textscan(fileID,'%s','Delimiter','\n');
             fclose(fileID);
             fileContents = fileContents{1};
-            [numVideoDefs,~] = size(fileContents);
-            videoDefs = cell(1,numVideoDefs);
-            for i = 1:numVideoDefs
-                videoDef = fileContents{i};
-                values = textscan(videoDef,'%u','Delimiter',',');
+            [numStimuIntDefs,~] = size(fileContents);
+            StimuIntDefs = cell(1,numStimuIntDefs);
+            for i = 1:numStimuIntDefs
+                stimuIntDef = fileContents{i};
+                values = textscan(stimuIntDef,'%u','Delimiter',',');
                 values = values{1};
-                videoLength = values(2);
+                StimuIntLength = values(2);
                 type = values(1);
                 intervals=values(setdiff(1:length(values),[1 2]));
-                videoDefs{i} = VideoDefinition(videoLength,type,intervals);
+                StimuIntDefs{i} = StimuIntDefinition(StimuIntLength,type,intervals);
             end
         end
     end

@@ -76,7 +76,7 @@ varargout{1} = handles.output;
 % conf.EDAFig = 1;
 % conf.DetrendedEDAFig = 1; 
 % conf.HRVFig = 1; 
-% conf.SubVideoEDAFig = 1;
+% conf.SubStimuIntEDAFig = 1;
 % conf.QualityFig = 1;
 % conf.BehaveFig = 1; 
 % conf.Statistics = 1;  
@@ -91,7 +91,7 @@ varargout{1} = handles.output;
 % conf.EDAFig = 0;
 % conf.DetrendedEDAFig = 0; 
 % conf.HRVFig = 0; 
-% conf.SubVideoEDAFig = 0;
+% conf.SubStimuIntEDAFig = 0;
 % conf.QualityFig = 0;
 % conf.BehaveFig = 0; 
 % conf.Statistics = 0;  
@@ -118,7 +118,7 @@ updateUI(handles);
 function updateUI(handles)
 global conf;
 set(handles.outputDirectory,'String',conf.OutputDirectory);
-set(handles.videoDef,'String',conf.VideoDef);
+set(handles.StimuIntDef,'String',conf.StimuIntDef);
 set(handles.edaFiles,'String',conf.EDAFiles);
 set(handles.eegFiles,'String',conf.EEGFiles);
 set(handles.ecgFiles,'String',conf.ECGFiles);
@@ -183,13 +183,13 @@ if empty==0
     set(handles.ecgFiles,'String',conf.ECGFiles);
 end
 
-%% Brings up choose file dialog and saves choosen video definition file in _Config_
-function browseVideoDefinitions_Callback(hObject, eventdata, handles)
+%% Brings up choose file dialog and saves choosen StimulusInterval definition file in _Config_
+function browseStimuIntDefinitions_Callback(hObject, eventdata, handles)
 global conf;
-[filename, pathname]=uigetfile('.\config\AdIndex\*.txt;*.csv','Select a File with Video Definitions');
+[filename, pathname]=uigetfile('.\config\AdIndex\*.txt;*.csv','Select a File with SimulationsInterval');
 if filename~=0
-    conf.VideoDef = fullfile(pathname, filename);
-    set(handles.videoDef,'String',conf.VideoDef);
+    conf.StimuIntDef = fullfile(pathname, filename);
+    set(handles.StimuIntDef,'String',conf.StimuIntDef);
 end
 
 %% Brings up choose directory dialog and saves value in _Config_
@@ -242,11 +242,11 @@ global conf
 input = get(hObject,'String');
 conf.OutputDirectory = input;
 
-%% Video definition textfield
-function videoDef_Callback(hObject, eventdata, handles)
+%% StimulusInterval definition textfield
+function StimuIntDef_Callback(hObject, eventdata, handles)
 global conf
 input = get(hObject,'String');
-conf.VideoDef = input;
+conf.StimuIntDef = input;
 
 
 
@@ -281,7 +281,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % --- Executes during object creation, after setting all properties.
-function videoDef_CreateFcn(hObject, eventdata, handles)
+function StimuIntDef_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end

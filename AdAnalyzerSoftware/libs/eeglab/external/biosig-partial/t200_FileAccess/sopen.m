@@ -4165,7 +4165,7 @@ elseif strmatch(HDR.TYPE,['AIF';'IIF';'WAV';'AVI']),
                                 else
                                         fprintf(HDR.FILE.stderr,'Warning SOPEN Type=RIFF: unknown Tag %s.\n',tag);
                                 end;
-                                % AVI  audio video interleave format 	
+                                % AVI  audio StimulusInterval interleave format 	
                         elseif strcmpi(tag,'movi');
                                 if tagsize<4, 
                                         fprintf(HDR.FILE.stderr,'Error SOPEN AVI: incorrect tag size\n');

@@ -18,7 +18,7 @@ classdef AnalyseAction < handle
         %   Performs "Analyse" calculation step for all valid subjects
         function analyse(self,data,config,eegDevice,edaDevice,hrvDevice)
             subjects = data.subjects;
-            videoDefs = data.videoDefs;
+            StimuIntDefs = data.stimuIntDefs;
             validSubjects = self.countValidSubjects(subjects);
             message = ['Analysing data for ' num2str(validSubjects) ' valid subject(s)'];
             wBar = waitbar(0,message);
@@ -27,7 +27,7 @@ classdef AnalyseAction < handle
                 self.frequencies4Hz = cell(6,6);
                 subject = subjects{i};
                 if (subject.isValid)
-                    self.analyseSubject(subject,videoDefs,config);
+                    self.analyseSubject(subject,StimuIntDefs,config);
                 end
                 waitbar(i/validSubjects);
             end
@@ -46,17 +46,17 @@ classdef AnalyseAction < handle
         end
         
         %% Performs analysis for each subject
-        function analyseSubject(self,subject,videoDefs,config)
-            edaPerVid = subject.edaPerVid;
+        function analyseSubject(self,subject,StimuIntDefs,config)
+            edaPerStim = subject.edaPerVid;
             edaComplete = subject.edaValues;
-            numVideos = length(edaPerVid);
+            numStimuInt = length(edaPerStim);
             % Plot eda
             if (config.EDA_DEVICE_USED)
-                self.plotter.plotEDA(videoDefs,[config.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
+                self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
             end
             % Plot eda detrended
             if (config.DetrendedEDAFig)
-                self.plotter.plotEDA(videoDefs,[config.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
+                self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
             end
             numElectrodes = length(subject.eegValuesForElectrodes); 
             statsMat = cell(4+numElectrodes,9);
@@ -80,16 +80,16 @@ classdef AnalyseAction < handle
                 statsMat(3+i,1:5) = {[char(electrode) ': '],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             end
             statsMat(end,1:5) = {'Mean electrode values: ',num2str(mMean/numElectrodes,'%6.4f'),num2str(sdMean/numElectrodes,'%6.4f'),num2str(devMMean/numElectrodes,'%6.4f'),num2str(devPMean/numElectrodes,'%6.4f')}; 
-            for videoNumber=1:numVideos
-                filteredEEGPerVid = self.calculateMeanEEGValuesForVideo(subject);
-                videoStatsMat = self.analyseVideo(subject,videoNumber,filteredEEGPerVid,edaPerVid,videoDefs,config);
-                statsMat = vertcat(statsMat,videoStatsMat);
+            for StimuIntNumber=1:numStimuInt
+                filteredEEGPerVid = self.calculateMeanEEGValuesForStimuInt(subject);
+                StimuIntStatsMat = self.analyseStimuInt(subject,StimuIntNumber,filteredEEGPerVid,edaPerStim,StimuIntDefs,config);
+                statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             % EDA statistics 
-            orientingResponse = self.getVideosByVideoType([VideoType.EDAOrientingResponse],videoDefs);
-            [amplitudes,delays] = self.calculateDelays(edaPerVid{orientingResponse},videoDefs{orientingResponse}.intervals);%2
-            edaVideos = self.getVideosByVideoType([VideoType.EDABaseline,VideoType.EDAOrientingResponse,VideoType.TVProgramm,VideoType.TVCommercial],videoDefs);
-            edaStatsMat = self.calculateEDAStatistics(edaVideos,edaPerVid,delays,amplitudes);
+            orientingResponse = self.getStimussByStimuIntType([StimuIntType.EDAOrientingResponse],StimuIntDefs);
+            [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals);%2
+            edaStimuInt = self.getStimussByStimuIntType([StimuIntType.EDABaseline,StimuIntType.EDAOrientingResponse,StimuIntType.TVProgramm,StimuIntType.TVCommercial],StimuIntDefs);
+            edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
             edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | ');
             delayString =  self.stringStatistics.delaysToString(edaStatsMat(end-1,:));
@@ -101,13 +101,13 @@ classdef AnalyseAction < handle
                 self.plotter.writeCSV([config.OutputDirectory '/' subject.name '_statistics.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
                 self.plotter.writeStatistics([statString char(10) char(10) delayString char(10) ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
             end
-            % Plot subvideo eda
-            if (config.SubVideoEDAFig)
-                self.plotter.plotSubStimuIntEDA(edaVideos,edaPerVid,videoDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for videos ' mat2str(edaVideos)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
+            % Plot subStimuIntEDA
+            if (config.SubStimuIntEDAFig)
+                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for StimulusInterval(s) ' mat2str(edaStimuInt)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
             end
             % Plot HRV figure
             if (config.HRV_DEVICE_USED)
-                self.plotter.plotHRV(subject.ecgValues,config.OutputDirectory,subject.name,videoDefs);
+                self.plotter.plotHRV(subject.ecgValues,config.OutputDirectory,subject.name,StimuIntDefs);
             end
             % Plot HRV Recurrence
             if (config.RecurrenceFig)
@@ -119,13 +119,13 @@ classdef AnalyseAction < handle
                 [~,tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s] = self.frequencies4Hz{4,:};
                 [~,tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s] = self.frequencies4Hz{5,:};
                 resolution = 4;
-                intervals = videoDefs{4}.intervals;
+                intervals = StimuIntDefs{4}.intervals;
                 self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{4})/512,...
                     [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_tv_program.pdf'],...
                     tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s,baselineTheta_s,...
                     baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
                     ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv program of subject ' subject.name]);
-                intervals = videoDefs{5}.intervals;
+                intervals = StimuIntDefs{5}.intervals;
                 self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{5})/512,...
                     [config.OutputDirectory '/' subject.name  '_alpha_beta_theta_TEI_tv_commercial.pdf'],...
                     tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s,...
@@ -133,7 +133,7 @@ classdef AnalyseAction < handle
                     ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv commercial of subject ' subject.name]);
             end
             %transient = self.frequencyEstimation(edaComplete);
-            %self.plotter.plotMomentaryFrequency(transient,config,subject,videoDefs)
+            %self.plotter.plotMomentaryFrequency(transient,config,subject,stimuIntDef)
         end
         
         %         %% Frequency estimation algorithmen
@@ -170,54 +170,54 @@ classdef AnalyseAction < handle
         %         end
         
         
-        function meanEEGPerVid = calculateMeanEEGValuesForVideo(self,subject)
+        function meanEEGPerStim = calculateMeanEEGValuesForStimuInt(self,subject)
             numElectrodes = length(subject.eegValuesForElectrodes);
             eegForElectrode = subject.eegValuesForElectrodes{1};
-            numVideos = length(eegForElectrode.filteredEEGPerVid);
-            meanEEGPerVid = cell(1,numVideos);
-            for videoNumber=1:numVideos
-                meanEEGPerVid{videoNumber} = eegForElectrode.filteredEEGPerVid{videoNumber};
+            numStimuInt = length(eegForElectrode.filteredEEGPerVid);
+            meanEEGPerStim = cell(1,numStimuInt);
+            for StimuIntNumber=1:numStimuInt
+                meanEEGPerStim{StimuIntNumber} = eegForElectrode.filteredEEGPerVid{StimuIntNumber};
                 for i=2:numElectrodes
-                    valuesForElectrode = subject.eegValuesForElectrodes{i}.filteredEEGPerVid{videoNumber}; 
-                    previousValues = meanEEGPerVid{videoNumber}; 
-                    meanEEGPerVid{videoNumber} = previousValues+valuesForElectrode;
+                    valuesForElectrode = subject.eegValuesForElectrodes{i}.filteredEEGPerVid{StimuIntNumber}; 
+                    previousValues = meanEEGPerStim{StimuIntNumber}; 
+                    meanEEGPerStim{StimuIntNumber} = previousValues+valuesForElectrode;
                 end
-                numValues = length(meanEEGPerVid{videoNumber});
+                numValues = length(meanEEGPerStim{StimuIntNumber});
                 for i=1:numValues
-                    meanEEGPerVid{videoNumber}(i) = meanEEGPerVid{videoNumber}(i)/numElectrodes;
+                    meanEEGPerStim{StimuIntNumber}(i) = meanEEGPerStim{StimuIntNumber}(i)/numElectrodes;
                 end
             end
         end
         
-        %% Performs analysis for each video of each subject
-        function videoStatsMat = analyseVideo(self,subject,videoNumber,filteredEEGPerVid,edaPerVid,videoDefs,config)
-            % Calculate eeg statistics for each video
-            videoStatsMat = cell(1,9);
-            videoStatsMat(1,1) = {['EEG statistics for Video' num2str(videoNumber)]};
-            videoLength = length(filteredEEGPerVid{videoNumber})/512;
-            videoDef = videoDefs{videoNumber};
-            [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerVid{videoNumber});
-            self.frequencies(videoNumber,:) = {delta,theta,alpha,beta1,beta2,task};
-            % Calculate eeg statistics for each video and each frequency
-            eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerVid{videoNumber},delta,theta,alpha,beta1,beta2,task);
-            videoStatsMat = vertcat(videoStatsMat,eegFreqStatsMat);
+        %% Performs analysis for each StimulusInterval of each subject
+        function StimuIntStatsMat = analyseStimuInt(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerVid,StimuIntDefs,config)
+            % Calculate eeg statistics for each StimulusInterval
+            StimuIntStatsMat = cell(1,9);
+            StimuIntStatsMat(1,1) = {['EEG statistics for StimulusInterval' num2str(StimuIntNumber)]};
+            StimuIntLength = length(filteredEEGPerStim{StimuIntNumber})/512;
+            StimuIntDef = StimuIntDefs{StimuIntNumber};
+            [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerStim{StimuIntNumber});
+            self.frequencies(StimuIntNumber,:) = {delta,theta,alpha,beta1,beta2,task};
+            % Calculate eeg statistics for each StimulusInterval and each frequency
+            eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerStim{StimuIntNumber},delta,theta,alpha,beta1,beta2,task);
+            StimuIntStatsMat = vertcat(StimuIntStatsMat,eegFreqStatsMat);
             % Reduce signal resolution to 4Hz
             [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task);
-            self.frequencies4Hz(videoNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
+            self.frequencies4Hz(StimuIntNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
             if(config.BehaveFig)
-                self.plotter.plotBehavioralCharacteristics(subject.name,videoNumber,config.OutputDirectory,self.frequencies(videoNumber,:),videoDef.intervals)
+                self.plotter.plotBehavioralCharacteristics(subject.name,StimuIntNumber,config.OutputDirectory,self.frequencies(StimuIntNumber,:),StimuIntDef)
             end
             if (config.FrequencyFig)
                 resolution = 4;
-                self.plotter.plotFrequencys(videoLength,[config.OutputDirectory '\' subject.name '_freq_bands_video' num2str(videoNumber)],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,videoDef.intervals,edaPerVid{videoNumber});
+                self.plotter.plotFrequencys(StimuIntLength,[config.OutputDirectory '\' subject.name '_freq_bands_StimulusInterval' num2str(StimuIntNumber)],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef.intervals,edaPerVid{StimuIntNumber});
             end
             % Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL
             if (config.RecurrenceFig)
-                if (videoDef.videoType==VideoType.TVCommercial)
-                    self.plotter.plotEDARecurrence(subject.name,config,'EDA TV Spot',edaPerVid{videoNumber}); %Tim
+                if (StimuIntDef.StimuIntType==StimuIntType.TVCommercial)
+                    self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef.stimuIntDescrp,edaPerVid{StimuIntNumber});
                 end
-                if (videoDef.videoType==VideoType.TVProgramm)
-                    self.plotter.plotEDARecurrence(subject.name,config,'EDA Commercial',edaPerVid{videoNumber}); %Tim
+                if (StimuIntDef.StimuIntType==StimuIntType.TVProgramm)
+                    self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef.stimuIntDescrp,edaPerVid{StimuIntNumber}); %Tim
                 end 
             end
         end
@@ -253,17 +253,17 @@ classdef AnalyseAction < handle
         end
         
         %% Calculates statistics for eda values including delays (Delta_t) and amplitudes
-        function statsMat = calculateEDAStatistics(self,videos,edaValues,delays,amplitudes)
-            edaValuesForVideos = edaValues(videos);
-            numEdaVideos = length(edaValuesForVideos);
-            statsMat = cell(numEdaVideos+4,9);
+        function statsMat = calculateEDAStatistics(self,StimuInt,edaValues,delays,amplitudes)
+            edaValuesForStimuInt = edaValues(StimuInt);
+            numEdaStimuInts = length(edaValuesForStimuInt);
+            statsMat = cell(numEdaStimuInts+4,9);
             statsMat(1,2:5) ={'mean[µS]','sd[µS]','dev-[µS]','dev+[µS]'} ;
             completeEDA = cell2mat(edaValues');
             [m,sd,devP,devM] = self.calculateStatistics(completeEDA);
             statsMat(2,1:5) = {'EDA complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
-            for i=1:numEdaVideos
-                [m,sd,devP,devM] = self.calculateStatistics(edaValuesForVideos{i});
-                statsMat(i+2,1:5) = {['StimulusInterval ' num2str(videos(i))],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            for i=1:numEdaStimuInts
+                [m,sd,devP,devM] = self.calculateStatistics(edaValuesForStimuInt{i});
+                statsMat(i+2,1:5) = {['StimulusInterval ' num2str(StimuInt(i))],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             end
             delaysNotNull = delays(delays~=0);
             amplitudesNotNull = amplitudes(amplitudes~=0);
@@ -272,7 +272,7 @@ classdef AnalyseAction < handle
                 s= 'No valid peaks found for Delta_t';
                 statsMat{end-1,1}= s;
             elseif length(delaysNotNull)==1
-                statsMat{end-1,1} = ['Delta_t of Video 2 based on interval ' strtrim(num2str(indicies))];
+                statsMat{end-1,1} = ['Delta_t of StimulusInterval 2 based on interval ' strtrim(num2str(indicies))];
                 statsMat{end-1,2} = num2str(delaysNotNull);
             else
                 delayMean = mean(delaysNotNull);
@@ -280,7 +280,7 @@ classdef AnalyseAction < handle
                 minVarDelay = delayMean - min(delaysNotNull);
                 maxVarDelay = max(delaysNotNull) - delayMean;
                 statsMat(end-1,1:5) = {
-                    ['Delta_t Video 2 for intervals ' strtrim(strrep(num2str(indicies),'  ',','))],...
+                    ['Delta_t StimulusInterval 2 for intervals ' strtrim(strrep(num2str(indicies),'  ',','))],...
                     ['mean=' num2str(delayMean,'%6.2f') 's'],['var=' num2str(delayVar,'%6.2f') 's'],...
                     ['dev+=' num2str(minVarDelay,'%6.2f') 's'],['dev-=' num2str(maxVarDelay,'%6.2f') 's']
                     };
@@ -380,17 +380,17 @@ classdef AnalyseAction < handle
             end
         end
         
-        function indicies = getVideosByVideoType(self, videoTypes, videoDefs)
-            numVideoDefs = length(videoDefs);
-            %ausgabe = ['VideoDefs=',num2str(VideoDefs)]; 
-            indicies = zeros(1,numVideoDefs); %indicies is a vector
+        function indicies = getStimussByStimuIntType(self, StimuIntType, stimuIntDefs)
+            numStimuIntDefs = length(stimuIntDefs);
+            %ausgabe = ['StimuIntDefs=',num2str(StimuIntDefs)]; 
+            indicies = zeros(1,numStimuIntDefs); %indicies is a vector
             %disp(indicies);
-            for i = 1:numVideoDefs %numVideoDefs=6
-                vd = videoDefs{i};
-                type = vd.videoType;
+            for i = 1:numStimuIntDefs %numStimuIntDefs=6
+                vd = stimuIntDefs{i};
+                type = vd.StimuIntType;
                 %disp(type);
-                %disp(videoTypes);
-                if (ismember(type,videoTypes,'legacy')) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)
+                %disp(StimuIntType);
+                if (ismember(type,StimuIntType,'legacy')) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)
                     indicies(i)= i;
                 end
             end
