@@ -126,13 +126,31 @@ classdef ConfigManager
             
             % cut the config text into pieces
             conf_text_all = conf.toString();
-            conf_text_1= regexp(conf_text_all,'EEG_DEVICE_USED=1','split');
-            conf_text_up = conf_text_1(1); % this noe contains the upper part
-            conf_text_mid = strcat("EEG_DEVICE_USED=1",conf_text_1(2));
-            conf_text_2= regexp(conf_text_mid,'SubStimuIntEDAFig=1','split');
+            if(contains(conf_text_all,'EEG_DEVICE_USED=1'))
+                conf_text_1= regexp(conf_text_all,'EEG_DEVICE_USED=1','split');
+            else
+                conf_text_1= regexp(conf_text_all,'EEG_DEVICE_USED=0','split');
+            end
+            conf_text_up = conf_text_1(1); % this now contains the upper part
+            if(contains(conf_text_all,'EEG_DEVICE_USED=1'))
+                conf_text_mid = strcat("EEG_DEVICE_USED=1",conf_text_1(2));
+            else
+                conf_text_mid = strcat("EEG_DEVICE_USED=0",conf_text_1(2));
+            end
+            
+            if(contains(conf_text_all,'SubStimuIntEDAFig=1'))
+                conf_text_2= regexp(conf_text_mid,'SubStimuIntEDAFig=1','split');
+            else
+                conf_text_2= regexp(conf_text_mid,'SubStimuIntEDAFig=0','split');
+            end
             conf_text_mid = conf_text_2(1);% this one contains the mid part
-            conf_text_low = strcat("SubStimuIntEDAFig=1",conf_text_2(2));% this one contains the lower part
-
+            
+            if(contains(conf_text_all,'SubStimuIntEDAFig=1'))
+                conf_text_low = strcat("SubStimuIntEDAFig=1",conf_text_2(2));% this one contains the lower part
+            else
+                conf_text_low = strcat("SubStimuIntEDAFig=0",conf_text_2(2));% this one contains the lower part
+            end
+            
             % Set the formatting elements 
             braid = "----------------------------" + newline;
             path_text       = "PATHS" + newline;
