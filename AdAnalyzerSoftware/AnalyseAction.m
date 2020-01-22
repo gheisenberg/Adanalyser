@@ -99,11 +99,11 @@ classdef AnalyseAction < handle
             % Plot statistics
             if (config.Statistics)
                 self.plotter.writeCSV([config.OutputDirectory '/' subject.name '_statistics.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
-                self.plotter.writeStatistics([statString char(10) char(10) delayString char(10) ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
+                self.plotter.writeStatistics([statString newline newline delayString newline ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
             end
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
-                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for StimulusInterval(s) ' mat2str(edaStimuInt)],[edaStatsString char(10) char(10) delayString char(10) ampString]);
+                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for StimulusInterval(s) ' mat2str(edaStimuInt)],[edaStatsString newline newline delayString newline ampString]);
             end
             % Plot HRV figure
             if (config.HRV_DEVICE_USED)
@@ -114,6 +114,7 @@ classdef AnalyseAction < handle
                 self.plotter.plotECGRecurrence(subject.name,config,'HRV',subject.ecgValues);
             end
             %plot frequencies for baseline tvProgramm and tvCommercial with baseline magnitude
+            %Funktion für genau diesen Fall, Besprechen wie vorgehen
             if (config.FrequencyFig)
                 [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{3,:};
                 [~,tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s] = self.frequencies4Hz{4,:};
@@ -209,7 +210,7 @@ classdef AnalyseAction < handle
             end
             if (config.FrequencyFig)
                 resolution = 4;
-                self.plotter.plotFrequencys(StimuIntLength,[config.OutputDirectory '\' subject.name '_freq_bands_StimulusInterval' num2str(StimuIntNumber)],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef.intervals,edaPerVid{StimuIntNumber});
+                self.plotter.plotFrequencys(StimuIntLength,[config.OutputDirectory '\' subject.name '_freq_bands_' StimuIntDef.stimuIntDescrp],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaPerVid{StimuIntNumber});
             end
             % Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL
             if (config.RecurrenceFig)
@@ -386,8 +387,8 @@ classdef AnalyseAction < handle
             indicies = zeros(1,numStimuIntDefs); %indicies is a vector
             %disp(indicies);
             for i = 1:numStimuIntDefs %numStimuIntDefs=6
-                vd = stimuIntDefs{i};
-                type = vd.StimuIntType;
+                ST = stimuIntDefs{i};
+                type = ST.StimuIntType;
                 %disp(type);
                 %disp(StimuIntType);
                 if (ismember(type,StimuIntType,'legacy')) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)

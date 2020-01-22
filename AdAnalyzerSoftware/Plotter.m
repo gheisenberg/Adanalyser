@@ -398,7 +398,7 @@ classdef Plotter
                 plot(edaValues{StimuIntNum},'k');
                 self.plotIntervals(StimuIntDefs{StimuIntNum}.intervals,yL,max(xTime)/max(xName),labels,'r');
                 grid;
-                ylabel(['StimulusInterval ' num2str(StimuIntNum) ' [µS]']);
+                ylabel([StimuIntClass.stimuIntDescrp ' [µS]']);
                 l = length(edaValues{StimuIntNum});
                 axis([1,l, yL]);
                 set(gca,'XTick',xTime,'XTickLabel',xName);
@@ -464,7 +464,9 @@ classdef Plotter
         %   resolution: values per second as double 
         %   intervals: intervals of interest as int[]
         %   edaSubStimuIntList: EDA values of StimulusInterval as double[]
-        function plotFrequencys(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,intervals,edaSubStimuIntList)
+        function plotFrequencys(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaSubStimuIntList)
+            intervals = StimuIntDef.intervals;
+            stimuIntDescrp = StimuIntDef.stimuIntDescrp;
             fig = figure('Visible','off');
             maxscale = max([max(theta_s) max(alpha_s) max(beta1_s) max(beta2_s) ]);
             labels = [];
@@ -492,7 +494,7 @@ classdef Plotter
             axis([1 length(theta_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xname);
             [~,subjName,~] = fileparts(fPath);
-            t = title(['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_StimulusInterval',' StimulusInterval')]);
+            t = title(['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_','_')]);
             tP = get(t,'Position');
             set(t,'Position',[tP(1) tP(2)+0.3 tP(3)]);
             set(t,'FontSize',12);

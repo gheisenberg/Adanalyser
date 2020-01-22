@@ -34,14 +34,16 @@ classdef DataFactory
             fileContents = fileContents{1};
             [numStimuIntDefs,~] = size(fileContents);
             StimuIntDefs = cell(1,numStimuIntDefs);
+            numbertype = zeros(1,numStimuIntDefs);
             for i = 1:numStimuIntDefs
                 stimuIntDef = fileContents{i};
                 values = textscan(stimuIntDef,'%u','Delimiter',',');
                 values = values{1};
                 StimuIntLength = values(2);
+                numbertype(StimuIntLength+1) = numbertype(StimuIntLength+1)+1;
                 type = values(1);
                 intervals=values(setdiff(1:length(values),[1 2]));
-                StimuIntDefs{i} = StimuIntDefinition(StimuIntLength,type,intervals);
+                StimuIntDefs{i} = StimuIntDefinition(StimuIntLength,type,intervals,numbertype);
             end
         end
     end
