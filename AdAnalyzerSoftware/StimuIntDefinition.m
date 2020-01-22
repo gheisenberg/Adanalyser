@@ -7,6 +7,7 @@ classdef StimuIntDefinition
         StimuIntType % See: StimuIntType
         length % Length of the Stimulusinterval
         intervals ={} % Intervals of interest 
+        StimuIntLocal % Localization of reaction to StimulusInterval e.g. eda
     end
         
     methods
@@ -20,6 +21,7 @@ classdef StimuIntDefinition
             %type
             
             if type == 0
+                ST.StimuIntLocal = 'EDA';
                 if numbertype(type+1) == 1
                 ST.stimuIntDescrp = 'EDA Baseline';
                 else
@@ -27,6 +29,7 @@ classdef StimuIntDefinition
                 end
                 
             elseif type == 1
+                ST.StimuIntLocal = 'EDA';
                 if numbertype(type+1) == 1
                 ST.stimuIntDescrp = 'EDA OrientingResponse';
                 else
@@ -34,6 +37,7 @@ classdef StimuIntDefinition
                  end
                 
             elseif type == 2
+                ST.StimuIntLocal = 'EEG';
                 if numbertype(type+1) == 1
                 ST.stimuIntDescrp = 'EEG Baseline';
                 else
@@ -41,6 +45,7 @@ classdef StimuIntDefinition
                 end
                 
             elseif type == 3
+                ST.StimuIntLocal = 'EDA';
                 if numbertype(type+1) == 1
                 ST.stimuIntDescrp = 'TV Programm';
                 else
@@ -48,6 +53,7 @@ classdef StimuIntDefinition
                 end
                 
             elseif type == 4
+                ST.StimuIntLocal = 'EDA';
                 if numbertype(type+1) == 1
                 ST.stimuIntDescrp = 'TV Commercial';
                 else

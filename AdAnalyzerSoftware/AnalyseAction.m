@@ -86,10 +86,10 @@ classdef AnalyseAction < handle
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             % EDA statistics 
-            orientingResponse = self.getStimussByStimuIntType([StimuIntType.EDAOrientingResponse],StimuIntDefs);
+            orientingResponse = self.getStimuIntIndec('Dummy','EDA OrientingResponse',StimuIntDefs);
             [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals);%2
-            edaStimuInt = self.getStimussByStimuIntType([StimuIntType.EDABaseline,StimuIntType.EDAOrientingResponse,StimuIntType.TVProgramm,StimuIntType.TVCommercial],StimuIntDefs);
-            edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes);
+            edaStimuInt = self.getStimuIntIndec('EDA','Dummy',StimuIntDefs);
+            edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
             edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | ');
             delayString =  self.stringStatistics.delaysToString(edaStatsMat(end-1,:));
@@ -114,24 +114,26 @@ classdef AnalyseAction < handle
                 self.plotter.plotECGRecurrence(subject.name,config,'HRV',subject.ecgValues);
             end
             %plot frequencies for baseline tvProgramm and tvCommercial with baseline magnitude
-            %Funktion für genau diesen Fall, Besprechen wie vorgehen
+            %Funktion für genau diesen Fall, Besprechen wie vorgehen Tim
             if (config.FrequencyFig)
                 [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{3,:};
                 [~,tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s] = self.frequencies4Hz{4,:};
                 [~,tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s] = self.frequencies4Hz{5,:};
                 resolution = 4;
                 intervals = StimuIntDefs{4}.intervals;
+                StimuIntDescrp = StimuIntDefs{4}.stimuIntDescrp;
                 self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{4})/512,...
-                    [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_tv_program.pdf'],...
+                    [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                     tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s,baselineTheta_s,...
                     baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
-                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv program of subject ' subject.name]);
+                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for' StimuIntDescrp ' of subject ' subject.name]);
                 intervals = StimuIntDefs{5}.intervals;
+                StimuIntDescrp = StimuIntDefs{5}.stimuIntDescrp;
                 self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{5})/512,...
-                    [config.OutputDirectory '/' subject.name  '_alpha_beta_theta_TEI_tv_commercial.pdf'],...
+                    [config.OutputDirectory '/' subject.name  '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                     tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s,...
                     baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
-                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for tv commercial of subject ' subject.name]);
+                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
             end
             %transient = self.frequencyEstimation(edaComplete);
             %self.plotter.plotMomentaryFrequency(transient,config,subject,stimuIntDef)
@@ -254,7 +256,7 @@ classdef AnalyseAction < handle
         end
         
         %% Calculates statistics for eda values including delays (Delta_t) and amplitudes
-        function statsMat = calculateEDAStatistics(self,StimuInt,edaValues,delays,amplitudes)
+        function statsMat = calculateEDAStatistics(self,StimuInt,edaValues,delays,amplitudes,StimuIntDefs)
             edaValuesForStimuInt = edaValues(StimuInt);
             numEdaStimuInts = length(edaValuesForStimuInt);
             statsMat = cell(numEdaStimuInts+4,9);
@@ -263,8 +265,9 @@ classdef AnalyseAction < handle
             [m,sd,devP,devM] = self.calculateStatistics(completeEDA);
             statsMat(2,1:5) = {'EDA complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             for i=1:numEdaStimuInts
+                StimuIntClass = StimuIntDefs{i};
                 [m,sd,devP,devM] = self.calculateStatistics(edaValuesForStimuInt{i});
-                statsMat(i+2,1:5) = {['StimulusInterval ' num2str(StimuInt(i))],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+                statsMat(i+2,1:5) = {StimuIntClass.stimuIntDescrp,num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             end
             delaysNotNull = delays(delays~=0);
             amplitudesNotNull = amplitudes(amplitudes~=0);
@@ -273,7 +276,7 @@ classdef AnalyseAction < handle
                 s= 'No valid peaks found for Delta_t';
                 statsMat{end-1,1}= s;
             elseif length(delaysNotNull)==1
-                statsMat{end-1,1} = ['Delta_t of StimulusInterval 2 based on interval ' strtrim(num2str(indicies))];
+                statsMat{end-1,1} = ['Delta_t of StimulusInterval 2 based on interval ' strtrim(num2str(indicies))]; %Warum StimuInt 2? Tim - erst danach ändern
                 statsMat{end-1,2} = num2str(delaysNotNull);
             else
                 delayMean = mean(delaysNotNull);
@@ -381,21 +384,23 @@ classdef AnalyseAction < handle
             end
         end
         
-        function indicies = getStimussByStimuIntType(self, StimuIntType, stimuIntDefs)
-            numStimuIntDefs = length(stimuIntDefs);
-            %ausgabe = ['StimuIntDefs=',num2str(StimuIntDefs)]; 
-            indicies = zeros(1,numStimuIntDefs); %indicies is a vector
-            %disp(indicies);
-            for i = 1:numStimuIntDefs %numStimuIntDefs=6
-                ST = stimuIntDefs{i};
-                type = ST.StimuIntType;
-                %disp(type);
-                %disp(StimuIntType);
-                if (ismember(type,StimuIntType,'legacy')) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)
+        function indicies = getStimuIntIndec(self,NeededLocal,NeededDescrp,StimuIntDef)
+            lengthStimu = length(StimuIntDef);
+            indicies = zeros(1,lengthStimu); %indicies is a vector
+
+            for i = 1:lengthStimu
+                StimuIntSearchLocal = StimuIntDef{i}.StimuIntLocal;
+                StimuIntSearchDescrp = StimuIntDef{i}.stimuIntDescrp;
+
+                if strcmpi(NeededLocal,StimuIntSearchLocal) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)
+                    indicies(i)= i;    
+                end
+
+                if contains(NeededDescrp,StimuIntSearchDescrp) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)
                     indicies(i)= i;
                 end
+                
             end
-            %disp(indicies);
             indicies = indicies(indicies~=0);
         end
         

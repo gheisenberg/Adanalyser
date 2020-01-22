@@ -403,7 +403,7 @@ classdef Plotter
                 axis([1,l, yL]);
                 set(gca,'XTick',xTime,'XTickLabel',xName);
                 if (i==1)
-                    title(['EDA values for the ' StimuIntClass.stimuIntDescrp ' ' mat2str(StimuIntIndex) ' of subject ' subjectName]);
+                    title(['EDA values for the StimulusInterval ' mat2str(StimuIntIndex) ' of subject ' subjectName]);
                 end
             end
             xlabel('Time [s]');
@@ -494,7 +494,7 @@ classdef Plotter
             axis([1 length(theta_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xname);
             [~,subjName,~] = fileparts(fPath);
-            t = title(['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_','_')]);
+            t = title(['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_',' ')]);
             tP = get(t,'Position');
             set(t,'Position',[tP(1) tP(2)+0.3 tP(3)]);
             set(t,'FontSize',12);
