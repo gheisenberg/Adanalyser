@@ -312,7 +312,7 @@ classdef Plotter
         %   StimuIntDefs: StimulusInterval definitions as Cell<StimuIntDef>
         %   config: Config
         %   numSubjects: total number of subjects as double
-        function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects)
+        function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects) %Tim ID 12 plot of QualityFigs
             StimuIntIndex = length(StimuIntDefs);
             outputFolder= config.OutputDirectory;
             h = waitbar(0,['Writing EEG quality figures for ' num2str(StimuIntIndex) ' StimulusInterval(s)']);

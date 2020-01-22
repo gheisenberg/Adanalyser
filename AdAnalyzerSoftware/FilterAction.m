@@ -104,7 +104,7 @@ classdef FilterAction < handle
         %   Stores number of valid StimulusInterval for each subject and StimulusInterval type in _qualityIndex_
         %   Calculates total number of valid StimulusInterval See: _totalValidStimuInt_
         %   Sets isValid flag for each Subject
-        function [subjects,qualityIndex,totalValidStimuInt] = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold)
+        function [subjects,qualityIndex,totalValidStimuInt] = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold) %Tim ID 9 -> hier werden die invalid subjects gefiltert - kann unterbunden werden wenn gewollt
             StimuInt = length(stimuIntDefs);
             numSubjects = length(subjects);
             [baselines,ads,other,clips] = self.getStimuIntIndiciesByType(stimuIntDefs);
