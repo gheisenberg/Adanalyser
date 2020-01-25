@@ -1,7 +1,7 @@
 % BIOSIG/DOC Documentation files 
 %
 % DecimalFactors.txt	Table of Decimal Factors [1]
-% leadidtable_scpecg.txt EN1064 Lead Identification Table of the SCP-ECG format [1]
+% leadidtable_scpecg.txt EN1064 Lead Identification Table of the SCP-HRV format [1]
 % units.cvs		Vital Signs Units of Measurement [1]
 % header.txt		describes HDR struct [2]
 % eventcodes.txt	Table of Event Codes [2]

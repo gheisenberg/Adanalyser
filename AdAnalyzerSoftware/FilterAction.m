@@ -60,9 +60,13 @@ classdef FilterAction < handle
             % rate quality
             [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
             % plot quality figures
-            if (config.QualityFig)
-                self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
-            end
+
+%           Kreitzberg: Commented out; Reason go to Plotter.m
+%           plotEEGQualityFigures()
+
+%             if (config.QualityFig)
+%                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
+%             end
         end
     end
     

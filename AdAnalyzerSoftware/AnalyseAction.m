@@ -107,11 +107,11 @@ classdef AnalyseAction < handle
             end
             % Plot HRV figure
             if (config.HRV_DEVICE_USED)
-                self.plotter.plotHRV(subject.ecgValues,config.OutputDirectory,subject.name,StimuIntDefs);
+                self.plotter.plotHRV(subject.hrvValues,config.OutputDirectory,subject.name,StimuIntDefs);
             end
             % Plot HRV Recurrence
             if (config.RecurrenceFig)
-                self.plotter.plotECGRecurrence(subject.name,config,'HRV',subject.ecgValues);
+                self.plotter.plotHRVRecurrence(subject.name,config,'HRV',subject.hrvValues);
             end
             %plot frequencies for baseline tvProgramm and tvCommercial with baseline magnitude
             %Funktion für genau diesen Fall, Besprechen wie vorgehen Tim

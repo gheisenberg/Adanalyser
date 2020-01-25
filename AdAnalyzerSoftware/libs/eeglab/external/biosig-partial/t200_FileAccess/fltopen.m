@@ -466,7 +466,7 @@ elseif any(HDR.FILE.PERMISSION=='w'),
 			fprintf(fid,'0006 1 ET-PlGrd_RefCh   T      0    1.000\n');
 			fprintf(fid,'0007 1 Trigger          V      0    1.000\n');
 			fprintf(fid,'0008 1 EEG              V      0    1.000\n');
-			fprintf(fid,'0009 1 ECG              V      0    1.000\n');
+			fprintf(fid,'0009 1 HRV              V      0    1.000\n');
 			fprintf(fid,'0010 1 Etc              V      0    1.000\n');
 			fprintf(fid,'0011 0 Null_Channel     V      0    1.000\n');
 		end;	
@@ -481,7 +481,8 @@ elseif any(HDR.FILE.PERMISSION=='w'),
 				fprintf(fid,'%04i %-13s %5.3f  %5.3f  %5.3f  %5.3f  %5.3f  %5.3f  %5.3f %i %s\n',HDR.FLT.modules.id(k),HDR.FLT.modules.name{k},HDR.FLT.modules.XYZabc(k,:),HDR.FLT.modules.unit(k),HDR.FLT.modules.exp(k),HDR.FLT.modules.unitname{k}); 
 			end; 	
 			fprintf(fid,'}\n'); 
-		else			fprintf(fid,'0000 Magnetic      0.000  0.000  0.000  0.000  0.000  0.000  1.000 0 m\n');
+		else
+			fprintf(fid,'0000 Magnetic      0.000  0.000  0.000  0.000  0.000  0.000  1.000 0 m\n');
 			fprintf(fid,'0007 Electric      0.000  0.000  0.000  0.000  0.000  0.000  1.000 0 m\n}\n');
 		end;
 	end;

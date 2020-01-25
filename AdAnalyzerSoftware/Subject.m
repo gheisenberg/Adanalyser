@@ -7,8 +7,8 @@ classdef Subject
         name = '' 
         % parsed eda values
         edaValues={}
-        % parsed ecg values 
-        ecgValues={} 
+        % parsed hrv values 
+        hrvValues={} 
         eegValuesForElectrodes ={}
         %Values set during FilterAction
         isValid = 0 

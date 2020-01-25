@@ -88,15 +88,15 @@ classdef ConfigManager
                                 conf.EEGFiles = cell(0);
                             end
                         end
-                        if strcmp(splitLine{1},'ECGFiles')
+                        if strcmp(splitLine{1},'HRVFiles')
                             if ~isempty(findstr(',', splitLine{2}))
                                 %files = textscan(splitLine{2},'%s','Delimiter',',','BufSize', 200000);
                                 files = textscan(splitLine{2},'%s','Delimiter',',');
-                                conf.ECGFiles = files{1};
+                                conf.HRVFiles = files{1};
                             elseif ~isempty(splitLine{2})
-                                conf.ECGFiles = {splitLine{2}};
+                                conf.HRVFiles = {splitLine{2}};
                             else
-                                conf.ECGFiles = cell(0);
+                                conf.HRVFiles = cell(0);
                             end
                         end
                         if strcmp(splitLine{1},'LowerThreshold')
@@ -214,7 +214,7 @@ classdef ConfigManager
                     isValid = false;
                 end
                 try
-                    assert(~isempty(conf.ECGFiles),'VALIDATE:ecgfiles','No ECG files selected. Please select at least one.');
+                    assert(~isempty(conf.HRVFiles),'VALIDATE:hrvfiles','No HRV files selected. Please select at least one.');
                 catch ex
                     baseException = addCause(baseException,ex);
                     isValid = false;

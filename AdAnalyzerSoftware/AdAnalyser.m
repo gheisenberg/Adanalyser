@@ -121,7 +121,7 @@ set(handles.outputDirectory,'String',conf.OutputDirectory);
 set(handles.StimuIntDef,'String',conf.StimuIntDef);
 set(handles.edaFiles,'String',conf.EDAFiles);
 set(handles.eegFiles,'String',conf.EEGFiles);
-set(handles.ecgFiles,'String',conf.ECGFiles);
+set(handles.hrvFiles,'String',conf.HRVFiles);
 
 %% Brings up choose file dialog and saves choosen EDA files in _Config_
 function browseEDA_Callback(hObject, eventdata, handles)
@@ -163,24 +163,24 @@ if empty==0
     set(handles.eegFiles,'String',conf.EEGFiles);
 end
 
-% --- Executes on button press in browseECG.
-function browseECG_Callback(hObject, eventdata, handles)
+% --- Executes on button press in browseHRV.
+function browseHRV_Callback(hObject, eventdata, handles)
 global conf;
-[filenames, pathname] = uigetfile('.\data\*.txt;*.csv', 'Select ECG files','MultiSelect', 'on');
+[filenames, pathname] = uigetfile('.\data\*.txt;*.csv', 'Select HRV files','MultiSelect', 'on');
 empty = isempty(pathname) || pathname(1:1)==0;
 if empty==0
     if ~iscell(filenames) && ischar(filenames)
         filenames = {filenames}; % force it to be a cell array of strings
     end
-    ecgFiles = cell(size(filenames));
+    hrvFiles = cell(size(filenames));
     for file = 1:numel(filenames)
         fullpath = fullfile(pathname,filenames{file});
-        ecgFiles = [ecgFiles, fullpath];
+        hrvFiles = [hrvFiles, fullpath];
     end
-    ecgFiles(cellfun('isempty',ecgFiles)) = [];
-    conf.ECGFiles = ecgFiles;
-    set(handles.ecgFiles,'Value',1); %needed to avoid selection error
-    set(handles.ecgFiles,'String',conf.ECGFiles);
+    hrvFiles(cellfun('isempty',hrvFiles)) = [];
+    conf.HRVFiles = hrvFiles;
+    set(handles.hrvFiles,'Value',1); %needed to avoid selection error
+    set(handles.hrvFiles,'String',conf.HRVFiles);
 end
 
 %% Brings up choose file dialog and saves choosen StimulusInterval definition file in _Config_
@@ -299,7 +299,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % --- Executes during object creation, after setting all properties.
-function ecgFiles_CreateFcn(hObject, eventdata, handles)
+function hrvFiles_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end

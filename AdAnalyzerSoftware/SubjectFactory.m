@@ -11,7 +11,7 @@ classdef SubjectFactory
         function subjects=createSubjects(self,config,StimuIntLength)
             eegFilePaths = config.EEGFiles;
             edaFilePaths = config.EDAFiles;
-            ecgFilePaths = config.ECGFiles;
+            hrvFilePaths = config.HRVFiles;
             numberOfSubjects =  length(edaFilePaths);  
             message = ['Reading raw data for ' num2str(numberOfSubjects) ' subject(s)'];
             bar = waitbar(0,message);  % open waitbar dialog with message
@@ -34,14 +34,14 @@ classdef SubjectFactory
                 matches = strfind(edaFilePaths,subjectName);
                 edaFileIndex = ~cellfun(@isempty,matches);
                 edaFileForSubject = edaFilePaths{edaFileIndex};
-                % get ecg file for subject by subject name
-                matches = strfind(ecgFilePaths,subjectName);
-                ecgFileIndex = ~cellfun(@isempty,matches);
-                ecgFileForSubject = ecgFilePaths{ecgFileIndex};
+                % get hrv file for subject by subject name
+                matches = strfind(hrvFilePaths,subjectName);
+                hrvFileIndex = ~cellfun(@isempty,matches);
+                hrvFileForSubject = hrvFilePaths{hrvFileIndex};
                 % create the subject
                 subject.name = subjectName;
                 subject.edaValues = self.parseEDAGFile(edaFileForSubject,StimuIntLength);
-                subject.ecgValues = self.parseECGFile(ecgFileForSubject);    
+                subject.hrvValues = self.parseHRVFile(hrvFileForSubject);    
                 subjects{i}=subject; 
                 % update waitbar
                 waitbar(i /numberOfSubjects);
@@ -74,13 +74,13 @@ classdef SubjectFactory
             electrodeEEGdata.eegMatrix = double(eegValsMatrix');
         end
         
-        %% Parses ECG file to double array
-        function ecgValues = parseECGFile(self,ecgFile)
-            fileID = fopen(ecgFile);
+        %% Parses HRV file to double array
+        function hrvValues = parseHRVFile(self,hrvFile)
+            fileID = fopen(hrvFile);
             fileContents = textscan(fileID,'%f %f','Delimiter',',');
             fclose(fileID);
-            ecgValues = fileContents(:,2);
-            ecgValues = ecgValues{1};
+            hrvValues = fileContents(:,2);
+            hrvValues = hrvValues{1};
         end
         
         

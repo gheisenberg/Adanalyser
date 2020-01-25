@@ -28,21 +28,21 @@ classdef Plotter
             fclose(fid);
         end
         
-        %% Prints recurrence plots for ECG
+        %% Prints recurrence plots for HRV
         %  subjectName: Name of the Subject as String
         %  config: Config 
         %  StimuIntName: String
-        %  ecgData: ECG values for Subject as double[] 
-        function plotECGRecurrence(self,subjectName,config,StimuIntName,ecgData)
-            N = length(ecgData);
+        %  hrvData: HRV values for Subject as double[] 
+        function plotHRVRecurrence(self,subjectName,config,StimuIntName,hrvData)
+            N = length(hrvData);
             S = zeros(N, N);
             time = zeros(N,1);
             % Calculate time in seconds for x axis
             for i=1:N
-                time(i) = round(sum(ecgData(1:i))/1000);
+                time(i) = round(sum(hrvData(1:i))/1000);
             end
             for i = 1:N
-                S(:,i) = abs( repmat( ecgData(i), N, 1 ) - ecgData(:) );
+                S(:,i) = abs( repmat( hrvData(i), N, 1 ) - hrvData(:) );
             end
             fig = figure('Visible','off');
             set(fig, 'PaperType', 'A4');
@@ -222,22 +222,22 @@ classdef Plotter
         
         
         %% Plots hrv data
-        %  ecgValues: ecgValues for Subject as double[]
+        %  hrvValues: hrvValues for Subject as double[]
         %  outputDir: Path to output directory as String
         %  subjName: The name of the Subject
         %  StimuIntDef: StimulusInterval Definition
-        function plotHRV(self,ecgValues,outputDir,subjName,StimuIntDef)
+        function plotHRV(self,hrvValues,outputDir,subjName,StimuIntDef)
             fig = figure('Visible','off');
-            time = zeros(length(ecgValues),1);
+            time = zeros(length(hrvValues),1);
             % Calculate time in seconds for x axis
-            for i=1:length(ecgValues)
-                time(i) = round(sum(ecgValues(1:i))/1000);
+            for i=1:length(hrvValues)
+                time(i) = round(sum(hrvValues(1:i))/1000);
             end
-            plot(ecgValues,'k');
+            plot(hrvValues,'k');
             grid;
             xTime = time(1:20:end);
-            yMin = min(ecgValues);
-            yMax = max(ecgValues);
+            yMin = min(hrvValues);
+            yMax = max(hrvValues);
             [StimuIntStartPoints,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
             self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[yMin, yMax],1);
             self.plotIntervals(intervals,[yMin, yMax],1,[],'r');
@@ -245,8 +245,8 @@ classdef Plotter
             set(gca,'XTick',xTime,'XTickLabel',xTime);
             ylabel('RR intervals [ms]');
             xlabel('time [s]');
-            m = sprintf('%.2f',mean(ecgValues));
-            sd = sprintf('%.2f',std(ecgValues));
+            m = sprintf('%.2f',mean(hrvValues));
+            sd = sprintf('%.2f',std(hrvValues));
             title(['HRV values for subject ' subjName ' (mean=' m 'ms, sd=' sd 'ms)']);
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'landscape');
@@ -312,60 +312,64 @@ classdef Plotter
         %   StimuIntDefs: StimulusInterval definitions as Cell<StimuIntDef>
         %   config: Config
         %   numSubjects: total number of subjects as double
-        function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects) %Tim ID 12 plot of QualityFigs
-            StimuIntIndex = length(StimuIntDefs);
-            outputFolder= config.OutputDirectory;
-            h = waitbar(0,['Writing EEG quality figures for ' num2str(StimuIntIndex) ' StimulusInterval(s)']);
-            xtick = 0:numSubjects;
-            for i = 1:StimuIntIndex
-                fig = figure('Visible','off');
-                numberExcluded = length(find(filteredQuality(:,i) >= config.QualityIndex));
-                plot(unfilteredQuality(:,i),'b');
-                hold on;
-                plot(filteredQuality(:,i),'k');
-                grid;
-                hold off;
-                line('XData',[1 numSubjects],'YData',[config.QualityIndex config.QualityIndex],'Color','r')
-                hold off;
-                legend('Unfiltered EEG Data','Filtered EEG Data',[num2str(config.QualityIndex) '% cutoff for filtered EEG data']);
-                thresholdString = ['[' num2str(config.LowerThreshold) ',' num2str(config.UpperThreshold) ']'];
-                StimuIntClass = StimuIntDefs{1,i}(1);
-                title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for ',StimuIntClass.stimuIntDescrp,' ',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);
-                ylabel('Quality index [%]');
-                xlabel('subject [#]');
-                axis([1 numSubjects 0 100]);
-                set(gca,'XTick',xtick,'xTickLabel',xtick);
-                set(fig, 'PaperType', 'A4');
-                set(fig, 'PaperOrientation', 'portrait');
-                set(fig, 'PaperUnits', 'centimeters');
-                set(fig, 'PaperPositionMode', 'auto');
-                set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
-                print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality ',StimuIntClass.stimuIntDescrp,'.pdf']);
-                close(fig);
-                waitbar(i/StimuIntIndex);
-            end
-            fig = figure('Visible','off');
-            ytick = 0:StimuIntIndex;
-            xtick = 0:numSubjects;
-            bar(validStimuIntsPerSubject,'stack');
-            grid on;
-            legend('Baseline','TV commercial','TV program');
-            [~,y] = size(validStimuIntsPerSubject);
-            axis([0 numSubjects+1 0 y+1]);
-            set(gca,'YTick',ytick,'yTickLabel',ytick);
-            set(gca,'XTick',xtick,'xTickLabel',xtick);
-            tMessage = ['Number of subjects reaching EEG quality criteria: ',int2str(validSubjects)];
-            title(tMessage);
-            ylabel('Number of StimulusInterval [#]');
-            xlabel('subject [#]');
-            set(fig, 'PaperType', 'A4');
-            set(fig, 'PaperOrientation', 'landscape');
-            set(fig, 'PaperUnits', 'centimeters');
-            set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality Index - Subjects.pdf']);
-            close(fig)
-            close(h);
-        end
+        
+%         Kreitzberg: Commented out, until functionality and usecase is declared
+%         or function is change
+        
+%         function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects) %Tim ID 12 plot of QualityFigs
+%             StimuIntIndex = length(StimuIntDefs);
+%             outputFolder= config.OutputDirectory;
+%             h = waitbar(0,['Writing EEG quality figures for ' num2str(StimuIntIndex) ' StimulusInterval(s)']);
+%             xtick = 0:numSubjects;
+%             for i = 1:StimuIntIndex
+%                 fig = figure('Visible','off');
+%                 numberExcluded = length(find(filteredQuality(:,i) >= config.QualityIndex));
+%                 plot(unfilteredQuality(:,i),'b');
+%                 hold on;
+%                 plot(filteredQuality(:,i),'k');
+%                 grid;
+%                 hold off;
+%                 line('XData',[1 numSubjects],'YData',[config.QualityIndex config.QualityIndex],'Color','r')
+%                 hold off;
+%                 legend('Unfiltered EEG Data','Filtered EEG Data',[num2str(config.QualityIndex) '% cutoff for filtered EEG data']);
+%                 thresholdString = ['[' num2str(config.LowerThreshold) ',' num2str(config.UpperThreshold) ']'];
+%                 StimuIntClass = StimuIntDefs{1,i}(1);
+%                 title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for ',StimuIntClass.stimuIntDescrp,' ',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);
+%                 ylabel('Quality index [%]');
+%                 xlabel('subject [#]');
+%                 axis([1 numSubjects 0 100]);
+%                 set(gca,'XTick',xtick,'xTickLabel',xtick);
+%                 set(fig, 'PaperType', 'A4');
+%                 set(fig, 'PaperOrientation', 'portrait');
+%                 set(fig, 'PaperUnits', 'centimeters');
+%                 set(fig, 'PaperPositionMode', 'auto');
+%                 set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
+%                 print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality ',StimuIntClass.stimuIntDescrp,'.pdf']);
+%                 close(fig);
+%                 waitbar(i/StimuIntIndex);
+%             end
+%             fig = figure('Visible','off');
+%             ytick = 0:StimuIntIndex;
+%             xtick = 0:numSubjects;
+%             bar(validStimuIntsPerSubject,'stack');
+%             grid on;
+%             legend('Baseline','TV commercial','TV program');
+%             [~,y] = size(validStimuIntsPerSubject);
+%             axis([0 numSubjects+1 0 y+1]);
+%             set(gca,'YTick',ytick,'yTickLabel',ytick);
+%             set(gca,'XTick',xtick,'xTickLabel',xtick);
+%             tMessage = ['Number of subjects reaching EEG quality criteria: ',int2str(validSubjects)];
+%             title(tMessage);
+%             ylabel('Number of StimulusInterval [#]');
+%             xlabel('subject [#]');
+%             set(fig, 'PaperType', 'A4');
+%             set(fig, 'PaperOrientation', 'landscape');
+%             set(fig, 'PaperUnits', 'centimeters');
+%             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
+%             print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality Index - Subjects.pdf']);
+%             close(fig)
+%             close(h);
+%         end
         
         %% Plots EDA figures for given StimulusIntervals to given file name
         %   StimuIntIndex: StimulusInterval indicies of StimulusIntervals to plot as doubel[]
