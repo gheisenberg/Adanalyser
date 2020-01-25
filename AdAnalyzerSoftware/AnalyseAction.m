@@ -386,17 +386,17 @@ classdef AnalyseAction < handle
         
         function indicies = getStimuIntIndec(self,NeededLocal,NeededDescrp,StimuIntDef)
             lengthStimu = length(StimuIntDef);
-            indicies = zeros(1,lengthStimu); %indicies is a vector
+            indicies = zeros(1,lengthStimu);
 
             for i = 1:lengthStimu
                 StimuIntSearchLocal = StimuIntDef{i}.StimuIntLocal;
                 StimuIntSearchDescrp = StimuIntDef{i}.stimuIntDescrp;
 
-                if strcmpi(NeededLocal,StimuIntSearchLocal) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)
+                if strcmpi(NeededLocal,StimuIntSearchLocal) 
                     indicies(i)= i;    
                 end
 
-                if contains(NeededDescrp,StimuIntSearchDescrp) %% hier müssen wir nochmal ran, da das 'legacy' nicht schön ist. Vielleicht kann man ismember ersetzen? (Gernot)
+                if contains(NeededDescrp,StimuIntSearchDescrp)
                     indicies(i)= i;
                 end
                 
