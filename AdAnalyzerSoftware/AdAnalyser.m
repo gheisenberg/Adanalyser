@@ -209,6 +209,7 @@ function prepare_Callback(hObject, eventdata, handles)
 global conf; 
 global data;
 global eegdevice edadevice hrvdevice;
+disp('Prepare subject');
 action = PrepareAction(); 
 [data,eegdevice,edadevice,hrvdevice] = action.prepare(conf); 
 if (data.isValid)
@@ -221,6 +222,7 @@ function filter_Callback(hObject, eventdata, handles)
 global conf
 global data
 global eegdevice edadevice hrvdevice;
+disp('Filter subject');
 filter = FilterAction();
 data = filter.filter(data,conf,eegdevice,edadevice,hrvdevice);
 set(handles.analyse,'enable','on');
@@ -232,6 +234,7 @@ function analyse_Callback(hObject, eventdata, handles)
 global conf;
 global data;
 global eegdevice edadevice hrvdevice;
+disp('Analyse subject');
 a = AnalyseAction();
 a.analyse(data,conf,eegdevice,edadevice,hrvdevice);
 disp('Done');
