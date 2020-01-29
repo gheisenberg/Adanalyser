@@ -247,7 +247,7 @@ classdef Plotter
             xlabel('time [s]');
             m = sprintf('%.2f',mean(hrvValues));
             sd = sprintf('%.2f',std(hrvValues));
-            title(['HRV values for subject ' subjName ' (mean=' m 'ms, sd=' sd 'ms)']);
+            title({['HRV values for subject ' subjName ' (mean=' m 'ms, sd=' sd 'ms)'],''});
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
@@ -447,7 +447,7 @@ classdef Plotter
             else
                 t = 'EDA values';
             end
-            title(t);
+            title({t,''});
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
@@ -498,7 +498,7 @@ classdef Plotter
             axis([1 length(theta_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xname);
             [~,subjName,~] = fileparts(fPath);
-            t = title(['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_',' ')]);
+            t = title({['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_',' ')],''});
             tP = get(t,'Position');
             set(t,'Position',[tP(1) tP(2)+0.3 tP(3)]);
             set(t,'FontSize',12);
@@ -724,7 +724,7 @@ classdef Plotter
             completeVidLength =0;
             for i=1:length(StimuIntDef)
                 completeVidLength = completeVidLength + StimuIntDef{i}.length;
-                StimuIntLabels{i} = ['StimulusInterval' num2str(i)];
+                StimuIntLabels{i} = ['StimuInt' num2str(i)];
                 if i==1
                     StimuIntStartPoints(i) = 0;
                 else

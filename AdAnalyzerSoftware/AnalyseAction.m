@@ -86,7 +86,7 @@ classdef AnalyseAction < handle
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             % EDA statistics 
-            orientingResponse = self.getStimuIntIndec('Dummy','EDA OrientingResponse',StimuIntDefs);
+            orientingResponse = self.getStimuIntIndec('Dummy','EDA Orienting Response',StimuIntDefs);
             [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals);%2
             edaStimuInt = self.getStimuIntIndec('EDA','Dummy',StimuIntDefs);
             edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
@@ -195,10 +195,10 @@ classdef AnalyseAction < handle
         %% Performs analysis for each StimulusInterval of each subject
         function StimuIntStatsMat = analyseStimuInt(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerVid,StimuIntDefs,config)
             % Calculate eeg statistics for each StimulusInterval
-            StimuIntStatsMat = cell(1,9);
-            StimuIntStatsMat(1,1) = {['EEG statistics for StimulusInterval' num2str(StimuIntNumber)]};
             StimuIntLength = length(filteredEEGPerStim{StimuIntNumber})/512;
             StimuIntDef = StimuIntDefs{StimuIntNumber};
+            StimuIntStatsMat = cell(1,9);
+            StimuIntStatsMat(1,1) = {['EEG statistics for ' StimuIntDef.stimuIntDescrp]};
             [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerStim{StimuIntNumber});
             self.frequencies(StimuIntNumber,:) = {delta,theta,alpha,beta1,beta2,task};
             % Calculate eeg statistics for each StimulusInterval and each frequency

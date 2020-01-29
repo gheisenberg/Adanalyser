@@ -31,9 +31,9 @@ classdef StimuIntDefinition
             elseif type == 1
                 ST.StimuIntLocal = 'EDA';
                 if numbertype(type+1) == 1
-                ST.stimuIntDescrp = 'EDA OrientingResponse';
+                ST.stimuIntDescrp = 'EDA Orienting Response';
                 else
-                    ST.stimuIntDescrp = ['EDA OrientingResponse ' num2str(numbertype(type+1))];
+                    ST.stimuIntDescrp = ['EDA Orienting Response ' num2str(numbertype(type+1))];
                  end
                 
             elseif type == 2
