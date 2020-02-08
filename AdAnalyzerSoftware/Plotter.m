@@ -8,9 +8,19 @@ classdef Plotter
         function writeStatistics(self,stats, fName)
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            text(0.0,0.5,stats,'FontName','FixedWidth','FontSize',8);
-            orient(fig,'tall');
-            print(fName,'-dpdf',fig);
+            text(0.0,0.5,stats,'FontName','FixedWidth','FontSize',6); %Changed Font size to 6 (from 8) to display the hole text
+            print(fName,'-dpdf',fig,'-r0');
+            close(fig);
+        end
+        
+        %% Saves in/valid Subjects and status
+        %   stats: statistics as String
+        %   fName: File name as String
+        function writeValid(self,index, fName)
+            fig = figure('Visible','off');
+            axes('Position',[0 0.1 1 1],'Visible','off');
+            text(0.0,0.5,index,'FontName','FixedWidth','FontSize',10);
+            print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
         
@@ -262,9 +272,9 @@ classdef Plotter
         %   filteredValues: Filteres eeg values as double[]
         %   quality: Two double values. First is percent outside for
         %   rawValues. Second is percent outside for filtered values
-        %   subjectName: The name of the subject as String
+        %   subject: Data of Subject
         %   config: Config  
-        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subjectName,electrode,config,data)
+        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subject,electrode,config,data)
             numRawValues = length(rawValues);
             numFilteredValues = length(filteredValues);
             fig = figure('visible', 'off');
@@ -276,7 +286,7 @@ classdef Plotter
             line('XData',[0 numRawValues],'YData',[config.UpperThreshold config.UpperThreshold],'Color','r')
             hold off;
             thresholdString = ['[' num2str(config.LowerThreshold) ',' num2str(config.UpperThreshold) ']'];
-            title (['Unfiltered EEG raw data for electrode ' char(electrode) ' of subject ' subjectName ' (' sprintf('%3.2f',quality(1)) '% of data lies outside the interval ' thresholdString 'µV)'])
+            title (['Unfiltered EEG raw data for electrode ' char(electrode) ' of subject ' subject.name ' (' sprintf('%3.2f',quality(1)) '% of data lies outside the interval ' thresholdString 'µV)'])
             ylabel('amplitude [µV]');
             xlabel('data point [#]');
             axis([1 numRawValues min(rawValues) max(rawValues)])
@@ -288,7 +298,7 @@ classdef Plotter
             line('XData',[0 numFilteredValues],'YData',[config.LowerThreshold config.LowerThreshold],'Color','r')
             line('XData',[0 numFilteredValues],'YData',[config.UpperThreshold config.UpperThreshold],'Color','r')
             hold off;
-            title (['Filtered EEG raw data for subject ', subjectName ,' (',sprintf('%3.2f',quality(2)),'% of data lies outside the interval ' thresholdString 'µV)'])
+            title (['Filtered EEG raw data for subject ', subject.name ,' (',sprintf('%3.2f',quality(2)),'% of data lies outside the interval ' thresholdString 'µV)'])
             ylabel('amplitude [µV]')
             xlabel('data point [#]');
             axis([1 numFilteredValues min(rawValues) max(rawValues)])
@@ -297,7 +307,10 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            print([config.OutputDirectory '/' subjectName '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
+            %Filter Invalid Subject to print EEG files
+            if subject.isValid == 1
+            print([config.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
+            end
             close(fig);
         end
         

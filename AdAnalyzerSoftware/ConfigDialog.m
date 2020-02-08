@@ -22,7 +22,7 @@ function varargout = ConfigDialog(varargin)
 
 % Edit the above text to modify the response to help ConfigDialog
 
-% Last Modified by GUIDE v2.5 18-Jan-2020 15:18:29
+% Last Modified by GUIDE v2.5 02-Feb-2020 15:12:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -339,3 +339,12 @@ function figure1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+
+% --- Executes on button press in pushbutton6.
+function pushbutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ElectrodesDialog;

@@ -35,7 +35,7 @@ classdef FilterAction < handle
                     percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
                     percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
                     if (config.EEG_DEVICE_USED)
-                        self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject.name,eegValues.electrode,config);
+                        self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject,eegValues.electrode,config);
                     end
                     %calculate eeg and eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
@@ -150,12 +150,12 @@ classdef FilterAction < handle
             other = zeros(1,numStimuIntDefs);
             clips = zeros(1,numStimuIntDefs);
             for i=1:numStimuIntDefs
-                vid = stimuIntDefs{i};
-                if (vid.StimuIntType==StimuIntType.EEGBaseline)
+                Stimu = stimuIntDefs{i};
+                if (contains(Stimu.stimuIntDescrp,'EDA Baseline'))
                     baselines(i) = i;
-                elseif (vid.StimuIntType==StimuIntType.TVCommercial)
+                elseif (contains(Stimu.stimuIntDescrp,'TV Commercial'))
                     ads(i) = i;
-                elseif (vid.StimuIntType==StimuIntType.TVProgramm)
+                elseif (contains(Stimu.stimuIntDescrp,'TV Programm'))
                     clips(i) = i;
                 else
                     other(i) = i;

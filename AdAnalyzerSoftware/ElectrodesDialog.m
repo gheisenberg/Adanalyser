@@ -51,8 +51,8 @@ handles.output = hObject;
 % create an axes that spans the whole gui
 ah = axes('unit', 'normalized', 'position', [0.0 0.07 0.5 0.85]); 
 % import the background image and show it on the axes
-bg = imread('background.jpg'); 
-imagesc(bg);
+axes(handles.background)
+imshow('EEG_Background.jpg')
 % prevent plotting over the background and turn the axis off
 set(ah,'handlevisibility','off','visible','off')
 % making sure the background is behind all the other uicontrols
@@ -74,87 +74,108 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in fp1.
 function fp1_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.fp1 = 1;
 
 % --- Executes on button press in fp2.
 function fp2_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.fp2 = 1;
 
 % --- Executes on button press in fpz.
 function fpz_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.fpz = 1;
 
 % --- Executes on button press in fz.
 function fz_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.fz = 1;
 
 % --- Executes on button press in f3.
 function f3_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.f3 = 1;
 
 % --- Executes on button press in f4.
 function f4_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.f4 = 1;
 
 % --- Executes on button press in f7.
 function f7_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.f7 = 1;
 
 % --- Executes on button press in f8.
 function f8_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.f8 = 1;
 
 % --- Executes on button press in t3.
 function t3_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.t3 = 1;
 
 % --- Executes on button press in t4.
 function t4_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.t4 = 1;
 
 % --- Executes on button press in cz.
 function cz_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.cz = 1;
 
 % --- Executes on button press in c4.
 function c4_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.c4 = 1;
 
 % --- Executes on button press in c3.
 function c3_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.c3 = 1;
 
 % --- Executes on button press in p3.
 function p3_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.p3 = 1;
 
 % --- Executes on button press in p4.
 function p4_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.p4 = 1;
 
 % --- Executes on button press in pz.
 function pz_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.pz = 1;
 
 % --- Executes on button press in t5.
 function t5_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.t5 = 1;
 
 % --- Executes on button press in t6.
 function t6_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.t6 = 1;
 
 % --- Executes on button press in o1.
 function o1_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.o1 = 1;
 
 % --- Executes on button press in o2.
 function o2_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.o2 = 1;
 
 % --- Executes on button press in oz.
 function oz_Callback(hObject, eventdata, handles)
-[filename, pathname] = uigetfile('*.txt;*.csv', 'Select EDA File','MultiSelect', 'off');
+global electrode
+electrode.oz = 1;
 
 
 % --- Executes on button press in ok.
@@ -163,12 +184,38 @@ function ok_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+close;
 
 % --- Executes on button press in cancel.
 function cancel_Callback(hObject, eventdata, handles)
 % hObject    handle to cancel (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global electrode
+
+electrode.fp1 = 0;
+electrode.fp2 = 0;
+electrode.fpz = 0;
+electrode.fz = 0;
+electrode.f3 = 0;
+electrode.f4 = 0;
+electrode.f7 = 0;
+electrode.f8 = 0;
+electrode.t3 = 0;
+electrode.t4 = 0;
+electrode.cz = 0;
+electrode.c4 = 0;
+electrode.c3 = 0;
+electrode.p3 = 0;
+electrode.p4 = 0;
+electrode.pz = 0;
+electrode.t5 = 0;
+electrode.t6 = 0;
+electrode.o1 = 0;
+electrode.o2 = 0;
+electrode.oz = 0;
+
+close; 
 
 
 % --- Executes on selection change in popupmenu2.

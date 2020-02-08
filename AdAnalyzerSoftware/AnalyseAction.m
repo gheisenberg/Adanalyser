@@ -22,13 +22,16 @@ classdef AnalyseAction < handle
             validSubjects = self.countValidSubjects(subjects);
             message = ['Analysing data for ' num2str(validSubjects) ' valid subject(s)'];
             wBar = waitbar(0,message);
+            %Tabel with in/valid Status of Subjects
+            self.subjectValid(subjects,config);
             for i=1:length(subjects)
                 self.frequencies = cell(6,6);
                 self.frequencies4Hz = cell(6,6);
                 subject = subjects{i};
-                if (subject.isValid)
+%                 if (subject.isValid) <- do analyse for all subjects and
+%                 just filter at EEG
                     self.analyseSubject(subject,StimuIntDefs,config);
-                end
+
                 waitbar(i/validSubjects);
             end
             close(wBar);
@@ -45,6 +48,22 @@ classdef AnalyseAction < handle
             end
         end
         
+        %% Print in/valid subject table
+        function subjectValid(self,subject,config)
+            counter = length(subject);
+            statsMat = cell(length(subject)+2,1);
+            statsMat(1) = {'Overview of subjects and their EEG Status'};
+            for i=1:counter 
+               sub = subject{i};
+               if sub.isValid == 1
+                   statsMat(i+2) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
+               else 
+                   statsMat(i+2) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
+               end
+            end
+            self.plotter.writeValid(statsMat,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
+        end
+        
         %% Performs analysis for each subject
         function analyseSubject(self,subject,StimuIntDefs,config)
             edaPerStim = subject.edaPerVid;
@@ -58,9 +77,15 @@ classdef AnalyseAction < handle
             if (config.DetrendedEDAFig)
                 self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
             end
+            % Plot EEG 
             numElectrodes = length(subject.eegValuesForElectrodes); 
             statsMat = cell(4+numElectrodes,9);
-            statsMat(1,1) = {['Statistics for subject ' subject.name]};
+            %Mark unvalid subjects in EEG Statistics
+            if subject.isValid == 1
+                statsMat(1,1) = {['Statistics for subject ' subject.name]};
+            elseif subject.isValid == 0
+                statsMat(1,1) = {['Statistics for subject ' subject.name ' EEG VALUES INVALID']};
+            end
             statsMat(3,1:5) ={'EEG values by electrodes','mean[µV]','sd[µV]','dev-[µV]','dev+[µV]'};
             mMean =0; 
             sdMean =0;
@@ -86,7 +111,7 @@ classdef AnalyseAction < handle
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             % EDA statistics 
-            orientingResponse = self.getStimuIntIndec('Dummy','EDA Orienting Response',StimuIntDefs);
+            orientingResponse = self.getStimuIntIndec('Dummy','EDA Orientation Response',StimuIntDefs);
             [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals);%2
             edaStimuInt = self.getStimuIntIndec('EDA','Dummy',StimuIntDefs);
             edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
@@ -216,10 +241,10 @@ classdef AnalyseAction < handle
             end
             % Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL
             if (config.RecurrenceFig)
-                if (StimuIntDef.StimuIntType==StimuIntType.TVCommercial)
+                if (contains(StimuIntDef.stimuIntDescrp,'TV Commercial')) 	%Tim Value Hardcoded 
                     self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef.stimuIntDescrp,edaPerVid{StimuIntNumber});
                 end
-                if (StimuIntDef.StimuIntType==StimuIntType.TVProgramm)
+                if (contains(StimuIntDef.stimuIntDescrp,'TV Programm'))
                     self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef.stimuIntDescrp,edaPerVid{StimuIntNumber}); %Tim
                 end 
             end

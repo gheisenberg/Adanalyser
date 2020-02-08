@@ -4,7 +4,6 @@ classdef StimuIntDefinition
         
     properties
         stimuIntDescrp %Description of StimuInt
-        StimuIntType % See: StimuIntType
         length % Length of the Stimulusinterval
         intervals ={} % Intervals of interest 
         StimuIntLocal % Localization of reaction to StimulusInterval e.g. eda
@@ -13,7 +12,6 @@ classdef StimuIntDefinition
     methods
         %% Constructor: Creates new StimuIntDefinition and sets values
         function ST = StimuIntDefinition(type,l,intervals,numbertype)
-            ST.StimuIntType = type;
             ST.length = l;
             ST.intervals = intervals; 
             
@@ -31,9 +29,9 @@ classdef StimuIntDefinition
             elseif type == 1
                 ST.StimuIntLocal = 'EDA';
                 if numbertype(type+1) == 1
-                ST.stimuIntDescrp = 'EDA Orienting Response';
+                ST.stimuIntDescrp = 'EDA Orientation Response';
                 else
-                    ST.stimuIntDescrp = ['EDA Orienting Response ' num2str(numbertype(type+1))];
+                    ST.stimuIntDescrp = ['EDA Orientation Response ' num2str(numbertype(type+1))];
                  end
                 
             elseif type == 2
