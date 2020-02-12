@@ -18,9 +18,11 @@ classdef Plotter
         %   fName: File name as String
         function writeValid(self,index, fName)
             fig = figure('Visible','off');
-            axes('Position',[0 0.1 1 1],'Visible','off');
-            text(0.0,0.5,index,'FontName','FixedWidth','FontSize',10);
-            print(fName,'-dpdf',fig,'-r0');
+            axes('Position',[0.1 0.1 1 1],'Visible','off');
+            text(0.0,0.85,index,'FontName','FixedWidth','FontSize',10);
+            ...%'VerticalAlignment', 'top', ...            
+            %'HorizontalAlignment', 'right');
+            print(fName,'-dpdf',fig,'-r0','-fillpage');
             close(fig);
         end
         
