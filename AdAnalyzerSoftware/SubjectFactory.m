@@ -8,7 +8,7 @@ classdef SubjectFactory
     methods
         %% Creates new Subjects on base of the file paths stored in Config Object.
         %   See: Config.m
-        function subjects=createSubjects(self,config,StimuIntLength)
+        function subjects=createSubjects(self,config,StimuIntLength,eegDevice,edaDevice,hrvDevice)
             eegFilePaths = config.EEGFiles;
             edaFilePaths = config.EDAFiles;
             hrvFilePaths = config.HRVFiles;
@@ -28,7 +28,7 @@ classdef SubjectFactory
                 subject = Subject();
                 for j = 1:length(eegFileIndicies)
                    eegFileForSubject = eegFilePaths{eegFileIndicies(j)}; 
-                   subject.eegValuesForElectrodes{j} = self.parseEEGFile(eegFileForSubject,StimuIntLength);
+                   subject.eegValuesForElectrodes{j} = self.parseEEGFile(eegFileForSubject,StimuIntLength,eegDevice);
                 end
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
@@ -40,8 +40,8 @@ classdef SubjectFactory
                 hrvFileForSubject = hrvFilePaths{hrvFileIndex};
                 % create the subject
                 subject.name = subjectName;
-                subject.edaValues = self.parseEDAGFile(edaFileForSubject,StimuIntLength);
-                subject.hrvValues = self.parseHRVFile(hrvFileForSubject);    
+                subject.edaValues = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
+                subject.hrvValues = self.parseHRVFile(hrvFileForSubject,hrvDevice);    
                 subjects{i}=subject; 
                 % update waitbar
                 waitbar(i /numberOfSubjects);
@@ -53,7 +53,7 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to int array
-        function electrodeEEGdata = parseEEGFile(self,eegFile,StimuIntLength)
+        function electrodeEEGdata = parseEEGFile(self,eegFile,StimuIntLength,eegDevice)
             [~,name,~] = fileparts(eegFile);
             splitFileName = textscan(name,'%s','Delimiter','_');
             electrodeName = splitFileName{1}{3};
@@ -64,29 +64,31 @@ classdef SubjectFactory
             electrodeEEGdata = ElectrodeEEGData();
             electrodeEEGdata.electrode = Electrodes.(electrodeName); 
             eegOffset = 10;
-            eegValuesPerSec = 512;
-            start = eegOffset*eegValuesPerSec;
-            ende = start+(StimuIntLength*eegValuesPerSec);
+            EEGSamplingRate = eegDevice.samplingRate;
+            start = eegOffset*EEGSamplingRate;
+            ende = start+(StimuIntLength*EEGSamplingRate);
             % Cut of egg values and create eeg matrix for each subject
             eegValsCutoff = eegRawValues(start:ende-1);
-            eegValsMatrix = reshape(eegValsCutoff,eegValuesPerSec,StimuIntLength);
+            eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
             electrodeEEGdata.eegValues = eegValsCutoff;
             electrodeEEGdata.eegMatrix = double(eegValsMatrix');
         end
         
         %% Parses HRV file to double array
-        function hrvValues = parseHRVFile(self,hrvFile)
+        function hrvValues = parseHRVFile(self,hrvFile,hrvDevice)
             fileID = fopen(hrvFile);
             fileContents = textscan(fileID,'%f %f','Delimiter',',');
             fclose(fileID);
             hrvValues = fileContents(:,2);
             hrvValues = hrvValues{1};
+            %maybe we have to implement the HRV data values the same way as the EDA values
+            % see below !!! Now we assume that hrvDevice.samplingRate = 1 
         end
         
         
         %% Parses EDA file to double array
-        function edaValues = parseEDAGFile(self,edaFile,StimuIntLength)
-            edaValuesPerSec = 5;
+        function edaValues = parseEDAFile(self,edaFile,StimuIntLength,edaDevice)
+            edaValuesPerSec = edaDevice.samplingRate;
             fileID = fopen(edaFile);
             fileContents = textscan(fileID,'%f %f','HeaderLines',1,'Delimiter',',');
             fclose(fileID);

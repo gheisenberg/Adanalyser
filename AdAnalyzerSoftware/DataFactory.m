@@ -12,7 +12,7 @@ classdef DataFactory
         %   Cut off first 10 seconds of eeg values
         %   Cut off eda values at the end
         %   Sets eeg matrix
-        function data = createData(self, conf)
+        function data = createData(self, conf, eegDevice,edaDevice,hrvDevice)
             stimuIntDefs = self.parseStimuIntDefinition(conf.StimuIntDef);
             StimuIntLength = 0;
             % Calculate complete StimulusInterval length
@@ -20,7 +20,7 @@ classdef DataFactory
                 StimuIntLength = StimuIntLength + stimuIntDefs{i}.length;
             end
             subjectFactory = SubjectFactory();
-            subjects = subjectFactory.createSubjects(conf,StimuIntLength);
+            subjects = subjectFactory.createSubjects(conf,StimuIntLength,eegDevice,edaDevice,hrvDevice);
             data = Data(subjects,stimuIntDefs);
         end
     end

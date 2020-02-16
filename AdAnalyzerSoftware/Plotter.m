@@ -143,10 +143,11 @@ classdef Plotter
         %  outputDir: Path to output directory as String
         %  frequencies: eeg frequency data for subject as CellArray of double[] 
         %  intervals: intervals of interest as int[]
-        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef)
+        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef,eegDevice)
+            EEGSamplingRate=eegDevice.samplingRate;
             intervals = StimuIntDef.intervals;
             stimuIntDescrp = StimuIntDef.stimuIntDescrp;
-            lengthInSeconds = length(frequencies{1,1})/512; 
+            lengthInSeconds = length(frequencies{1,1})/EEGSamplingRate; 
             stepWith = 1;
             if lengthInSeconds > 30
                 xName = 0:5:lengthInSeconds;
@@ -160,12 +161,12 @@ classdef Plotter
             % make values discrete (calculate mean per second)
             for i=1:m
                 start = 1; 
-                ende = 512*stepWith; 
+                ende = EEGSamplingRate*stepWith; 
                 freqValues = frequencies{:,i}; 
                 for j=1:n
                    absolutValuesPerSecond(i,j) = mean(freqValues(start:ende)); 
-                   start = start +512*stepWith;
-                   ende = ende +512*stepWith; 
+                   start = start +EEGSamplingRate*stepWith;
+                   ende = ende +EEGSamplingRate*stepWith; 
                 end
             end
             %Normalize percental 

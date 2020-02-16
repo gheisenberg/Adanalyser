@@ -30,7 +30,7 @@ classdef AnalyseAction < handle
                 subject = subjects{i};
 %                 if (subject.isValid) <- do analyse for all subjects and
 %                 just filter at EEG
-                    self.analyseSubject(subject,StimuIntDefs,config);
+                    self.analyseSubject(subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
 
                 waitbar(i/validSubjects);
             end
@@ -52,7 +52,7 @@ classdef AnalyseAction < handle
         function subjectValid(self,subject,config)
             counter = length(subject);
             statsMat = cell(length(subject)+2,1);
-            statsMat(1) = {'Overview of subjects and their EEG Status'};
+            statsMat(1) = {'Overview of subjects and their EEG status'};
             for i=1:counter 
                sub = subject{i};
                if sub.isValid == 1
@@ -65,7 +65,7 @@ classdef AnalyseAction < handle
         end
         
         %% Performs analysis for each subject
-        function analyseSubject(self,subject,StimuIntDefs,config)
+        function analyseSubject(self,subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
             edaPerStim = subject.edaPerVid;
             edaComplete = subject.edaValues;
             numStimuInt = length(edaPerStim);
@@ -107,12 +107,12 @@ classdef AnalyseAction < handle
             statsMat(end,1:5) = {'Mean electrode values: ',num2str(mMean/numElectrodes,'%6.4f'),num2str(sdMean/numElectrodes,'%6.4f'),num2str(devMMean/numElectrodes,'%6.4f'),num2str(devPMean/numElectrodes,'%6.4f')}; 
             for StimuIntNumber=1:numStimuInt
                 filteredEEGPerVid = self.calculateMeanEEGValuesForStimuInt(subject);
-                StimuIntStatsMat = self.analyseStimuInt(subject,StimuIntNumber,filteredEEGPerVid,edaPerStim,StimuIntDefs,config);
+                StimuIntStatsMat = self.analyseStimuInt(subject,StimuIntNumber,filteredEEGPerVid,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             % EDA statistics 
             orientingResponse = self.getStimuIntIndec('Dummy','EDA Orientation Response',StimuIntDefs);
-            [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals);%2
+            [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals,edaDevice);%2
             edaStimuInt = self.getStimuIntIndec('EDA','Dummy',StimuIntDefs);
             edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
@@ -147,14 +147,14 @@ classdef AnalyseAction < handle
                 resolution = 4;
                 intervals = StimuIntDefs{4}.intervals;
                 StimuIntDescrp = StimuIntDefs{4}.stimuIntDescrp;
-                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{4})/512,...
+                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{4})/eegDevice.samplingRate,...
                     [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                     tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s,baselineTheta_s,...
                     baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
                     ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for' StimuIntDescrp ' of subject ' subject.name]);
                 intervals = StimuIntDefs{5}.intervals;
                 StimuIntDescrp = StimuIntDefs{5}.stimuIntDescrp;
-                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{5})/512,...
+                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{5})/eegDevice.samplingRate,...
                     [config.OutputDirectory '/' subject.name  '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                     tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s,...
                     baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
@@ -218,22 +218,22 @@ classdef AnalyseAction < handle
         end
         
         %% Performs analysis for each StimulusInterval of each subject
-        function StimuIntStatsMat = analyseStimuInt(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerVid,StimuIntDefs,config)
+        function StimuIntStatsMat = analyseStimuInt(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerVid,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
             % Calculate eeg statistics for each StimulusInterval
-            StimuIntLength = length(filteredEEGPerStim{StimuIntNumber})/512;
+            StimuIntLength = length(filteredEEGPerStim{StimuIntNumber})/eegDevice.samplingRate;
             StimuIntDef = StimuIntDefs{StimuIntNumber};
             StimuIntStatsMat = cell(1,9);
             StimuIntStatsMat(1,1) = {['EEG statistics for ' StimuIntDef.stimuIntDescrp]};
-            [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerStim{StimuIntNumber});
+            [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerStim{StimuIntNumber},eegDevice);
             self.frequencies(StimuIntNumber,:) = {delta,theta,alpha,beta1,beta2,task};
             % Calculate eeg statistics for each StimulusInterval and each frequency
             eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerStim{StimuIntNumber},delta,theta,alpha,beta1,beta2,task);
             StimuIntStatsMat = vertcat(StimuIntStatsMat,eegFreqStatsMat);
             % Reduce signal resolution to 4Hz
-            [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task);
+            [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task,eegDevice);
             self.frequencies4Hz(StimuIntNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
             if(config.BehaveFig)
-                self.plotter.plotBehavioralCharacteristics(subject.name,StimuIntNumber,config.OutputDirectory,self.frequencies(StimuIntNumber,:),StimuIntDef)
+                self.plotter.plotBehavioralCharacteristics(subject.name,StimuIntNumber,config.OutputDirectory,self.frequencies(StimuIntNumber,:),StimuIntDef,eegDevice)
             end
             if (config.FrequencyFig)
                 resolution = 4;
@@ -324,10 +324,10 @@ classdef AnalyseAction < handle
         end
         
         %% Calculates eda delays for given intervals
-        function [values,delays] = calculateDelays(self,edaValues,intervals)
+        function [values,delays] = calculateDelays(self,edaValues,intervals,edaDevice)
             edaValuesDetrend = detrend(edaValues);
             numEDAValues = length(edaValuesDetrend);
-            edaPerSec = 5.0;
+            edaPerSec = edaDevice.samplingRate;
             intervals(end+1)=numEDAValues/edaPerSec;
             %delays = zeros(1,length(intervals));
             %values = zeros(1,length(intervals));
@@ -369,25 +369,26 @@ classdef AnalyseAction < handle
         end
         
         %% Splits eeg data into different frequencies
-        function [delta,theta,alpha,beta1,beta2,task] = analyseFrequencies(self,filteredEEGData)
+        function [delta,theta,alpha,beta1,beta2,task] = analyseFrequencies(self,filteredEEGData,eegDevice)
+            EEGsampRate=eegDevice.samplingRate;
             %--------------------- Delta (1-4 Hz)
-            delta = sqrt((eegfiltfft(filteredEEGData,512,1,4)).^2);
+            delta = sqrt((eegfiltfft(filteredEEGData,EEGsampRate,1,4)).^2);
             %--------------------- Theta(5-7 Hz)
-            theta = sqrt((eegfiltfft(filteredEEGData,512,5,7)).^2);
+            theta = sqrt((eegfiltfft(filteredEEGData,EEGsampRate,5,7)).^2);
             %--------------------- Alpha(8-13 Hz)
-            alpha = sqrt((eegfiltfft(filteredEEGData,512,8,13)).^2);
+            alpha = sqrt((eegfiltfft(filteredEEGData,EEGsampRate,8,13)).^2);
             %--------------------- Beta1(14-24 Hz)
-            beta1 = sqrt((eegfiltfft(filteredEEGData,512,14,24)).^2);
+            beta1 = sqrt((eegfiltfft(filteredEEGData,EEGsampRate,14,24)).^2);
             %--------------------- Beta2(25-40 Hz)
-            beta2 = sqrt((eegfiltfft(filteredEEGData,512,25,40)).^2);
+            beta2 = sqrt((eegfiltfft(filteredEEGData,EEGsampRate,25,40)).^2);
             %--------------------- Task-Engagement
             task = beta1./(alpha+theta);
         end
         
         %% Subsamples the different eeg frequencies to a resoultion of 4Hz
-        function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task)
+        function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task,eegDevice)
             resolution = 4;
-            resolutionFac = double(512/resolution);
+            resolutionFac = double(eegDevice.samplingRate/resolution);
             l = length(delta)/(resolutionFac);
             delta_s = zeros(1,l);
             theta_s = zeros(1,l);

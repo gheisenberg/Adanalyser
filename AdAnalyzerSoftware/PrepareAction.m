@@ -27,7 +27,7 @@ classdef PrepareAction
                 edaDevice = self.deviceFactory.createEDADevice(conf);
                 hrvDevice = self.deviceFactory.createHRVDevice(conf);
                                 
-                data  = self.dataFactory.createData(conf);
+                data  = self.dataFactory.createData(conf,eegDevice,edaDevice,hrvDevice);
                 data.isValid = 1; 
             end
         end

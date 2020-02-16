@@ -20,7 +20,10 @@ classdef FilterAction < handle
             h = waitbar(0,message);
             numStimuInt = length(data.stimuIntDefs);
             numSubjects = length(data.subjects);
+            
             edaValsPerSec = edaDevice.samplingRate;
+            eegValsPerSec = eegDevice.samplingRate;
+            
             unfilteredQuality = zeros(numSubjects,numStimuInt);
             filteredQuality = zeros(numSubjects,numStimuInt);
             for i=1:numSubjects
@@ -40,7 +43,7 @@ classdef FilterAction < handle
                     %calculate eeg and eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
-                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,512,data.stimuIntDefs,filteredList);
+                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList);
                     subject.edaPerVid = edaValuesPerStim;
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
                     subject.eegValuesForElectrodes{j} = eegValues;
