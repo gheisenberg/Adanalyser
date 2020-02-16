@@ -2,13 +2,59 @@
 classdef Plotter
     methods
         
+        %% Saves all GUI and DEVICE settings to fName.pdf
+        %   config: contains all configs as String
+        %   fName: File name as String
+        function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,fName)
+            fatbraid="===========================================================" + newline;
+            thinbraid="------------------------------------------------------" + newline;
+            
+            output_text= strcat(fatbraid,"---> GUI SETTINGS"+newline);
+            output_text= strcat(output_text,fatbraid);
+            output_text= strcat(output_text,"SubStimuIntEDAFig=" + num2str(config.SubStimuIntEDAFig)+newline);
+            output_text= strcat(output_text,"Statistics=" + num2str(config.Statistics)+newline);
+            output_text= strcat(output_text,"BehaveFig=" + num2str(config.BehaveFig)+newline);
+            output_text= strcat(output_text,"DetrendedEDAFig=" + num2str(config.DetrendedEDAFig)+newline);
+            output_text= strcat(output_text,"RecurrenceFig=" + num2str(config.RecurrenceFig)+newline);
+            output_text= strcat(output_text,"QualityFig=" + num2str(config.QualityFig)+newline);
+            output_text= strcat(output_text,"FrequencyFig=" + num2str(config.FrequencyFig)+newline);
+            output_text= strcat(output_text,"LowerThreshold=" + num2str(config.LowerThreshold)+newline);
+            output_text= strcat(output_text,"UpperThreshold=" + num2str(config.UpperThreshold)+newline);
+            output_text= strcat(output_text,"QualityIndex=" + num2str(config.QualityIndex)+newline);
+            output_text= strcat(output_text,"RecurrenceTreshold=" + num2str(config.RecurrenceThreshold)+newline+newline);
+            output_text= strcat(output_text,fatbraid);
+            output_text= strcat(output_text,"---> DEVICE SETTINGS"+newline);
+            output_text= strcat(output_text,fatbraid);
+            output_text= strcat(output_text,"EEG-DEVICE SETTINGS"+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Device Manufacturer=" + eegDevice.name +newline);
+            output_text= strcat(output_text,"Sampling Frequency[Hz]=" + num2str(eegDevice.samplingRate)+newline);
+            output_text= strcat(output_text,"Electrode Positions=" + eegDevice.electrodePositions +newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"EDA-DEVICE SETTINGS"+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Device Manufacturer=" + edaDevice.name +newline);
+            output_text= strcat(output_text,"Sampling Frequency[Hz]=" + num2str(edaDevice.samplingRate)+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"HRV-DEVICE SETTINGS"+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Device Manufacturer=" + hrvDevice.name +newline);
+            output_text= strcat(output_text,"Sampling Frequency[Hz]=" + num2str(hrvDevice.samplingRate)+newline);
+            output_text= strcat(output_text,fatbraid);
+            
+            fig = figure('Visible','off');
+            axes('Position',[0 0.1 1 1],'Visible','off');
+            text(0.0,0.95,output_text,'FontName','FixedWidth','FontSize',8);
+            print(fName,'-dpdf',fig,'-r0');
+            close(fig);
+        end
         %% Saves statistics as PDF
         %   stats: statistics as String
         %   fName: File name as String
-        function writeStatistics(self,stats, fName)
+        function writeStatistics(self,stats,fName)
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            text(0.0,0.5,stats,'FontName','FixedWidth','FontSize',6); %Changed Font size to 6 (from 8) to display the hole text
+            text(0.0,0.85,stats,'FontName','FixedWidth','FontSize',6); %Changed font size to 6 (from 8) for displaying the whole text
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end

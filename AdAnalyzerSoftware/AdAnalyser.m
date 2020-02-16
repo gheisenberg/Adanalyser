@@ -234,7 +234,7 @@ function analyse_Callback(hObject, eventdata, handles)
 global conf;
 global data;
 global eegdevice edadevice hrvdevice;
-disp('Analyse data all sets');
+disp('Analyse all data sets');
 a = AnalyseAction();
 a.analyse(data,conf,eegdevice,edadevice,hrvdevice);
 disp('Done');

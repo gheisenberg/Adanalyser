@@ -64,11 +64,14 @@ classdef AnalyseAction < handle
             self.plotter.writeValid(statsMat,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
         end
         
-        %% Performs analysis for each subject
+        %% Performs analysis of the data of each subject
         function analyseSubject(self,subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
             edaPerStim = subject.edaPerVid;
             edaComplete = subject.edaValues;
             numStimuInt = length(edaPerStim);
+            %plot the a file as pdf containing all the GUI and all DEVICE settings
+            self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']);            
+            
             % Plot eda
             if (config.EDA_DEVICE_USED)
                 self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
@@ -162,6 +165,7 @@ classdef AnalyseAction < handle
             end
             %transient = self.frequencyEstimation(edaComplete);
             %self.plotter.plotMomentaryFrequency(transient,config,subject,stimuIntDef)
+            
         end
         
         %         %% Frequency estimation algorithmen
