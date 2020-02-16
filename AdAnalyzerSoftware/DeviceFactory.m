@@ -112,7 +112,7 @@ classdef DeviceFactory
                 if values(1) == "HRV_DEVICE_NAME"
                     HRVDeviceName = values(2);
                 elseif values(1)== "HRV_SAMPLING_FREQUENCY"
-                    HRVDeviceSamplingRate = values(2);
+                    HRVDeviceSamplingRate = str2double(values(2));
                 else
                     %do nothing
                 end
