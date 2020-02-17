@@ -22,7 +22,7 @@ function varargout = ElectrodesDialog(varargin)
 
 % Edit the above text to modify the response to help ElectrodesDialog
 
-% Last Modified by GUIDE v2.5 16-Sep-2015 20:01:03
+% Last Modified by GUIDE v2.5 12-Feb-2020 17:48:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,6 +59,20 @@ set(ah,'handlevisibility','off','visible','off')
 uistack(ah, 'bottom');
 % Update handles structure
 guidata(hObject, handles);
+%Create Table
+data1 = {'FP1'; 'FP2'; 'FPZ'; 'FZ '; 'F3 '; 'F4 '; 'F7 '; 'F8 '; 'T3 '; ...
+    'T4 '; 'CZ '; 'C4 '; 'C3 '; 'P3 '; 'P4 '; 'PZ '; 'T5 ';'T6 '; 'O1 '; ...
+    'O2 '; 'OZ '};
+set(handles.uitable4, 'Data',data1);
+data2 = get(handles.uitable4,'data');
+i=1;
+while i < 22
+data2{i,2} = 0;
+i =i+1;
+end
+set(handles.uitable4, 'Data', data2);
+
+set(handles.uitable4, 'ColumnName',{'Electrodes','Status'})
 
 
 
@@ -75,107 +89,170 @@ varargout{1} = handles.output;
 % --- Executes on button press in fp1.
 function fp1_Callback(hObject, eventdata, handles)
 global electrode
-electrode.fp1 = 1;
+electrode.fp1 = handles.fp1.Value;
+data = get(handles.uitable4,'data');
+data{1,2} = handles.fp1.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in fp2.
 function fp2_Callback(hObject, eventdata, handles)
 global electrode
-electrode.fp2 = 1;
+electrode.fp2 = handles.fp2.Value;
+data = get(handles.uitable4,'data');
+data{2,2} = handles.fp2.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in fpz.
 function fpz_Callback(hObject, eventdata, handles)
 global electrode
-electrode.fpz = 1;
+electrode.fpz = handles.fpz.Value;
+data = get(handles.uitable4,'data');
+data{3,2} = handles.fpz.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in fz.
 function fz_Callback(hObject, eventdata, handles)
 global electrode
-electrode.fz = 1;
+electrode.fz = handles.fz.Value;
+data = get(handles.uitable4,'data');
+data{4,2} = handles.fz.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in f3.
 function f3_Callback(hObject, eventdata, handles)
 global electrode
-electrode.f3 = 1;
+electrode.f3 = handles.f3.Value;
+data = get(handles.uitable4,'data');
+data{5,2} = handles.f3.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in f4.
 function f4_Callback(hObject, eventdata, handles)
 global electrode
-electrode.f4 = 1;
+electrode.f4 = handles.f4.Value;
+data = get(handles.uitable4,'data');
+data{6,2} = handles.f4.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in f7.
 function f7_Callback(hObject, eventdata, handles)
 global electrode
-electrode.f7 = 1;
+electrode.f7 = handles.f7.Value;
+data = get(handles.uitable4,'data');
+data{7,2} = handles.f7.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in f8.
 function f8_Callback(hObject, eventdata, handles)
 global electrode
-electrode.f8 = 1;
+electrode.f8 = handles.f8.Value;
+data = get(handles.uitable4,'data');
+data{8,2} = handles.f8.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in t3.
 function t3_Callback(hObject, eventdata, handles)
 global electrode
-electrode.t3 = 1;
+electrode.t3 = handles.t3.Value;
+data = get(handles.uitable4,'data');
+data{9,2} = handles.t3.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in t4.
 function t4_Callback(hObject, eventdata, handles)
 global electrode
-electrode.t4 = 1;
+electrode.t4 = handles.t4.Value;
+data = get(handles.uitable4,'data');
+data{10,2} = handles.t4.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in cz.
 function cz_Callback(hObject, eventdata, handles)
 global electrode
-electrode.cz = 1;
+electrode.cz = handles.cz.Value;
+data = get(handles.uitable4,'data');
+data{11,2} = handles.cz.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in c4.
 function c4_Callback(hObject, eventdata, handles)
 global electrode
-electrode.c4 = 1;
+electrode.c4 = handles.c4.Value;
+data = get(handles.uitable4,'data');
+data{12,2} = handles.c4.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in c3.
 function c3_Callback(hObject, eventdata, handles)
 global electrode
-electrode.c3 = 1;
+electrode.c3 = handles.c3.Value;
+data = get(handles.uitable4,'data');
+data{13,2} = handles.c3.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in p3.
 function p3_Callback(hObject, eventdata, handles)
 global electrode
-electrode.p3 = 1;
+electrode.p3 = handles.p3.Value;
+data = get(handles.uitable4,'data');
+data{14,2} = handles.p3.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in p4.
 function p4_Callback(hObject, eventdata, handles)
 global electrode
-electrode.p4 = 1;
+electrode.p4 = handles.p4.Value;
+data = get(handles.uitable4,'data');
+data{15,2} = handles.p4.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in pz.
 function pz_Callback(hObject, eventdata, handles)
 global electrode
-electrode.pz = 1;
+electrode.pz = handles.pz.Value;
+data = get(handles.uitable4,'data');
+data{16,2} = handles.pz.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in t5.
 function t5_Callback(hObject, eventdata, handles)
 global electrode
-electrode.t5 = 1;
+electrode.t5 = handles.t5.Value;
+data = get(handles.uitable4,'data');
+data{17,2} = handles.t5.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in t6.
 function t6_Callback(hObject, eventdata, handles)
 global electrode
-electrode.t6 = 1;
+electrode.t6 = handles.t6.Value;
+data = get(handles.uitable4,'data');
+data{18,2} = handles.t6.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in o1.
 function o1_Callback(hObject, eventdata, handles)
 global electrode
-electrode.o1 = 1;
+electrode.o1 = handles.o1.Value;
+data = get(handles.uitable4,'data');
+data{19,2} = handles.o1.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in o2.
 function o2_Callback(hObject, eventdata, handles)
 global electrode
-electrode.o2 = 1;
+electrode.o2 = handles.o2.Value;
+data = get(handles.uitable4,'data');
+data{20,2} = handles.o2.Value;
+set(handles.uitable4, 'Data', data);
 
 % --- Executes on button press in oz.
 function oz_Callback(hObject, eventdata, handles)
 global electrode
-electrode.oz = 1;
+electrode.oz = handles.oz.Value;
+data = get(handles.uitable4,'data');
+data{21,2} = handles.oz.Value;
+set(handles.uitable4, 'Data', data);
 
 
 % --- Executes on button press in ok.
@@ -239,3 +316,11 @@ function popupmenu2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% --- Executes during object creation, after setting all properties.
+function uitable4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to uitable4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
