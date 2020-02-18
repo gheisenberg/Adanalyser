@@ -50,17 +50,22 @@ classdef AnalyseAction < handle
         
         %% Print in/valid subject table
         function subjectValid(self,subject,config)
-            counter = length(subject);
-            statsMat = cell(length(subject)+2,1);
+            Sublength = length(subject);
+            statsMat = cell(length(subject)+3,1); %+3 for Header
             statsMat(1) = {'Overview of subjects and their EEG status'};
-            for i=1:counter 
+            
+            j = 1;
+            for i=1:Sublength 
                sub = subject{i};
                if sub.isValid == 1
-                   statsMat(i+2) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
+                   isValid(j) = sub;
+                   statsMat(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
+                   j = j+1;
                else 
-                   statsMat(i+2) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
+                   statsMat(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
                end
             end
+            statsMat(2) = {[num2str(length(isValid)) ' of ' num2str(Sublength) ' subjects are valid']};
             self.plotter.writeValid(statsMat,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
         end
         
