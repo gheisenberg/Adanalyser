@@ -28,7 +28,7 @@ classdef SubjectFactory
                 subject = Subject();
                 for j = 1:length(eegFileIndicies)
                    eegFileForSubject = eegFilePaths{eegFileIndicies(j)}; 
-                   subject.eegValuesForElectrodes{j} = self.parseEEGFile(eegFileForSubject,StimuIntLength,eegDevice);
+                   subject.eegValuesForElectrodes{j} = self.parseEEGFile(config,eegFileForSubject,StimuIntLength,eegDevice);
                 end
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
@@ -53,7 +53,7 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to int array
-        function electrodeEEGdata = parseEEGFile(self,eegFile,StimuIntLength,eegDevice)
+        function electrodeEEGdata = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
             [~,name,~] = fileparts(eegFile);
             splitFileName = textscan(name,'%s','Delimiter','_');
             electrodeName = splitFileName{1}{3};
@@ -63,11 +63,11 @@ classdef SubjectFactory
             eegRawValues =  fileContents{1};
             electrodeEEGdata = ElectrodeEEGData();
             electrodeEEGdata.electrode = Electrodes.(electrodeName); 
-            eegOffset = 10;
+            eegOffset = config.EEGCutoffValue;
             EEGSamplingRate = eegDevice.samplingRate;
             start = eegOffset*EEGSamplingRate;
             ende = start+(StimuIntLength*EEGSamplingRate);
-            % Cut of egg values and create eeg matrix for each subject
+            % Cut of eeg values and create eeg matrix for each subject
             eegValsCutoff = eegRawValues(start:ende-1);
             eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
             electrodeEEGdata.eegValues = eegValsCutoff;
