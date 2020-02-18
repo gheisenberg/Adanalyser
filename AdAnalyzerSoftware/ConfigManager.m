@@ -111,6 +111,9 @@ classdef ConfigManager
                         if strcmp(splitLine{1},'RecurrenceTreshold')
                             conf.RecurrenceThreshold=str2double(splitLine{2}); 
                         end 
+                        if strcmp(splitLine{1},'EEGCutoffValue')
+                            conf.EEGCutoffValue=str2double(splitLine{2}); 
+                        end 
                     end
                     fclose(fid);
                 end

@@ -22,7 +22,7 @@ function varargout = ConfigDialog(varargin)
 
 % Edit the above text to modify the response to help ConfigDialog
 
-% Last Modified by GUIDE v2.5 02-Feb-2020 15:12:51
+% Last Modified by GUIDE v2.5 18-Feb-2020 15:36:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -52,7 +52,6 @@ handles.output = hObject;
 guidata(hObject, handles);
 updateUI(handles); 
 
-
 % --- Outputs from this function are returned to the command line.
 function varargout = ConfigDialog_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -78,6 +77,8 @@ conf.SubStimuIntEDAFig = get(handles.subStimuIntEDA,'Value');
 conf.QualityFig = get(handles.qualityFigures,'Value');
 conf.BehaveFig = get(handles.behavioralCharacteristics,'Value');
 conf.Statistics = get(handles.statistics,'Value');
+conf.EEGCutoffValue = get(handles.EEGCutoffValue,'Value');
+
 % Quality Settings
 valid = 1; 
 str = get(handles.lowerEEGThreshold ,'String');
@@ -105,7 +106,7 @@ str = strrep(str, ',', '.');
 str = strrep(str, ' ', '');
 if isempty(str2num(str))
     set(handles.recurrenceTreshold,'string','0');
-    warndlg('Input must be numerical','Invalid recurrence treshold');
+    warndlg('Input must be numerical','Invalid recurrence threshold');
     valid =0;
 else
     conf.RecurrenceThreshold = str2num(str);
@@ -123,6 +124,16 @@ elseif num > 100 || num < 1
     valid =0;
 else
     conf.QualityIndex = num;
+end
+str = get(handles.EEGCutoffValue,'String');
+str = strrep(str, ',', '.');
+str = strrep(str, ' ', '');
+if isempty(str2num(str))
+    set(handles.EEGCutoffValue,'string','10');
+    warndlg('Input must be numerical','Invalid EEG CutOff Value');
+    valid =0;
+else
+    conf.EEGCutoffValue = str2num(str);
 end
 if (valid==1)
     close; 
@@ -192,7 +203,8 @@ set(handles.subStimuIntEDA,'Value',conf.SubStimuIntEDAFig);
 set(handles.upperEEGThreshold,'String',conf.UpperThreshold);
 set(handles.lowerEEGThreshold,'String',conf.LowerThreshold);
 set(handles.qualityIndex,'String',conf.QualityIndex);
-set(handles.recurrenceTreshold,'String',conf.RecurrenceThreshold); 
+set(handles.recurrenceTreshold,'String',conf.RecurrenceThreshold);
+set(handles.EEGCutoffValue,'String',conf.EEGCutoffValue); 
 
 function lowerEEGThreshold_Callback(hObject, eventdata, handles)
 % hObject    handle to lowerEEGThreshold (see GCBO)
@@ -333,6 +345,13 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+% --- Executes on button press in pushbutton6.
+function pushbutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ElectrodesDialog;
+
 
 % --- Executes during object creation, after setting all properties.
 function figure1_CreateFcn(hObject, eventdata, handles)
@@ -340,11 +359,23 @@ function figure1_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-
-
-% --- Executes on button press in pushbutton6.
-function pushbutton6_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton6 (see GCBO)
+function EEGCutoffValue_Callback(hObject, eventdata, handles)
+% hObject    handle to EEGCutoffValue (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-ElectrodesDialog;
+
+% Hints: get(hObject,'String') returns contents of EEGCutoffValue as text
+%        str2double(get(hObject,'String')) returns contents of EEGCutoffValue as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function EEGCutoffValue_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to EEGCutoffValue (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

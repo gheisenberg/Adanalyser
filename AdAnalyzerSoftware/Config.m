@@ -29,6 +29,7 @@ classdef Config
         QualityIndex = 10
         % Recurrence Treshhold
         RecurrenceThreshold = 0
+        EEGCutoffValue = 10
         
     end
     
@@ -61,7 +62,8 @@ classdef Config
                 'LowerThreshold=',num2str(self.LowerThreshold),newline,...
                 'UpperThreshold=',num2str(self.UpperThreshold),newline,...
                 'QualityIndex=',num2str(self.QualityIndex),newline,...
-                'RecurrenceTreshold=',num2str(self.RecurrenceThreshold)
+                'RecurrenceTreshold=',num2str(self.RecurrenceThreshold),newline,...
+                'EEGCutoffValue=',num2str(self.EEGCutoffValue)
                 ];
         end
     end

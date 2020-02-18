@@ -29,3 +29,4 @@ LowerThreshold=-100
 UpperThreshold=100
 QualityIndex=13
 RecurrenceTreshold=0
+EEGCutoffValue=10

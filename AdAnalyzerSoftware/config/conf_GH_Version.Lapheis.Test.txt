@@ -28,4 +28,5 @@ FrequencyFig=1
 LowerThreshold=-100
 UpperThreshold=100
 QualityIndex=13
-RecurrenceTreshold=0
+RecurrenceTreshold=22
+EEGCutoffValue=150

@@ -21,7 +21,8 @@ classdef Plotter
             output_text= strcat(output_text,"LowerThreshold=" + num2str(config.LowerThreshold)+newline);
             output_text= strcat(output_text,"UpperThreshold=" + num2str(config.UpperThreshold)+newline);
             output_text= strcat(output_text,"QualityIndex=" + num2str(config.QualityIndex)+newline);
-            output_text= strcat(output_text,"RecurrenceTreshold=" + num2str(config.RecurrenceThreshold)+newline+newline);
+            output_text= strcat(output_text,"RecurrenceTreshold=" + num2str(config.RecurrenceThreshold)+newline);
+            output_text= strcat(output_text,"EEGCutoffValue=" + num2str(config.EEGCutoffValue)+newline+newline);
             output_text= strcat(output_text,fatbraid);
             output_text= strcat(output_text,"---> DEVICE SETTINGS"+newline);
             output_text= strcat(output_text,fatbraid);
