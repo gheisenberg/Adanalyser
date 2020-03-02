@@ -53,7 +53,7 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to int array
-        function electrodeEEGdata = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
+        function electrodeEEGdata = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice) %%Tim filter unwanted EEG here
             [~,name,~] = fileparts(eegFile);
             splitFileName = textscan(name,'%s','Delimiter','_');
             electrodeName = splitFileName{1}{3};

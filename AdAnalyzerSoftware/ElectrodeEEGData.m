@@ -8,8 +8,10 @@ classdef ElectrodeEEGData
         % Matrix representation of the eeg values [seconds X Values per second; double]
         % See: DataFactory
         eegMatrix={} 
-        filteredEEGPerVid = {} 
+        filteredEEGPerVid = {}
+        %State of electrode
         electrode
+        isUsed
     end
     
     methods
