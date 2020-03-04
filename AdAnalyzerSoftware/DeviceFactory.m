@@ -47,6 +47,7 @@ classdef DeviceFactory
 			EEGDeviceName="NULL";
             EEGDeviceSamplingRate=0;
             EEGDeviceElectrodePos={};% electrodePositions is a cell containing the strings for each electrode position
+            EEGDeviceElectrodeUse = {}; %will save the state of the electordes
             
             fileID = fopen(EEGDeviceConfigFile);
 			ConfigFileContents = textscan(fileID,'%s','Delimiter','\n');
@@ -65,13 +66,16 @@ classdef DeviceFactory
                     %split the Electrode positions by the comma delimiter
                     %and make it a cell
                     EEGDeviceElectrodePos = split(values(2),",");
+                    sizeElect = size(EEGDeviceElectrodePos);
+                    EEGDeviceElectrodeUse = cell(sizeElect);
+                    EEGDeviceElectrodeUse(:,1) = {1};
                 else
                     %do nothing
                 end
             end
             %create a device Object and make it a special EEG device
             device=Device();
-            EEGdevice=device.createEEGDevice(EEGDeviceName,EEGDeviceSamplingRate,EEGDeviceElectrodePos);
+            EEGdevice=device.createEEGDevice(EEGDeviceName,EEGDeviceSamplingRate,EEGDeviceElectrodePos,EEGDeviceElectrodeUse);
         end
         
 		% parse EDA Device File

@@ -22,7 +22,7 @@ function varargout = ElectrodesDialog(varargin)
 
 % Edit the above text to modify the response to help ElectrodesDialog
 
-% Last Modified by GUIDE v2.5 02-Mar-2020 12:52:10
+% Last Modified by GUIDE v2.5 03-Mar-2020 10:47:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,18 +55,20 @@ handlesCell = struct2cell(handles);
 tags = cell(length(handlesCell),1);
 numElect = length(electrodePositions);
 UsedElectrode = cell(numElect,1);
-%str2num to delete string
 for i = 1:numElect
 UsedElectrode{i} = electrodePositions{i};
 end
 
-%list of all tags
+%list of all tags -> needed to convert the cell Aray background into a struct
 for  i = 1:length(handlesCell)
     data = handlesCell{i};
     tags{i} = data.Tag;
+    if strcmp(class(data),'matlab.graphics.axis.Axes')
+        tags{i} = 'background';
+    end
 end
 
-%Type searched for 
+%Type searched for -> buttons
 typeNeeded = 'matlab.ui.control.UIControl';
 
 %Loop for tooglebuttons
@@ -75,20 +77,28 @@ data = handlesCell{i};
 type = class(data);
 %Compare types to search for togglebuttons
     if strcmp(type,typeNeeded)
+      %set BackgroundColor to gray
+      data.BackgroundColor = [0.9,0.9,0.9];
       for j = 1:numElect
         if strcmp(data.String,UsedElectrode{j})
             %Update togglebutton
             data.Enable = 'on';
             handlesCell{i} = data;
+            %tooltip saved the original color of the button
+            data.BackgroundColor = data.Tooltip;
+            %set togglebutton in "pressed" if electorde state already == 1
+            if eegdevice.electrodeState{j} == 1
+                data.Value = true;
+            end
         else
-          %nothing
+            %nothing
         end
       end
     else
          %nothing
     end
 end
-%Create newhandle and update it
+%Concert the cell aray to struct -> newhandle and update it
 newhandles = cell2struct(handlesCell,tags,1);
 handles = newhandles;
 %%
@@ -105,12 +115,12 @@ set(ah,'handlevisibility','off','visible','off')
 uistack(ah, 'bottom');
 % Update handles structure
 guidata(hObject, handles);
-%%Create table
+%% Create table
 %Create Table
 tableData = cell(numElect,2);
 for j = 1:numElect
     tableData{j,1} =  electrodePositions{j};
-    tableData{j,2} =  0; %Make varibale to state of electode
+    tableData{j,2} =  eegdevice.electrodeState{j};
 end
 %Set table data
 set(handles.ElectrodeTable, 'Data',tableData);
@@ -132,30 +142,15 @@ function ok_Callback(hObject, eventdata, handles)
 % hObject    handle to ok (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global electrode
-global ElectrodeEEGData
-ElectrodeEEGData.isUsed = get(handles.fp1b.Value);
-electrode.fp2 = get(handles.fp2.Value);
-electrode.fpz = get(handles.fpz.Value);
-electrode.fz = get(handles.fz.Value);
-electrode.f3 = get(handles.f3.Value);
-electrode.f4 = get(handles.f4.Value);
-electrode.f7 = get(handles.f7.Value);
-electrode.f8 = get(handles.f8.Value);
-electrode.t3 = get(handles.t7.Value);
-electrode.t4 = get(handles.t8.Value);
-electrode.cz = get(handles.cz.Value);
-electrode.c3 = get(handles.c3.Value);
-electrode.c4 = get(handles.c4.Value);
-electrode.p3 = get(handles.p3.Value);
-electrode.p4 = get(handles.p4.Value);
-electrode.pz = get(handles.pz.Value);
-electrode.t5 = get(handles.p7.Value);
-electrode.t6 = get(handles.p6.Value);
-electrode.o1 = get(handles.o1.Value);
-electrode.o2 = get(handles.o2.Value);
-electrode.oz = get(handles.oz.Value);
+global eegdevice
 
+data = get(handles.ElectrodeTable, 'Data');
+dateVector = size(data);
+datalength = dateVector(1);
+
+for i = 1:datalength
+    eegdevice.electrodeState{i} = data{i,2};
+end
 close;
 
 
@@ -164,41 +159,18 @@ function cancel_Callback(hObject, eventdata, handles)
 % hObject    handle to cancel (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global electrode
-
-electrode.fp1 = 0;
-electrode.fp2 = 0;
-electrode.fpz = 0;
-electrode.fz = 0;
-electrode.f3 = 0;
-electrode.f4 = 0;
-electrode.f7 = 0;
-electrode.f8 = 0;
-electrode.t3 = 0;
-electrode.t4 = 0;
-electrode.cz = 0;
-electrode.c4 = 0;
-electrode.c3 = 0;
-electrode.p3 = 0;
-electrode.p4 = 0;
-electrode.pz = 0;
-electrode.t5 = 0;
-electrode.t6 = 0;
-electrode.o1 = 0;
-electrode.o2 = 0;
-electrode.oz = 0;
 
 close; 
 
 
-% --- Executes on button press in fp1b.
-function fp1b_Callback(hObject, eventdata, handles)
-global electrode
+% --- Executes on button press in fp1.
+function fp1_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data);
+dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'F1')
-    data{i,2} = handles.f1.Value;
+    if strcmp(data{i,1},'FP1')
+    data{i,2} = handles.fp1.Value;
     end
 end
 set(handles.ElectrodeTable, 'Data', data);
@@ -206,7 +178,7 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fp2.
 function fp2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FP2')
     data{i,2} = handles.fp2.Value;
@@ -217,7 +189,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fpz.
 function fpz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FPZ')
     data{i,2} = handles.fpz.Value;
@@ -228,7 +201,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fz.
 function fz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FZ')
     data{i,2} = handles.fz.Value;
@@ -239,7 +213,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f3.
 function f3_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F3')
     data{i,2} = handles.f3.Value;
@@ -250,7 +225,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f4.
 function f4_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F4')
     data{i,2} = handles.f4.Value;
@@ -261,7 +237,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f7.
 function f7_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F7')
     data{i,2} = handles.f7.Value;
@@ -272,7 +249,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f8.
 function f8_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F8')
     data{i,2} = handles.f8.Value;
@@ -283,7 +261,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in t7.
 function t7_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'T7')
     data{i,2} = handles.t7.Value;
@@ -294,7 +273,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in t8.
 function t8_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'T8')
     data{i,2} = handles.t8.Value;
@@ -305,7 +285,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cz.
 function cz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CZ')
     data{i,2} = handles.cz.Value;
@@ -316,7 +297,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in c4.
 function c4_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'C4')
     data{i,2} = handles.c4.Value;
@@ -327,7 +309,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in c3.
 function c3_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'C3')
     data{i,2} = handles.c3.Value;
@@ -338,7 +321,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p3.
 function p3_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P3')
     data{i,2} = handles.p3.Value;
@@ -349,7 +333,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p4.
 function p4_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P4')
     data{i,2} = handles.p4.Value;
@@ -360,7 +345,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in pz.
 function pz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'PZ')
     data{i,2} = handles.pz.Value;
@@ -371,7 +357,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p7.
 function p7_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P7')
     data{i,2} = handles.p7.Value;
@@ -382,7 +369,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p6.
 function p6_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P6')
     data{i,2} = handles.p6.Value;
@@ -393,7 +381,8 @@ set(handles.ElectrodeTable, 'Data', data);;
 % --- Executes on button press in o1.
 function o1_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'O1')
     data{i,2} = handles.o1.Value;
@@ -404,7 +393,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in o2.
 function o2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'O2')
     data{i,2} = handles.o2.Value;
@@ -415,7 +405,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in oz.
 function oz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'OZ')
     data{i,2} = handles.oz.Value;
@@ -445,7 +436,8 @@ function ElectrodeTable_CreateFcn(hObject, eventdata, handles)
 % --- Executes on button press in af3.
 function af3_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'AF3')
     data{i,2} = handles.af3.Value;
@@ -457,7 +449,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in af4.
 function af4_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'AF4')
     data{i,2} = handles.af4.Value;
@@ -469,7 +462,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in poz.
 function poz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'POZ')
     data{i,2} = handles.poz.Value;
@@ -481,7 +475,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in t10.
 function t10_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'T10')
     data{i,2} = handles.t10.Value;
@@ -493,7 +488,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in t9.
 function t9_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'T9')
     data{i,2} = handles.t9.Value;
@@ -505,7 +501,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in nz.
 function nz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'NZ')
     data{i,2} = handles.nz.Value;
@@ -517,7 +514,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in afz.
 function afz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'AFZ')
     data{i,2} = handles.afz.Value;
@@ -529,7 +527,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in af7.
 function af7_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'AF7')
     data{i,2} = handles.af7.Value;
@@ -541,7 +540,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in af8.
 function af8_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'AF8')
     data{i,2} = handles.af8.Value;
@@ -553,7 +553,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f5.
 function f5_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F5')
     data{i,2} = handles.f5.Value;
@@ -565,7 +566,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f6.
 function f6_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F6')
     data{i,2} = handles.f6.Value;
@@ -577,7 +579,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f1.
 function f1_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F1')
     data{i,2} = handles.f1.Value;
@@ -589,7 +592,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f2.
 function f2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F2')
     data{i,2} = handles.f2.Value;
@@ -601,7 +605,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f9.
 function f9_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F9')
     data{i,2} = handles.f9.Value;
@@ -613,7 +618,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in f10.
 function f10_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'F10')
     data{i,2} = handles.f10.Value;
@@ -625,7 +631,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in ft9.
 function ft9_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FT9')
     data{i,2} = handles.ft9.Value;
@@ -637,7 +644,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fcz.
 function fcz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FCZ')
     data{i,2} = handles.fcz.Value;
@@ -649,7 +657,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fc4.
 function fc4_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FC4')
     data{i,2} = handles.fc4.Value;
@@ -661,7 +670,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in ft8.
 function ft8_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FT8')
     data{i,2} = handles.ft8.Value;
@@ -673,7 +683,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fc6.
 function fc6_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FC6')
     data{i,2} = handles.fc6.Value;
@@ -685,7 +696,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fc2.
 function fc2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FC2')
     data{i,2} = handles.fc2.Value;
@@ -697,7 +709,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in ft10.
 function ft10_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FT19')
     data{i,2} = handles.ft10.Value;
@@ -709,7 +722,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in a1.
 function a1_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'A1')
     data{i,2} = handles.a1.Value;
@@ -721,7 +735,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in c5.
 function c5_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'C5')
     data{i,2} = handles.c5.Value;
@@ -733,7 +748,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in c1.
 function c1_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'C1')
     data{i,2} = handles.c1.Value;
@@ -745,7 +761,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in a2.
 function a2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'A2')
     data{i,2} = handles.a2.Value;
@@ -757,7 +774,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in c6.
 function c6_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'C6')
     data{i,2} = handles.c6.Value;
@@ -769,7 +787,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in c2.
 function c2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'C2')
     data{i,2} = handles.c2.Value;
@@ -781,7 +800,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cp3.
 function cp3_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CP3')
     data{i,2} = handles.cp3.Value;
@@ -793,7 +813,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in fp7.
 function fp7_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'FP7')
     data{i,2} = handles.fp7.Value;
@@ -805,7 +826,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cp5.
 function cp5_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CP5')
     data{i,2} = handles.cp5.Value;
@@ -817,7 +839,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cp1.
 function cp1_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CP1')
     data{i,2} = handles.cp1.Value;
@@ -829,7 +852,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in tp9.
 function tp9_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'TP9')
     data{i,2} = handles.tp9.Value;
@@ -841,7 +865,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cpz.
 function cpz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CPZ')
     data{i,2} = handles.cpz.Value;
@@ -853,7 +878,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cp4.
 function cp4_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CP4')
     data{i,2} = handles.cp4.Value;
@@ -865,7 +891,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in tp8.
 function tp8_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'TP8')
     data{i,2} = handles.tp8.Value;
@@ -877,7 +904,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cp6.
 function cp6_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CP6')
     data{i,2} = handles.cp6.Value;
@@ -889,7 +917,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in cp2.
 function cp2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'CP2')
     data{i,2} = handles.cp2.Value;
@@ -901,7 +930,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in tp10.
 function tp10_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'TP10')
     data{i,2} = handles.tp10.Value;
@@ -913,7 +943,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p5.
 function p5_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P5')
     data{i,2} = handles.p5.Value;
@@ -925,7 +956,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p1.
 function p1_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P1')
     data{i,2} = handles.p1.Value;
@@ -937,7 +969,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p9.
 function p9_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P9')
     data{i,2} = handles.p9.Value;
@@ -949,7 +982,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p8.
 function p8_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P8')
     data{i,2} = handles.p8.Value;
@@ -961,7 +995,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p2.
 function p2_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P2')
     data{i,2} = handles.p2.Value;
@@ -973,7 +1008,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in p10.
 function p10_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'P10')
     data{i,2} = handles.p10.Value;
@@ -985,7 +1021,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in po3.
 function po3_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'PO3')
     data{i,2} = handles.po3.Value;
@@ -997,7 +1034,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in po4.
 function po4_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'PO4')
     data{i,2} = handles.po4.Value;
@@ -1009,7 +1047,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in po7.
 function po7_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'PO7')
     data{i,2} = handles.po7.Value;
@@ -1021,7 +1060,8 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in po8.
 function po8_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'PO8')
     data{i,2} = handles.po8.Value;
@@ -1033,10 +1073,47 @@ set(handles.ElectrodeTable, 'Data', data);
 % --- Executes on button press in iz.
 function iz_Callback(hObject, eventdata, handles)
 data = get(handles.ElectrodeTable,'data');
-dataL = length(data);
+dataVector = size(data); 
+dataL = dataVector(1);
 for i = 1:dataL
     if strcmp(data{i,1},'IZ')
     data{i,2} = handles.iz.Value;
     end
 end
 set(handles.ElectrodeTable, 'Data', data);
+
+
+% --- Executes on button press in fc3.
+function fc3_Callback(hObject, eventdata, handles)
+% hObject    handle to fc3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of fc3
+
+
+% --- Executes on button press in ft7.
+function ft7_Callback(hObject, eventdata, handles)
+% hObject    handle to ft7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of ft7
+
+
+% --- Executes on button press in fc5.
+function fc5_Callback(hObject, eventdata, handles)
+% hObject    handle to fc5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of fc5
+
+
+% --- Executes on button press in fc1.
+function fc1_Callback(hObject, eventdata, handles)
+% hObject    handle to fc1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of fc1
