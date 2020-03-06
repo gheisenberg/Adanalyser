@@ -24,12 +24,44 @@ classdef SubjectFactory
                 subjectName = splitFileName{1}{2};
                 % get eeg files for subject by subject name
                 matches = strfind(eegFilePaths,subjectName);
-                eegFileIndicies = find(~cellfun(@isempty,matches));
+                Subjectmatches = find(~cellfun(@isempty,matches));
+                usedElectrodes = eegDevice.electrodePositions;
+                ElectrodesStates = eegDevice.electrodeState;
+                ListVector = size(usedElectrodes);
+                ListL = ListVector(1);
                 subject = Subject();
-                for j = 1:length(eegFileIndicies)
-                   eegFileForSubject = eegFilePaths{eegFileIndicies(j)}; 
-                   subject.eegValuesForElectrodes{j} = self.parseEEGFile(config,eegFileForSubject,StimuIntLength,eegDevice);
+                for k = 1:ListL
+                    subjectlist = eegFilePaths(Subjectmatches(1):Subjectmatches(end));
+                    electrodelist = strfind(subjectlist,usedElectrodes{k});
+                    eegFileIndicies = find(~cellfun(@isempty,electrodelist));
+                    %Check State of Electrode
+                    if ElectrodesStates{k} == 1
+                        if eegFileIndicies > 0
+                            eegFileForSubject = eegFilePaths{eegFileIndicies}; 
+                            subject.eegValuesForElectrodes{k} = self.parseEEGFile(config,eegFileForSubject,StimuIntLength,eegDevice);
+                        else
+                            MissingElectrode = usedElectrodes(k);
+                            Electrode = MissingElectrode{1};
+                            SubjectNumber = num2str(i);
+                            if config.EEG_DEVICE_USED == 1 %Tim Besprechen, wo schon gestoppt wird generell
+                            fprintf('Data missing for subject %s for EEG electrode "%s".\n',SubjectNumber,Electrode)
+                            fprintf('This position will neither be filtered nor analyzed!\n\n')
+                            end
+                        end
+                    else
+                        %Empty unused Electrodes from Device
+                        eegDevice.electrodePositions{k} = [];
+                        eegDevice.electrodeState{k} = [];
+                    end
                 end
+                %Get empty rows
+                removeEmptyPositions = eegDevice.electrodePositions;
+                removeEmptyState = eegDevice.electrodeState;
+                removeEmpty = subject.eegValuesForElectrodes;
+                %delete empty rows
+                eegDevice.electrodePositions = removeEmptyPositions(~cellfun('isempty',removeEmptyPositions));
+                eegDevice.electrodeState = removeEmptyState(~cellfun('isempty',removeEmptyState));
+                subject.eegValuesForElectrodes = removeEmpty(~cellfun('isempty',removeEmpty));
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
                 edaFileIndex = ~cellfun(@isempty,matches);
@@ -62,7 +94,7 @@ classdef SubjectFactory
             fclose(fileID);
             eegRawValues =  fileContents{1};
             electrodeEEGdata = ElectrodeEEGData();
-            electrodeEEGdata.electrode = Electrodes.(electrodeName); 
+            electrodeEEGdata.electrode = electrodeName; 
             eegOffset = config.EEGCutoffValue;
             EEGSamplingRate = eegDevice.samplingRate;
             start = eegOffset*EEGSamplingRate;

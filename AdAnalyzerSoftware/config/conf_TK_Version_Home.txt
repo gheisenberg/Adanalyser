@@ -12,7 +12,7 @@ DEVICES
 EEG_DEVICE_USED=1
 EDA_DEVICE_USED=1
 HRV_DEVICE_USED=1
-EEG_DEVICE=.\config\devices\Neurosky_config.txt
+EEG_DEVICE=.\config\devices\ABM_config.txt
 EDA_DEVICE=.\config\devices\eSense_config.txt
 HRV_DEVICE=.\config\devices\Polar_config.txt
 ----------------------------

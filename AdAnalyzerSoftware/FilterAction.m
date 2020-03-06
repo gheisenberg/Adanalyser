@@ -19,16 +19,14 @@ classdef FilterAction < handle
             message = ['Filtering data for ', num2str(length(data.subjects)), ' subject(s)'];
             h = waitbar(0,message);
             numStimuInt = length(data.stimuIntDefs);
-            numSubjects = length(data.subjects);
-            
+            numSubjects = length(data.subjects);            
             edaValsPerSec = edaDevice.samplingRate;
-            eegValsPerSec = eegDevice.samplingRate;
-            
+            eegValsPerSec = eegDevice.samplingRate;            
             unfilteredQuality = zeros(numSubjects,numStimuInt);
             filteredQuality = zeros(numSubjects,numStimuInt);
             for i=1:numSubjects
                 subject = data.subjects{i};
-                numElectrodes = length(subject.eegValuesForElectrodes);
+                numElectrodes = length(subject.eegValuesForElectrodes);               
                 for j=1:numElectrodes
                     eegValues = subject.eegValuesForElectrodes{j};
                     rawMatrix = eegValues.eegMatrix;
@@ -40,21 +38,22 @@ classdef FilterAction < handle
                     if (config.EEG_DEVICE_USED)
                         self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject,eegValues.electrode,config);
                     end
-                    %calculate eeg and eda values per StimulusInterval
-                    edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
+                    %calculate eeg values per StimulusInterval
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
                     filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList);
-                    subject.edaPerVid = edaValuesPerStim;
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
                     subject.eegValuesForElectrodes{j} = eegValues;
-                    if (eegValues.electrode == Electrodes.FZ)
-                        for v=1:numStimuInt
-                            unfilteredEEGVid = eegValuesPerStim{v};
-                            filteredEEGVid = filteredEEGValuesPerVid{v};
-                            unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
-                            filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
+                        if (eegValues.electrode == Electrodes.FZ) %TIm wofür?
+                            for v=1:numStimuInt
+                                unfilteredEEGVid = eegValuesPerStim{v};
+                                filteredEEGVid = filteredEEGValuesPerVid{v};
+                                unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
+                                filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
+                            end
                         end
-                    end
+                    %calculate eda values per StimulusInterval
+                    edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
+                    subject.edaPerVid = edaValuesPerStim;
                 end
                 data.subjects{i} = subject;
                 waitbar(i/numSubjects);

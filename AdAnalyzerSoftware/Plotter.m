@@ -7,8 +7,7 @@ classdef Plotter
         %   fName: File name as String
         function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,fName)
             fatbraid="===========================================================" + newline;
-            thinbraid="------------------------------------------------------" + newline;
-            
+            thinbraid="------------------------------------------------------" + newline;           
             output_text= strcat(fatbraid,"---> GUI SETTINGS"+newline);
             output_text= strcat(output_text,fatbraid);
             output_text= strcat(output_text,"SubStimuIntEDAFig=" + num2str(config.SubStimuIntEDAFig)+newline);
@@ -357,10 +356,7 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            %Filter Invalid Subject to print EEG files
-            if subject.isValid == 1
             print([config.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
-            end
             close(fig);
         end
         

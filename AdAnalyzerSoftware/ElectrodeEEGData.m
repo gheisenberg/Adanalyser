@@ -11,7 +11,6 @@ classdef ElectrodeEEGData
         filteredEEGPerVid = {}
         %State of electrode
         electrode
-        isUsed
     end
     
     methods

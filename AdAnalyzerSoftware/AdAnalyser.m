@@ -111,7 +111,8 @@ configManager.save(conf);
 function loadSettings_Callback(hObject, eventdata, handles)
 global conf;
 global configManager;
-conf = configManager.load();
+global eegdevice edadevice hrvdevice;
+[conf,eegdevice,edadevice,hrvdevice] = configManager.load();
 updateUI(handles);
 
 %% Helper method to update ui on base of _Config_ values
@@ -209,11 +210,11 @@ function prepare_Callback(hObject, eventdata, handles)
 global conf; 
 global data;
 global eegdevice edadevice hrvdevice;
-disp('Prepare subjects');
+fprintf('\nPrepare subjects\n\n');
 action = PrepareAction(); 
-[data,eegdevice,edadevice,hrvdevice] = action.prepare(conf); 
+data = action.prepare(conf,eegdevice,edadevice,hrvdevice); 
 if (data.isValid)
-    disp('Done');
+    fprintf('Done\n');
     set(handles.filter,'enable','on');
 end
 
@@ -222,11 +223,11 @@ function filter_Callback(hObject, eventdata, handles)
 global conf
 global data
 global eegdevice edadevice hrvdevice;
-disp('Filter subjects');
+fprintf('\nFilter subjects');
 filter = FilterAction();
 data = filter.filter(data,conf,eegdevice,edadevice,hrvdevice);
 set(handles.analyse,'enable','on');
-disp('Done');
+fprintf('Done\n');
 
 
 %% Starts _AnalyseAction_ when analyse button was pressed
@@ -234,10 +235,10 @@ function analyse_Callback(hObject, eventdata, handles)
 global conf;
 global data;
 global eegdevice edadevice hrvdevice;
-disp('Analyse all data sets');
+fprintf('\nAnalyse all data sets');
 a = AnalyseAction();
 a.analyse(data,conf,eegdevice,edadevice,hrvdevice);
-disp('Done');
+fprintf('Done\n');
 
 %% Output directory textfield
 function outputDir_Callback(hObject, eventdata, handles)

@@ -22,7 +22,7 @@ function varargout = ElectrodesDialog(varargin)
 
 % Edit the above text to modify the response to help ElectrodesDialog
 
-% Last Modified by GUIDE v2.5 03-Mar-2020 10:47:02
+% Last Modified by GUIDE v2.5 06-Mar-2020 11:52:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -127,6 +127,7 @@ set(handles.ElectrodeTable, 'Data',tableData);
 set(handles.ElectrodeTable, 'ColumnName',{'Electrodes','Status'}) 
 
 
+
 % --- Outputs from this function are returned to the command line.
 function varargout = ElectrodesDialog_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -151,7 +152,14 @@ datalength = dateVector(1);
 for i = 1:datalength
     eegdevice.electrodeState{i} = data{i,2};
 end
+
+sumState = sum([eegdevice.electrodeState{:}]);
+if sumState == 0
+    warndlg(['Warning: No electrode is chosen!', newline,'Please chose at least one electrode'])
+else
 close;
+end
+
 
 
 % --- Executes on button press in cancel.
@@ -161,6 +169,15 @@ function cancel_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 close; 
+
+% --- Executes on button press in SwitchAll.
+function SwitchAll_Callback(hObject, eventdata, handles)
+% hObject    handle to SwitchAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of SwitchAll
+
 
 
 % --- Executes on button press in fp1.
@@ -1117,3 +1134,4 @@ function fc1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of fc1
+

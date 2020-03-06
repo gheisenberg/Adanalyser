@@ -3,11 +3,12 @@
 classdef ConfigManager
     
     properties
+        deviceFactory = DeviceFactory();
     end
     
     methods
         %% Loads saved config files and creates _Config_ object from loaded data
-        function conf = load(self)
+        function [conf ,eegDevice, edaDevice, hrvDevice] = load(self)
             conf = Config();
             [file, path]=uigetfile('.\config\*.txt','Select conf file');
             try
@@ -113,8 +114,12 @@ classdef ConfigManager
                         end 
                         if strcmp(splitLine{1},'EEGCutoffValue')
                             conf.EEGCutoffValue=str2double(splitLine{2}); 
-                        end 
+                        end
                     end
+                    % parse the device files and create those
+                        eegDevice = self.deviceFactory.createEEGDevice(conf);
+                        edaDevice = self.deviceFactory.createEDADevice(conf);
+                        hrvDevice = self.deviceFactory.createHRVDevice(conf);
                     fclose(fid);
                 end
             catch ex
