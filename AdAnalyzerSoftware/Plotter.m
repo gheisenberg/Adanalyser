@@ -7,7 +7,8 @@ classdef Plotter
         %   fName: File name as String
         function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,fName)
             fatbraid="===========================================================" + newline;
-            thinbraid="------------------------------------------------------" + newline;           
+            thinbraid="------------------------------------------------------" + newline;
+            
             output_text= strcat(fatbraid,"---> GUI SETTINGS"+newline);
             output_text= strcat(output_text,fatbraid);
             output_text= strcat(output_text,"SubStimuIntEDAFig=" + num2str(config.SubStimuIntEDAFig)+newline);
@@ -44,7 +45,7 @@ classdef Plotter
             
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            text(0.0,0.95,output_text,'FontName','FixedWidth','FontSize',8);
+            text(0.0,0.99,output_text{1},'FontName','FixedWidth','FontSize',8);
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
@@ -52,8 +53,9 @@ classdef Plotter
         %   stats: statistics as String
         %   fName: File name as String
         function writeStatistics(self,stats,fName)
-            fig = figure('Visible','off');
-            axes('Position',[0 0.1 1 1],'Visible','off');
+            fig = figure('Visible','on');
+            axes('Position',[0.0 0.0 1 1],'Visible','off');
+            fig.PaperPositionMode='auto';
             text(0.0,0.85,stats,'FontName','FixedWidth','FontSize',6); %Changed font size to 6 (from 8) for displaying the whole text
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
@@ -470,8 +472,8 @@ classdef Plotter
                 end
             end
             xlabel('Time [s]');
-            axes('Position',[.08 .30 0.8 1],'Visible','off');
-            text(0,0,stats,'FontName','FixedWidth','FontSize',9);
+            axes('Position',[.08 .10 0.8 1],'Visible','off'); %Tim Position Hardcoded bei mehr Stimus kommt es zu Problemen! 
+            text(0,0,stats,'FontName','FixedWidth','FontSize',8);
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'portrait');
             set(fig, 'PaperUnits', 'centimeters');
