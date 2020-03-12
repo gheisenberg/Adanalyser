@@ -119,9 +119,9 @@ classdef AnalyseAction < handle
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             % EDA statistics 
-            orientingResponse = self.getStimuIntIndec('Dummy','EDA Orientation Response',StimuIntDefs);
+            orientingResponse = self.getStimuIntIndex(1,StimuIntDefs);
             [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals,edaDevice);%2
-            edaStimuInt = self.getStimuIntIndec('EDA','Dummy',StimuIntDefs);
+            edaStimuInt = self.getStimuIntIndex([0,1,4,5,6],StimuIntDefs);
             edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
             edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | ');
@@ -419,20 +419,17 @@ classdef AnalyseAction < handle
             end
         end
         
-        function indicies = getStimuIntIndec(self,NeededLocal,NeededDescrp,StimuIntDef)
+        function indicies = getStimuIntIndex(self,SearchType,StimuIntDef)
             lengthStimu = length(StimuIntDef);
             indicies = zeros(1,lengthStimu);
 
             for i = 1:lengthStimu
-                StimuIntSearchLocal = StimuIntDef{i}.StimuIntLocal;
-                StimuIntSearchDescrp = StimuIntDef{i}.stimuIntDescrp;
-
-                if strcmpi(NeededLocal,StimuIntSearchLocal) 
-                    indicies(i)= i;    
-                end
-
-                if contains(NeededDescrp,StimuIntSearchDescrp)
-                    indicies(i)= i;
+                StimuIntType = StimuIntDef{i}.stimuIntType;
+                
+                for j = 1:length(SearchType)
+                    if StimuIntType == SearchType(j)
+                        indicies(i)= i;    
+                    end
                 end
                 
             end

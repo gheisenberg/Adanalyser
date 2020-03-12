@@ -236,7 +236,7 @@ classdef Plotter
             bar(valuesToPlot','stack');
             grid; 
             self.plotIntervals(intervals,[0, 100],stepWith,[],'r');
-            title(['Behavioral characteristics for subject' subjectName ' ' stimuIntDescrp ' ' num2str(StimuIntNum)]);
+            title(['Behavioral characteristics for subject' subjectName ' ' stimuIntDescrp]);
             warning('off','MATLAB:legend:IgnoringExtraEntries'); 
             legend('Sleepiness','Thinking','Relaxation','Attention','Stress','TEI','Stimulus');
             warning('on','MATLAB:legend:IgnoringExtraEntries'); 
@@ -248,7 +248,7 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            fName = [outputDir '/' subjectName '_' stimuIntDescrp num2str(StimuIntNum) '_characteristics.pdf'];
+            fName = [outputDir '/' subjectName '_' stimuIntDescrp '_characteristics.pdf'];
             print(fName,'-dpdf',fig);
             close(fig);
         end
@@ -448,7 +448,7 @@ classdef Plotter
             for i=1:length(StimuIntIndex)
                 StimuIntClass = StimuIntDefs{1,i}(1);
                 StimuIntNum = StimuIntIndex(i);
-                StimuIntLength = StimuIntDefs{StimuIntNum}.length;
+                StimuIntLength = StimuIntDefs{StimuIntNum}.Stimulength;
                 labels = [];
                 if StimuIntLength > 30
                     xName = 0:5:StimuIntLength;
@@ -782,15 +782,15 @@ classdef Plotter
             intervals = [];
             completeVidLength =0;
             for i=1:length(StimuIntDef)
-                completeVidLength = completeVidLength + StimuIntDef{i}.length;
+                completeVidLength = completeVidLength + StimuIntDef{i}.Stimulength;
                 StimuIntLabels{i} = ['StimuInt' num2str(i)];
                 if i==1
                     StimuIntStartPoints(i) = 0;
                 else
-                    StimuIntStartPoints(i) = StimuIntDef{i-1}.length + StimuIntStartPoints(i-1);
+                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength + StimuIntStartPoints(i-1);
                 end
                 curIntervals = StimuIntDef{i}.intervals;
-                curIntervals= curIntervals +StimuIntStartPoints(i);
+                curIntervals= curIntervals + StimuIntStartPoints(i);
                 intervals = horzcat(intervals,curIntervals');
             end
         end

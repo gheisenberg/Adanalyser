@@ -17,7 +17,7 @@ classdef DataFactory
             StimuIntLength = 0;
             % Calculate complete StimulusInterval length
             for i=1:length(stimuIntDefs)
-                StimuIntLength = StimuIntLength + stimuIntDefs{i}.length;
+                StimuIntLength = StimuIntLength + stimuIntDefs{i}.Stimulength;
             end
             subjectFactory = SubjectFactory();
             subjects = subjectFactory.createSubjects(conf,StimuIntLength,eegDevice,edaDevice,hrvDevice);
@@ -34,16 +34,23 @@ classdef DataFactory
             fileContents = fileContents{1};
             [numStimuIntDefs,~] = size(fileContents);
             StimuIntDefs = cell(1,numStimuIntDefs);
-            numbertype = zeros(1,numStimuIntDefs);
-            for i = 1:numStimuIntDefs
+            for i = 1:numStimuIntDefs 
                 stimuIntDef = fileContents{i};
-                values = textscan(stimuIntDef,'%u','Delimiter',',');
-                values = values{1};
-                StimuIntLength = values(2);
-                numbertype(StimuIntLength+1) = numbertype(StimuIntLength+1)+1;
-                type = values(1);
-                intervals=values(setdiff(1:length(values),[1 2]));
-                StimuIntDefs{i} = StimuIntDefinition(StimuIntLength,type,intervals,numbertype);
+                AdIndex = textscan(stimuIntDef,'%u %u %s %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u','Delimiter',',');
+                AdIndex = AdIndex(~cellfun('isempty',AdIndex));
+                Stimulength = cell2mat(AdIndex(1));
+                type = cell2mat(AdIndex(2));
+                stimuIntDescrp = cell2mat(AdIndex{1,3});
+                IndexLength = length(AdIndex);
+                if IndexLength >= 4
+                intervals = zeros(IndexLength-3,1);
+                    for j = 1:IndexLength-3
+                    intervals(j,1) = cell2mat(AdIndex(j+3));
+                    end
+                else
+                    intervals = [];
+                end
+                StimuIntDefs{i} = StimuIntDefinition(Stimulength,type,stimuIntDescrp,intervals);
             end
         end
     end

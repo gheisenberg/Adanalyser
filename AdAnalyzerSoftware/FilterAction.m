@@ -99,7 +99,7 @@ classdef FilterAction < handle
             splittedValues = cell(1,numStimuInt);
             for v=1:numStimuInt
                 curVid = stimuIntDefs{v};
-                eegStimuIntLength = double(curVid.length*valuesPerSec);
+                eegStimuIntLength = double(curVid.Stimulength*valuesPerSec);
                 eegStimuIntEnd = StimuIntStart+eegStimuIntLength-1;
                 splittedValues{v} = values(StimuIntStart:eegStimuIntEnd);
                 StimuIntStart = StimuIntStart+eegStimuIntLength;
