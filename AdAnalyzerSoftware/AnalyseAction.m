@@ -74,6 +74,10 @@ classdef AnalyseAction < handle
             edaPerStim = subject.edaPerVid;
             edaComplete = subject.edaValues;
             numStimuInt = length(edaPerStim);
+            
+            %plot 2D Topo TEST
+            self.plotter.printTopo(config,subject,eegDevice);
+            
             %plot the a file as pdf containing all the GUI and all DEVICE settings
             self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']);            
             
@@ -332,7 +336,7 @@ classdef AnalyseAction < handle
             end
         end
         
-        %% Calculates eda delays for given intervals
+        %% Calculates eda delays for given intervals %Tim
         function [values,delays] = calculateDelays(self,edaValues,intervals,edaDevice)
             edaValuesDetrend = detrend(edaValues);
             numEDAValues = length(edaValuesDetrend);
@@ -356,9 +360,9 @@ classdef AnalyseAction < handle
             %                     values(i) = edaValues(pos);
             %                 end
             %             end
-            start = uint32(intervals(1)*5);
-            ende = uint32((intervals(2)+5)*5); %end offset (project in next interval)
-            offset = 10; % start offset (start 10 datapoints later from interval start)
+            start = uint32(intervals(1)*1); %Hardcoded
+            ende = uint32((intervals(2)+5)*1); %end offset (project in next interval)
+            offset = 1; % start offset (start 10 datapoints later from interval start) %Tim HARDCODED - config muss übergeben werden
             valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);
             m = mean (smooth(valuesBetweenIntervals));
             delays = zeros(1,length(intervals));

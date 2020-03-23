@@ -209,7 +209,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'FPZ')
+    if strcmp(data{i,1},'FPz')
     data{i,2} = handles.fpz.Value;
     end
 end
@@ -221,7 +221,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'FZ')
+    if strcmp(data{i,1},'Fz')
     data{i,2} = handles.fz.Value;
     end
 end
@@ -305,7 +305,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'CZ')
+    if strcmp(data{i,1},'Cz')
     data{i,2} = handles.cz.Value;
     end
 end
@@ -365,7 +365,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'PZ')
+    if strcmp(data{i,1},'Pz')
     data{i,2} = handles.pz.Value;
     end
 end
@@ -425,7 +425,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'OZ')
+    if strcmp(data{i,1},'Oz')
     data{i,2} = handles.oz.Value;
     end
 end
@@ -482,7 +482,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'POZ')
+    if strcmp(data{i,1},'POz')
     data{i,2} = handles.poz.Value;
     end
 end
@@ -521,7 +521,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'NZ')
+    if strcmp(data{i,1},'Nz')
     data{i,2} = handles.nz.Value;
     end
 end
@@ -664,7 +664,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'FCZ')
+    if strcmp(data{i,1},'FCz')
     data{i,2} = handles.fcz.Value;
     end
 end
@@ -885,7 +885,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'CPZ')
+    if strcmp(data{i,1},'CPz')
     data{i,2} = handles.cpz.Value;
     end
 end
@@ -1093,7 +1093,7 @@ data = get(handles.ElectrodeTable,'data');
 dataVector = size(data); 
 dataL = dataVector(1);
 for i = 1:dataL
-    if strcmp(data{i,1},'IZ')
+    if strcmp(data{i,1},'Iz')
     data{i,2} = handles.iz.Value;
     end
 end

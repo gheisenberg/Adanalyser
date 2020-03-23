@@ -68,8 +68,6 @@ classdef Plotter
             fig = figure('Visible','off');
             axes('Position',[0.1 0.1 1 1],'Visible','off');
             text(0.0,0.85,index,'FontName','FixedWidth','FontSize',10);
-            ...%'VerticalAlignment', 'top', ...            
-            %'HorizontalAlignment', 'right');
             print(fName,'-dpdf',fig,'-r0','-fillpage');
             close(fig);
         end
@@ -88,6 +86,89 @@ classdef Plotter
             fclose(fid);
         end
         
+        
+        %% Print 2D Topo of EEG Data
+        % Print of 2D Topology map over a certain timeframe
+        % config: Config
+        % subject: Subject
+        % eegDevice: EEG Device
+        
+        function printTopo(self,config,subject,eegDevice)            
+            %Import of Standard 10-20 System chanlocs for electrodes
+            load Standard-10-20-Cap81.mat;
+            
+            %Data preparation
+            Usedelectrodes = eegDevice.electrodePositions;
+            numValues = subject.eegValuesForElectrodes; 
+            numElec = length(numValues);
+            for i = 1:numElec              
+                eegValues(:,i) =  subject.eegValuesForElectrodes{1, i}.eegValues;              
+            end
+            PlotOverTimeData = eegValues';
+            
+            %needed variables for chanloc preparation
+            chanloc = Chanloc;
+            electrodes = Usedelectrodes';
+            lengthElectrodes = length(electrodes);
+            lengthStandardChanloc = length(Chanloc);
+            deleteRow = zeros(1,lengthStandardChanloc);
+            SumDeleteRow = zeros(1,lengthStandardChanloc);
+
+            %delete all unused electrode chanlocs
+            for i = 1:lengthElectrodes
+                deleteRow = ismember({chanloc.labels}, electrodes{i});
+                SumDeleteRow = SumDeleteRow + deleteRow;
+            end
+            SumDeleteRow = ~SumDeleteRow;
+            chanloc(SumDeleteRow) = [];
+
+            %Create EEG Struct
+            EEG.data = PlotOverTimeData;        %data array (chans x frames x epochs)
+            EEG.setname = subject.name;
+            EEG.chanlocs = chanloc;             %name of file containing names and positions of the channels on the scalp
+            EEG.nbchan = length(EEG.chanlocs);  %number of channels in each epoch
+            EEG.pnts = length(EEG.data);        %number of frames (time points) per epoch (trial)
+            EEG.trials = 1;                     %number of epochs (trials) in the dataset (Allways 1 for now)
+            EEG.srate = eegDevice.samplingRate; %sampling rate (in Hz)
+            EEG.xmin = 0;                       %epoch start time (in seconds)
+            EEG.xmax = (EEG.pnts-1)/EEG.srate;  %epoch end time (in seconds)
+            
+            %print preparation
+            subjectName = subject.name;
+            fig = figure('Visible','off');
+            set(fig, 'PaperType', 'A4');
+            set(fig, 'PaperUnits', 'centimeters');            
+            set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
+            orient(fig,'landscape')
+
+            %prepare data for print
+            range = [0 512 1024 1536 2048 2560];
+            SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
+            pos = round( (range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
+            nanpos = find(isnan(pos));
+            pos(nanpos) = 1;
+            SIGTMPAVG = mean(SIGTMP(:,pos,:),3);
+            
+            %Print of 2D Topo
+            for i = 1:6
+            subplot(3,6,i+6);
+            title([num2str(range(i)/256) "ms"]);
+            topoplot(SIGTMPAVG(:,i),chanloc,'electrodes','on');
+            end
+            
+            %print of histogram
+            for i = 1:6
+            subplot(3,6,i+12);
+            histogram(SIGTMPAVG(:,i));
+            end
+            
+            %Subplot Title
+            sgtitle(['2D Topo Map for Sub' subject.name]);
+            
+            %save as pdf
+            fName = [config.OutputDirectory '/' 'Subject_' subjectName '_2D Topo.pdf'];
+            print(fName,'-dpdf',fig);
+        end
         %% Prints recurrence plots for HRV
         %  subjectName: Name of the Subject as String
         %  config: Config 
