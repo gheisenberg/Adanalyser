@@ -3,5 +3,5 @@
 30,2,EEG Baseline,10,20
 75,4,Video Stimulus
 75,4,Image Stimulus
-25,4,4,TV Commercial,5,10,12,14,17,20,23
+25,4,TV Commercial,5,10,12,14,17,20,23
 30,2,EEG Baseline 2,10,20

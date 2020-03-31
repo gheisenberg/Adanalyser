@@ -22,7 +22,7 @@ function varargout = ConfigDialog(varargin)
 
 % Edit the above text to modify the response to help ConfigDialog
 
-% Last Modified by GUIDE v2.5 18-Feb-2020 15:36:04
+% Last Modified by GUIDE v2.5 30-Mar-2020 11:40:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,6 +78,9 @@ conf.QualityFig = get(handles.qualityFigures,'Value');
 conf.BehaveFig = get(handles.behavioralCharacteristics,'Value');
 conf.Statistics = get(handles.statistics,'Value');
 conf.EEGCutoffValue = get(handles.EEGCutoffValue,'Value');
+conf.TopoRange = get(handles.TopoRange,'Value');
+
+
 
 % Quality Settings
 valid = 1; 
@@ -91,6 +94,7 @@ if isempty(str2num(str))
 else
     conf.LowerThreshold = str2num(str);
 end
+
 str = get(handles.upperEEGThreshold,'String');
 str = strrep(str, ',', '.');
 str = strrep(str, ' ', '');
@@ -101,6 +105,7 @@ if isempty(str2num(str))
 else
     conf.UpperThreshold = str2num(str);
 end
+
 str = get(handles.recurrenceTreshold,'String');
 str = strrep(str, ',', '.');
 str = strrep(str, ' ', '');
@@ -111,6 +116,7 @@ if isempty(str2num(str))
 else
     conf.RecurrenceThreshold = str2num(str);
 end
+
 str = get(handles.qualityIndex,'String');
 str = strrep(str, ',', '.');
 str = strrep(str, ' ', '');
@@ -125,6 +131,7 @@ elseif num > 100 || num < 1
 else
     conf.QualityIndex = num;
 end
+
 str = get(handles.EEGCutoffValue,'String');
 str = strrep(str, ',', '.');
 str = strrep(str, ' ', '');
@@ -135,6 +142,18 @@ if isempty(str2num(str))
 else
     conf.EEGCutoffValue = str2num(str);
 end
+
+str = get(handles.TopoRange,'String');
+str = strrep(str, ',', '.');
+str = strrep(str, ' ', '');
+if isempty(str2num(str))
+    set(handles.TopoRange,'string','500');
+    warndlg('Input must be numerical','Invalid Interval');
+    valid =0;
+else
+    conf.TopoRange = str2num(str);
+end
+
 if (valid==1)
     close; 
 end
@@ -204,7 +223,10 @@ set(handles.upperEEGThreshold,'String',conf.UpperThreshold);
 set(handles.lowerEEGThreshold,'String',conf.LowerThreshold);
 set(handles.qualityIndex,'String',conf.QualityIndex);
 set(handles.recurrenceTreshold,'String',conf.RecurrenceThreshold);
-set(handles.EEGCutoffValue,'String',conf.EEGCutoffValue); 
+set(handles.EEGCutoffValue,'String',conf.EEGCutoffValue);
+set(handles.TopoRange,'String',conf.TopoRange);
+
+
 
 function lowerEEGThreshold_Callback(hObject, eventdata, handles)
 % hObject    handle to lowerEEGThreshold (see GCBO)
@@ -371,6 +393,29 @@ function EEGCutoffValue_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function EEGCutoffValue_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to EEGCutoffValue (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function TopoRange_Callback(hObject, eventdata, handles)
+% hObject    handle to TopoRange (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of TopoRange as text
+%        str2double(get(hObject,'String')) returns contents of TopoRange as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function TopoRange_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TopoRange (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

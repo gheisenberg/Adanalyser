@@ -30,6 +30,7 @@ classdef Config
         % Recurrence Treshhold
         RecurrenceThreshold = 0
         EEGCutoffValue = 10
+        TopoRange = 2000
         
     end
     
@@ -64,6 +65,7 @@ classdef Config
                 'QualityIndex=',num2str(self.QualityIndex),newline,...
                 'RecurrenceTreshold=',num2str(self.RecurrenceThreshold),newline,...
                 'EEGCutoffValue=',num2str(self.EEGCutoffValue)
+                'TopoRange=',num2str(self.TopoRange)
                 ];
         end
     end

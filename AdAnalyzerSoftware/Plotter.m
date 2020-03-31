@@ -91,9 +91,10 @@ classdef Plotter
         % Print of 2D Topology map over a certain timeframe
         % config: Config
         % subject: Subject
-        % eegDevice: EEG Device
+        % eegDevice: EEG Device, with frequency, electrodes
+        % StimuDef: Simulus Class, with Length,Type,Definition
         
-        function printTopo(self,config,subject,eegDevice)            
+        function printTopo(self,config,subject,eegDevice,StimuDef)            
             %Import of Standard 10-20 System chanlocs for electrodes
             load Standard-10-20-Cap81.mat;
             
@@ -106,6 +107,7 @@ classdef Plotter
             end
             PlotOverTimeData = eegValues';
             
+
             %needed variables for chanloc preparation
             chanloc = Chanloc;
             electrodes = Usedelectrodes';
@@ -121,10 +123,10 @@ classdef Plotter
             end
             SumDeleteRow = ~SumDeleteRow;
             chanloc(SumDeleteRow) = [];
-
+            
             %Create EEG Struct
             EEG.data = PlotOverTimeData;        %data array (chans x frames x epochs)
-            EEG.setname = subject.name;
+            EEG.setname = subject.name;         %Set name = Number of subject
             EEG.chanlocs = chanloc;             %name of file containing names and positions of the channels on the scalp
             EEG.nbchan = length(EEG.chanlocs);  %number of channels in each epoch
             EEG.pnts = length(EEG.data);        %number of frames (time points) per epoch (trial)
@@ -133,42 +135,146 @@ classdef Plotter
             EEG.xmin = 0;                       %epoch start time (in seconds)
             EEG.xmax = (EEG.pnts-1)/EEG.srate;  %epoch end time (in seconds)
             
-            %print preparation
-            subjectName = subject.name;
-            fig = figure('Visible','off');
-            set(fig, 'PaperType', 'A4');
-            set(fig, 'PaperUnits', 'centimeters');            
-            set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
-            orient(fig,'landscape')
+            %Variables needed for loop
+            numStimuInts = length(StimuDef);
+            Topostart = 0;
+            interval = config.TopoRange;
+            
+            %loop for each StimuInt
+            for i = 1:numStimuInts
+            StimuInt = StimuDef{i};
+            
+            %prepare print range
+            TopoEnd = StimuInt.Stimulength*1000 + Topostart;
+            range = Topostart:interval:TopoEnd;
+            range = double(range);
+            Topostart = TopoEnd; %defined for the next loop
+                
+                %only print Type > 4 = Video/Images/Audio Stimulus
+                if StimuInt.stimuIntType >= 4
 
-            %prepare data for print
-            range = [0 512 1024 1536 2048 2560];
-            SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-            pos = round( (range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
-            nanpos = find(isnan(pos));
-            pos(nanpos) = 1;
-            SIGTMPAVG = mean(SIGTMP(:,pos,:),3);
+                %prepare data for print
+                SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
+                pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
+                if pos(end) == EEG.pnts+1
+                pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
+                end
+                nanpos = find(isnan(pos));
+                pos(nanpos) = 1;
+                numPos = length(pos)-1; 
+                task = zeros(numElec,numPos);
+                
+                    %get TEI
+                    for m = 1:numPos
+                        for j = 1:numElec
+                        %Theta(5-7 Hz)
+                        theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
+                        %Alpha(8-13 Hz)
+                        alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
+                        %Beta1(14-24 Hz)
+                        beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
+                        %Task-Engagement
+                            if alpha(j) > 0 && theta(j) > 0
+                            task(j,m) = mean(beta1./(alpha+theta));
+                            else
+                            task(j,m) = zeros(1,length(range)-1);
+                            end
+                        end
+                    end
+                    
+                subjectName = subject.name;
+                numofprint = length(range)-1;
             
-            %Print of 2D Topo
-            for i = 1:6
-            subplot(3,6,i+6);
-            title([num2str(range(i)/256) "ms"]);
-            topoplot(SIGTMPAVG(:,i),chanloc,'electrodes','on');
+                    for k = 1:numofprint     
+                    %print preparation
+                    mainfig = figure('Visible','on');
+                    set(mainfig,'PaperUnits','inches','PaperPosition',[0 0 12 7.5])
+
+                    %Print of 2D Topo
+                    subplot(1,2,1);
+                    title([num2str(range(k)) "ms"]);
+                    topoplot(task(:,k),chanloc,'electrodes','on');
+
+                    %print of histogram
+                    barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
+                    barschart = subplot(1,2,2);
+                    barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
+                    imshow(barsimg);
+            
+                    %Subplot title
+                    sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
+            
+                    %save as pdf
+                    fName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo'];
+                    print(fName,'-dpng','-r300',mainfig);
+                    close
+                    end
+                end
             end
-            
-            %print of histogram
-            for i = 1:6
-            subplot(3,6,i+12);
-            histogram(SIGTMPAVG(:,i));
-            end
-            
-            %Subplot Title
-            sgtitle(['2D Topo Map for Sub' subject.name]);
-            
-            %save as pdf
-            fName = [config.OutputDirectory '/' 'Subject_' subjectName '_2D Topo.pdf'];
-            print(fName,'-dpdf',fig);
         end
+        
+        %% Prints of electrode frequency
+        % electrodes: List of used electrodes
+        % pos: Range of the printed data
+        % data: data
+        % srate: Frequency of the device used
+        function barsimg = plotElectrodeBars(self,electrodes,startpos,endpos,data,srate)
+            
+            %prepare plot
+            numelec = length(electrodes);
+            barsfig = figure('visible','off','DefaultAxesFontSize',12);
+            set(barsfig,'color','w');
+            set(barsfig,'Position', [1, 1, 1200, 1200]);
+            
+            maxDataPnts = length(data);          
+            data = data(:,startpos:endpos);
+            
+            %get frequency bands
+            for i = 1:numelec
+            %Delta (1-4 Hz)
+            delta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,1,4)).^2));
+            %Theta(5-7 Hz)
+            theta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,5,7)).^2));
+            %Alpha(8-13 Hz)
+            alpha(i) = mean(sqrt((eegfiltfft(data(i,:),srate,8,13)).^2));
+            %Beta1(14-24 Hz)
+            beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
+            %Beta2(25-40 Hz)
+            beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
+            %Task-Engagement
+                if sum(alpha) > 0 && sum(theta) > 0
+                    task(i) = mean(beta1./(alpha+theta));
+                else
+                    task(i) = 0;
+                end
+            end
+            
+            allfreq = [delta theta alpha beta1 beta2 task];
+            ymax = max(max(allfreq));
+            
+            %Print
+            for i = 1:numelec
+            hold on
+            subplot(3,3,i);
+            names = categorical({'delta','theta','alpha','beta1','beta2','TEI'});
+            names = reordercats(names,{'delta','theta','alpha','beta1','beta2','TEI'});
+            bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i), task(i)];
+            h = bar(names,bars,'FaceColor','flat');
+            ylim([0 ymax]);
+            title(electrodes(i),'FontSize', 24)            
+            h.CData(1,:) = [1 0 0];
+            h.CData(2,:) = [0.8500 0.3250 0.0980];
+            h.CData(3,:) = [0.9290 0.6940 0.1250];
+            h.CData(4,:) = [0 1 0];
+            h.CData(5,:) = [0.3010 0.7450 0.9330];
+            h.CData(6,:) = [0 0.4470 0.7410];
+            end
+            
+            %save as img
+            barsFrame = getframe(barsfig);
+            barsimg = barsFrame.cdata;
+        end
+        
         %% Prints recurrence plots for HRV
         %  subjectName: Name of the Subject as String
         %  config: Config 

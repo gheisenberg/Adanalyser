@@ -43,7 +43,7 @@ classdef FilterAction < handle
                     filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList);
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
                     subject.eegValuesForElectrodes{j} = eegValues;
-                        if (eegValues.electrode == Electrodes.FZ) %TIm wofür?
+                        if (eegValues.electrode == Electrodes.FZ) %Tim Variabl machen für alle Variablen! 
                             for v=1:numStimuInt
                                 unfilteredEEGVid = eegValuesPerStim{v};
                                 filteredEEGVid = filteredEEGValuesPerVid{v};

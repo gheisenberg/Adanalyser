@@ -75,9 +75,6 @@ classdef AnalyseAction < handle
             edaComplete = subject.edaValues;
             numStimuInt = length(edaPerStim);
             
-            %plot 2D Topo TEST
-            self.plotter.printTopo(config,subject,eegDevice);
-            
             %plot the a file as pdf containing all the GUI and all DEVICE settings
             self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']);            
             
@@ -138,6 +135,10 @@ classdef AnalyseAction < handle
                 self.plotter.writeCSV([config.OutputDirectory '/' subject.name '_statistics.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
                 self.plotter.writeStatistics([statString newline newline delayString newline ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
             end
+            
+            %plot 2D Topo TEST
+            self.plotter.printTopo(config,subject,eegDevice,StimuIntDefs);
+            
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
                 self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for StimulusInterval(s) ' mat2str(edaStimuInt)],[edaStatsString newline newline delayString newline ampString]);
