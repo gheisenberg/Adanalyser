@@ -137,7 +137,7 @@ classdef Plotter
             
             %Variables needed for loop
             numStimuInts = length(StimuDef);
-            Topostart = 0;
+            TopoStart = 0;
             interval = config.TopoRange;
             
             %loop for each StimuInt
@@ -145,10 +145,10 @@ classdef Plotter
             StimuInt = StimuDef{i};
             
             %prepare print range
-            TopoEnd = StimuInt.Stimulength*1000 + Topostart;
-            range = Topostart:interval:TopoEnd;
+            TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
+            range = TopoStart:interval:TopoEnd;
             range = double(range);
-            Topostart = TopoEnd; %defined for the next loop
+            TopoStart = TopoEnd; %defined for the next loop
                 
                 %only print Type > 4 = Video/Images/Audio Stimulus
                 if StimuInt.stimuIntType >= 4
@@ -175,7 +175,7 @@ classdef Plotter
                         beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
                         %Task-Engagement
                             if alpha(j) > 0 && theta(j) > 0
-                            task(j,m) = mean(beta1./(alpha+theta));
+                            task(j,m) = beta1(j)/(alpha(j)+theta(j));
                             else
                             task(j,m) = zeros(1,length(range)-1);
                             end
@@ -192,8 +192,10 @@ classdef Plotter
 
                     %Print of 2D Topo
                     subplot(1,2,1);
-                    title([num2str(range(k)) "ms"]);
-                    topoplot(task(:,k),chanloc,'electrodes','on');
+                    title(['AVG TEI between ' num2str(range(k)) '-' num2str(range(k+1)) 'ms']);
+                    topoplot(task(:,k),chanloc,'electrodes','ptslabels');
+                    cb = cbar('horiz',50:80,[0,max(task(:,k))]); %,min(task(:,k)):max(task(:,k))
+                    set(cb,'Position',[cb.Position(1) cb.Position(2)+0.15 0.33 0.03]);
 
                     %print of histogram
                     barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
@@ -241,24 +243,24 @@ classdef Plotter
             beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
             %Beta2(25-40 Hz)
             beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
-            %Task-Engagement
-                if sum(alpha) > 0 && sum(theta) > 0
-                    task(i) = mean(beta1./(alpha+theta));
-                else
-                    task(i) = 0;
-                end
+%             %Task-Engagement
+%                 if sum(alpha) > 0 && sum(theta) > 0
+%                     task(i) = beta1(i)/(alpha(i)+theta(i));
+%                 else
+%                     task(i) = 0;
+%                 end
             end
             
-            allfreq = [delta theta alpha beta1 beta2 task];
+            allfreq = [delta theta alpha beta1 beta2];% task
             ymax = max(max(allfreq));
             
             %Print
             for i = 1:numelec
             hold on
             subplot(3,3,i);
-            names = categorical({'delta','theta','alpha','beta1','beta2','TEI'});
-            names = reordercats(names,{'delta','theta','alpha','beta1','beta2','TEI'});
-            bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i), task(i)];
+            names = categorical({'delta','theta','alpha','beta1','beta2'});%,'TEI'
+            names = reordercats(names,{'delta','theta','alpha','beta1','beta2'});%,'TEI'
+            bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i)];%, task(i)
             h = bar(names,bars,'FaceColor','flat');
             ylim([0 ymax]);
             title(electrodes(i),'FontSize', 24)            
@@ -267,7 +269,7 @@ classdef Plotter
             h.CData(3,:) = [0.9290 0.6940 0.1250];
             h.CData(4,:) = [0 1 0];
             h.CData(5,:) = [0.3010 0.7450 0.9330];
-            h.CData(6,:) = [0 0.4470 0.7410];
+%             h.CData(6,:) = [0 0.4470 0.7410];
             end
             
             %save as img
