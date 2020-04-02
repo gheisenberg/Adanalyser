@@ -76,7 +76,10 @@ classdef AnalyseAction < handle
             numStimuInt = length(edaPerStim);
             
             %plot the a file as pdf containing all the GUI and all DEVICE settings
-            self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']);            
+            self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']); 
+            
+            %plot the a file as pdf containing all the ADIndex settings
+            self.plotter.writeAdIndex(StimuIntDefs,[config.OutputDirectory,'/AdIndex.pdf']);
             
             % Plot eda
             if (config.EDA_DEVICE_USED)

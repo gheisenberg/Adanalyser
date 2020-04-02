@@ -22,7 +22,7 @@ function varargout = ElectrodesDialog(varargin)
 
 % Edit the above text to modify the response to help ElectrodesDialog
 
-% Last Modified by GUIDE v2.5 06-Mar-2020 11:52:50
+% Last Modified by GUIDE v2.5 01-Apr-2020 11:52:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -49,6 +49,8 @@ function ElectrodesDialog_OpeningFcn(hObject, eventdata, handles, varargin)
 %%Upadte Togglebutton on GUI
 global eegdevice
 electrodePositions = eegdevice.electrodePositions;
+
+handles.AllButton.Value = true;
 
 %Create cell array to use indize
 handlesCell = struct2cell(handles);
@@ -162,6 +164,79 @@ end
 
 
 
+% --- Executes on button press in AllButton.
+function AllButton_Callback(hObject, eventdata, handles)
+% hObject    handle to AllButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%WIP
+
+%%Upadte Togglebutton on GUI
+global eegdevice
+electrodePositions = eegdevice.electrodePositions;
+
+%Create cell array to use indize
+handlesCell = struct2cell(handles);
+tags = cell(length(handlesCell),1);
+numElect = length(electrodePositions);
+UsedElectrode = cell(numElect,1);
+for i = 1:numElect
+UsedElectrode{i} = electrodePositions{i};
+end
+    
+%list of all tags -> needed to convert the cell Aray back into a struct
+for  i = 1:length(handlesCell)
+    data = handlesCell{i};
+    tags{i} = data.Tag;
+    if strcmp(class(data),'matlab.graphics.axis.Axes')
+        tags{i} = 'background';
+    end
+end
+tags{end} = 'GUI2';
+
+%Type searched for -> buttons
+typeNeeded = 'matlab.ui.control.UIControl';
+
+%Loop for tooglebuttons
+for  i = 2:length(handlesCell) 
+data = handlesCell{i};
+type = class(data);
+%Compare types to search for togglebuttons
+    if strcmp(type,typeNeeded)
+        for j = 1:numElect
+            if strcmp(data.String,UsedElectrode{j})
+                if hObject.Value == 1
+                    data.Value = true;
+                else
+                    data.Value = false;
+                end
+            end
+        end
+    end
+    handlesCell{i} = data;
+end
+
+%Concert the cell aray to struct -> newhandle and update it
+newhandles = cell2struct(handlesCell,tags,1);
+handles = newhandles;
+
+%Change Table
+data = get(handles.ElectrodeTable,'data');
+dataVector = size(data);
+dataL = dataVector(1);
+if hObject.Value == 1
+    for i = 1:dataL
+        data{i,2} = 1;
+    end
+else
+    for i = 1:dataL
+        data{i,2} = 0;
+    end
+end
+
+set(handles.ElectrodeTable, 'Data', data);
+
+
 % --- Executes on button press in cancel.
 function cancel_Callback(hObject, eventdata, handles)
 % hObject    handle to cancel (see GCBO)
@@ -169,15 +244,6 @@ function cancel_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 close; 
-
-% --- Executes on button press in SwitchAll.
-function SwitchAll_Callback(hObject, eventdata, handles)
-% hObject    handle to SwitchAll (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of SwitchAll
-
 
 
 % --- Executes on button press in fp1.
@@ -1134,4 +1200,3 @@ function fc1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of fc1
-

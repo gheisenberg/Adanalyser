@@ -49,6 +49,67 @@ classdef Plotter
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
+        
+        %% Saves ADIndex settings to fName.pdf
+        %   config: contains all configs as String
+        %   fName: File name as String
+        function writeAdIndex(self,StimuInt,fName)
+            fatbraid="==================================================================================" + newline;
+            thinbraid="----------------------------------------------------------------------------------" + newline;
+            
+            output_text = strcat(fatbraid,"---> AdIndex SETTINGS"+newline);
+            output_text= strcat(output_text,fatbraid);
+            output_text= strcat(output_text,"Stimulus length | Stimulus Type | Stimulus Description |         Stimulus Interval" + newline);
+            output_text= strcat(output_text,thinbraid);
+            
+            %create textboxes
+            for i = 1:length(StimuInt)
+                
+                %Stimulus length
+                CharStimuLength = blanks(15);
+                CharStimuLength([9:15]) = 'seconds';
+                counter = length(num2str(StimuInt{1, i}.Stimulength));
+                if counter == 1
+                    CharStimuLength(7) = num2str(StimuInt{1, i}.Stimulength);
+                elseif counter == 2
+                    CharStimuLength(6:7) = num2str(StimuInt{1, i}.Stimulength);
+                else
+                    CharStimuLength(5:7) = num2str(StimuInt{1, i}.Stimulength);
+                end
+                
+                %Stimulus type
+                CharStimuType = blanks(13);
+                CharStimuType([8:11]) = 'Type';
+                CharStimuType(13) = num2str(StimuInt{1, i}.stimuIntType);
+                
+                %Stimulus Description
+                CharStimuDesc = blanks(20);
+                CharStartDesc = 20-length(StimuInt{1, i}.stimuIntDescrp)+1;
+                CharStimuDesc([CharStartDesc:end]) = StimuInt{1, i}.stimuIntDescrp;
+                
+                %Stimulus Intervals
+                CharStimuInt = blanks(26);            
+                hold = num2str(StimuInt{1, i}.intervals);
+                IntChar = '';
+                for i = 1:length(hold)
+                IntChar = append(IntChar,hold(i,:));
+                IntChar = append(IntChar,' ');
+                end
+                CharStartInt = 26-length(IntChar)+1;
+                CharStimuInt([CharStartInt:end]) = IntChar;
+                
+                %Save text
+                output_text= strcat(output_text,[CharStimuLength ' | ' CharStimuType ' | ' CharStimuDesc ' | ' CharStimuInt]);
+                output_text= strcat(output_text," " + newline);
+            end                
+         
+            fig = figure('Visible','off');
+            axes('Position',[00 0.1 1 1],'Visible','off');
+            text(0.0,0.99,output_text{1},'FontName','FixedWidth','FontSize',8);
+            print(fName,'-dpdf',fig,'-r0');
+            close(fig);
+        end
+        
         %% Saves statistics as PDF
         %   stats: statistics as String
         %   fName: File name as String
