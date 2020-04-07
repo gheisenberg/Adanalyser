@@ -160,7 +160,7 @@ classdef Plotter
             load Standard-10-20-Cap81.mat;
             
             %Data preparation
-            Usedelectrodes = eegDevice.electrodePositions;
+            Usedelectrodes = subject.validElectrodes;
             numValues = subject.eegValuesForElectrodes; 
             numElec = length(numValues);
             for i = 1:numElec              

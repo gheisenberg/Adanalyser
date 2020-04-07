@@ -25,7 +25,8 @@ classdef FilterAction < handle
             unfilteredQuality = zeros(numSubjects,numStimuInt);
             filteredQuality = zeros(numSubjects,numStimuInt);
             for i=1:numSubjects
-                subject = data.subjects{i};
+                subject = data.subjects{i}; 
+                if subject.isValid == 1 %Filter invalid subjects
                 numElectrodes = length(subject.eegValuesForElectrodes);               
                 for j=1:numElectrodes
                     eegValues = subject.eegValuesForElectrodes{j};
@@ -42,6 +43,11 @@ classdef FilterAction < handle
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
                     filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList);
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
+                    filterdEEGValues = [];
+                    for m = 1:length(filteredEEGValuesPerVid)
+                        filterdEEGValues = [filterdEEGValues filteredEEGValuesPerVid{m}];
+                    end
+                    eegValues.eegValues = filterdEEGValues';
                     subject.eegValuesForElectrodes{j} = eegValues;
                         if (eegValues.electrode == Electrodes.FZ) %Tim Variabl machen für alle Variablen! 
                             for v=1:numStimuInt
@@ -57,10 +63,12 @@ classdef FilterAction < handle
                 end
                 data.subjects{i} = subject;
                 waitbar(i/numSubjects);
-            end
-            close(h);
-            % rate quality
-            [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
+            
+                % rate quality
+                [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
+                end
+                close(h);
+                
             % plot quality figures
 
 %           Kreitzberg: Commented out; Reason go to Plotter.m
@@ -69,6 +77,7 @@ classdef FilterAction < handle
 %             if (config.QualityFig)
 %                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
 %             end
+            end
         end
     end
     

@@ -30,3 +30,5 @@ UpperThreshold=100
 QualityIndex=13
 RecurrenceTreshold=0
 EEGCutoffValue=1
+TopoRange=2000
+numSubjects=1

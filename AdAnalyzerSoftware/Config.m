@@ -30,7 +30,10 @@ classdef Config
         % Recurrence Treshhold
         RecurrenceThreshold = 0
         EEGCutoffValue = 10
+        %Topology Plot
         TopoRange = 2000
+        %Subject
+        numSubjects = 0
         
     end
     
@@ -66,6 +69,7 @@ classdef Config
                 'RecurrenceTreshold=',num2str(self.RecurrenceThreshold),newline,...
                 'EEGCutoffValue=',num2str(self.EEGCutoffValue)
                 'TopoRange=',num2str(self.TopoRange)
+                'numSubjects=',num2str(self.numSubjects)
                 ];
         end
     end

@@ -118,6 +118,9 @@ classdef ConfigManager
                         if strcmp(splitLine{1},'TopoRange')
                             conf.TopoRange=str2double(splitLine{2}); 
                         end
+                         if strcmp(splitLine{1},'numSubjects')
+                            conf.numSubjects=str2double(splitLine{2}); 
+                        end
                     end
                     % parse the device files and create those
                         eegDevice = self.deviceFactory.createEEGDevice(conf);

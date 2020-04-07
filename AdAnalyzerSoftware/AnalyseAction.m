@@ -28,10 +28,9 @@ classdef AnalyseAction < handle
                 self.frequencies = cell(6,6);
                 self.frequencies4Hz = cell(6,6);
                 subject = subjects{i};
-%                 if (subject.isValid) <- do analyse for all subjects and
-%                 just filter at EEG
+                if subject.isValid == 1 %Filter invalid subjects
                     self.analyseSubject(subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
-
+                end
                 waitbar(i/validSubjects);
             end
             close(wBar);
@@ -55,18 +54,24 @@ classdef AnalyseAction < handle
             statsMat(1) = {'Overview of subjects and their EEG status'};
             
             j = 1;
+            isValid = 0;
             for i=1:Sublength 
                sub = subject{i};
                if sub.isValid == 1
-                   isValid(j) = sub;
+                   isValid = isValid+1;
                    statsMat(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
                    j = j+1;
                else 
                    statsMat(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
+                   isValid = isValid + 0;
                end
             end
-            statsMat(2) = {[num2str(length(isValid)) ' of ' num2str(Sublength) ' subjects are valid']};
+            statsMat(2) = {[num2str(num2str(isValid)) ' of ' num2str(Sublength) ' subjects are valid']};
             self.plotter.writeValid(statsMat,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
+            
+            if isValid == 0
+                fprintf('\n\nNo valid subject found!\n\n');
+            end
         end
         
         %% Performs analysis of the data of each subject

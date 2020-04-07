@@ -22,7 +22,7 @@ function varargout = ConfigDialog(varargin)
 
 % Edit the above text to modify the response to help ConfigDialog
 
-% Last Modified by GUIDE v2.5 30-Mar-2020 11:40:47
+% Last Modified by GUIDE v2.5 07-Apr-2020 10:37:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,6 +79,7 @@ conf.BehaveFig = get(handles.behavioralCharacteristics,'Value');
 conf.Statistics = get(handles.statistics,'Value');
 conf.EEGCutoffValue = get(handles.EEGCutoffValue,'Value');
 conf.TopoRange = get(handles.TopoRange,'Value');
+conf.numSubjects = get(handles.numSubjects,'Value');
 
 
 
@@ -154,6 +155,17 @@ else
     conf.TopoRange = str2num(str);
 end
 
+str = get(handles.numSubjects,'String');
+str = strrep(str, ',', '.');
+str = strrep(str, ' ', '');
+if isempty(str2num(str))
+    set(handles.numSubjects,'string','1');
+    warndlg('Input must be numerical','Invalid Interval');
+    valid =0;
+else
+    conf.numSubjects = str2num(str);
+end
+
 if (valid==1)
     close; 
 end
@@ -225,6 +237,7 @@ set(handles.qualityIndex,'String',conf.QualityIndex);
 set(handles.recurrenceTreshold,'String',conf.RecurrenceThreshold);
 set(handles.EEGCutoffValue,'String',conf.EEGCutoffValue);
 set(handles.TopoRange,'String',conf.TopoRange);
+set(handles.numSubjects,'String',conf.numSubjects);
 
 
 
@@ -416,6 +429,29 @@ function TopoRange_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function TopoRange_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to TopoRange (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function numSubjects_Callback(hObject, eventdata, handles)
+% hObject    handle to numSubjects (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of numSubjects as text
+%        str2double(get(hObject,'String')) returns contents of numSubjects as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function numSubjects_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to numSubjects (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

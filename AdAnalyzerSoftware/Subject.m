@@ -10,8 +10,9 @@ classdef Subject
         % parsed hrv values 
         hrvValues={} 
         eegValuesForElectrodes ={}
+        validElectrodes = []
         %Values set during FilterAction
-        isValid = 0 
+        isValid = 1
         edaPerVid= {}
     end
     

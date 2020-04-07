@@ -2,26 +2,60 @@
 %   Reads subject related files and creates appropriate data representation -> See: Subject
 classdef SubjectFactory
     
-    properties
+    properties 
     end
     
     methods
         %% Creates new Subjects on base of the file paths stored in Config Object.
         %   See: Config.m
-        function subjects=createSubjects(self,config,StimuIntLength,eegDevice,edaDevice,hrvDevice)
+        function subjects = createSubjects(self,config,StimuIntLength,eegDevice,edaDevice,hrvDevice)
             eegFilePaths = config.EEGFiles;
             edaFilePaths = config.EDAFiles;
             hrvFilePaths = config.HRVFiles;
-            numberOfSubjects =  length(edaFilePaths);  
+            numberOfSubjects =  config.numSubjects;  
             message = ['Reading raw data for ' num2str(numberOfSubjects) ' subject(s)'];
             bar = waitbar(0,message);  % open waitbar dialog with message
             subjects=cell(1,numberOfSubjects);
             for i = 1:numberOfSubjects
+                subject = Subject();
                 % get subject name and electrode name from eeg file name
-                edaFileForSubject = edaFilePaths{i};
-                [~,name,~] = fileparts(edaFileForSubject);
-                splitFileName =  textscan(name,'%s','Delimiter','_');
-                subjectName = splitFileName{1}{2};
+                numberOfEDA = length(edaFilePaths);
+                numberofHRV = length(hrvFilePaths);
+                %Check if number of EDA Files -> correct = get subject
+                %names
+                if numberOfSubjects == numberOfEDA         
+                    edaFileForSubject = edaFilePaths{i};
+                    [~,name,~] = fileparts(edaFileForSubject);
+                    splitFileName =  textscan(name,'%s','Delimiter','_');
+                    subjectName = splitFileName{1}{2};
+                    %Check if subject also containes a HRV file -> Invalid
+                    %if not
+                    if 1 ~= contains(hrvFilePaths{:},subjectName)
+                        fprintf(['Subject ' subjectName ' is missing the HRV File!\n\n'])
+                        fprintf('This subject will neither be filtered nor analyzed!\n\n')
+                        subject.isValid = 0;
+                        %go for next loop iteration
+                        continue
+                    end      
+                %if EDA is incorrect check for HRV
+                elseif numberOfSubjects == numberofHRV                 
+                    hrvFileForSubject = hrvFilePaths{i};
+                    [~,name,~] = fileparts(hrvFileForSubject);
+                    splitFileName =  textscan(name,'%s','Delimiter','_');
+                    subjectName = splitFileName{1}{2};
+                    %get incorrect Subject for EDA
+                    if 1 ~= contains(edaFilePaths{:},subjectName)
+                        fprintf(['Subject ' subjectName ' is missing the EDA File!\n'])
+                        fprintf('This subject will neither be filtered nor analyzed!\n\n')
+                        subject.isValid = 0;
+                        continue
+                    end
+                else 
+                    fprintf('Please check the EDA and HRV Files!\n')
+                    fprintf('Neither of them correlates with number of subjects.\n\n')
+                    close(bar);
+                    return
+                end
                 % get eeg files for subject by subject name
                 matches = strfind(eegFilePaths,subjectName);
                 Subjectmatches = find(~cellfun(@isempty,matches));
@@ -29,7 +63,6 @@ classdef SubjectFactory
                 ElectrodesStates = eegDevice.electrodeState;
                 ListVector = size(usedElectrodes);
                 ListL = ListVector(1);
-                subject = Subject();
                 for k = 1:ListL
                     subjectlist = eegFilePaths(Subjectmatches(1):Subjectmatches(end));
                     electrodelist = strfind(subjectlist,usedElectrodes{k});
@@ -45,7 +78,8 @@ classdef SubjectFactory
                             SubjectNumber = num2str(i);
                             if config.EEG_DEVICE_USED == 1 %Tim Besprechen, wo schon gestoppt wird generell
                             fprintf('Data missing for subject %s for EEG electrode "%s".\n',SubjectNumber,Electrode)
-                            fprintf('This position will neither be filtered nor analyzed!\n\n')
+                            fprintf('This subject will neither be filtered nor analyzed!\n\n')
+                            subject.isValid = 0;
                             end
                         end
                     else
@@ -62,6 +96,7 @@ classdef SubjectFactory
                 eegDevice.electrodePositions = removeEmptyPositions(~cellfun('isempty',removeEmptyPositions));
                 eegDevice.electrodeState = removeEmptyState(~cellfun('isempty',removeEmptyState));
                 subject.eegValuesForElectrodes = removeEmpty(~cellfun('isempty',removeEmpty));
+                subject.validElectrodes = eegDevice.electrodePositions;
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
                 edaFileIndex = ~cellfun(@isempty,matches);

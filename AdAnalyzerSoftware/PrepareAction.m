@@ -23,6 +23,7 @@ classdef PrepareAction
                                 
                 data  = self.dataFactory.createData(conf,eegDevice,edaDevice,hrvDevice);
                 data.isValid = 1; 
+
             end
         end
     end

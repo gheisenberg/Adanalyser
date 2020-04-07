@@ -227,7 +227,7 @@ fprintf('\nFilter subjects');
 filter = FilterAction();
 data = filter.filter(data,conf,eegdevice,edadevice,hrvdevice);
 set(handles.analyse,'enable','on');
-fprintf('Done\n');
+fprintf('\n\nDone\n');
 
 
 %% Starts _AnalyseAction_ when analyse button was pressed
