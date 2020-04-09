@@ -23,32 +23,49 @@ classdef SubjectFactory
                 numberofHRV = length(hrvFilePaths);
                 %Check if number of EDA Files -> correct = get subject
                 %names
-                if numberOfSubjects == numberOfEDA         
+                if numberOfSubjects <= numberOfEDA && numberOfEDA >= numberofHRV          
                     edaFileForSubject = edaFilePaths{i};
                     [~,name,~] = fileparts(edaFileForSubject);
                     splitFileName =  textscan(name,'%s','Delimiter','_');
                     subjectName = splitFileName{1}{2};
                     %Check if subject also containes a HRV file -> Invalid
                     %if not
-                    if 1 ~= contains(hrvFilePaths{:},subjectName)
+                    if 0 == contains(hrvFilePaths,subjectName)
                         fprintf(['Subject ' subjectName ' is missing the HRV File!\n\n'])
                         fprintf('This subject will neither be filtered nor analyzed!\n\n')
                         subject.isValid = 0;
                         %go for next loop iteration
                         continue
-                    end      
+                    end
+                    if numberOfSubjects < numberOfEDA || numberOfSubjects < numberofHRV
+                            if numberOfEDA == numberofHRV
+                            total = numberOfEDA-numberOfSubjects;
+                            fprintf('The number of subjects doesn´t match the number of EDA and HRV Files!\n')
+                            fprintf([num2str(total) ' files will be filtered and analyzed in ascending order!\n\n'])
+                            end
+                            if numberOfEDA > numberofHRV
+                            total = numberofHRV-numberOfSubjects;
+                            fprintf('The number of subjects doesn´t match the number of EDA Files!\n')
+                            fprintf([num2str(total) ' files will be filtered and analyzed in ascending order!\n\n'])
+                            end
+                    end
                 %if EDA is incorrect check for HRV
-                elseif numberOfSubjects == numberofHRV                 
+                elseif numberOfSubjects <= numberofHRV                 
                     hrvFileForSubject = hrvFilePaths{i};
                     [~,name,~] = fileparts(hrvFileForSubject);
                     splitFileName =  textscan(name,'%s','Delimiter','_');
                     subjectName = splitFileName{1}{2};
                     %get incorrect Subject for EDA
-                    if 1 ~= contains(edaFilePaths{:},subjectName)
+                    if 0 == contains(edaFilePaths,subjectName)
                         fprintf(['Subject ' subjectName ' is missing the EDA File!\n'])
                         fprintf('This subject will neither be filtered nor analyzed!\n\n')
                         subject.isValid = 0;
                         continue
+                    end
+                    if numberOfSubjects < numberofHRV
+                        total = numberofHRV-numberOfSubjects;
+                        fprintf('The number of subjects doesn´t match the number of HRV Files!\n')
+                        fprintf([num2str(total) ' files will be filtered and analyzed in ascending order!\n\n'])
                     end
                 else 
                     fprintf('Please check the EDA and HRV Files!\n')

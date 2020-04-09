@@ -41,15 +41,14 @@ classdef FilterAction < handle
                     end
                     %calculate eeg values per StimulusInterval
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
-                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList);
+                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); %Tim 
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
-                    filterdEEGValues = [];
-                    for m = 1:length(filteredEEGValuesPerVid)
-                        filterdEEGValues = [filterdEEGValues filteredEEGValuesPerVid{m}];
-                    end
-                    eegValues.eegValues = filterdEEGValues';
+                    eegValues.eegValues = filteredList';
                     subject.eegValuesForElectrodes{j} = eegValues;
-                        if (eegValues.electrode == Electrodes.FZ) %Tim Variabl machen für alle Variablen! 
+                    subject.validElectrodes;
+                    validElectrode = char(subject.validElectrodes);
+                    %Checks if Electrode is valid
+                        if sum(ismember(eegValues.electrode,validElectrode))
                             for v=1:numStimuInt
                                 unfilteredEEGVid = eegValuesPerStim{v};
                                 filteredEEGVid = filteredEEGValuesPerVid{v};
@@ -66,9 +65,7 @@ classdef FilterAction < handle
             
                 % rate quality
                 [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
-                end
-                close(h);
-                
+                end                
             % plot quality figures
 
 %           Kreitzberg: Commented out; Reason go to Plotter.m
@@ -78,6 +75,7 @@ classdef FilterAction < handle
 %                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
 %             end
             end
+            close(h);
         end
     end
     
