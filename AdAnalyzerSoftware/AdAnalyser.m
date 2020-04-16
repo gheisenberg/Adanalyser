@@ -66,38 +66,6 @@ configManager = ConfigManager;
 function varargout = AdAnalyser_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
-%%% BUTTONS 
-
-% % --- Executes on button press in allOutputs.
-% function allOutputs_Callback(hObject, eventdata, handles)
-% global conf
-% conf.EEGFig = 1;
-% conf.FrequencyFig = 1;
-% conf.EDAFig = 1;
-% conf.DetrendedEDAFig = 1; 
-% conf.HRVFig = 1; 
-% conf.SubStimuIntEDAFig = 1;
-% conf.QualityFig = 1;
-% conf.BehaveFig = 1; 
-% conf.Statistics = 1;  
-% conf.RecurrenceFig = 1; 
-% updateUI(handles);
-
-% % --- Executes on button press in noOutputs.
-% function noOutputs_Callback(hObject, eventdata, handles)
-% global conf
-% conf.EEGFig = 0;
-% conf.FrequencyFig = 0;
-% conf.EDAFig = 0;
-% conf.DetrendedEDAFig = 0; 
-% conf.HRVFig = 0; 
-% conf.SubStimuIntEDAFig = 0;
-% conf.QualityFig = 0;
-% conf.BehaveFig = 0; 
-% conf.Statistics = 0;  
-% conf.RecurrenceFig =0; 
-% updateUI(handles)
-
 %% Executes when save config button pressed.
 %   Uses _ConfigManager_ to save config 
 function saveSettings_Callback(hObject, eventdata, handles)

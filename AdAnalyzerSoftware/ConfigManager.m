@@ -139,7 +139,7 @@ classdef ConfigManager
         function save(self,conf)
             
             % cut the config text into pieces
-            conf_text_all = conf.toString();
+            conf_text_all = conf.toString;
             if(contains(conf_text_all,'EEG_DEVICE_USED=1'))
                 conf_text_1= regexp(conf_text_all,'EEG_DEVICE_USED=1','split');
             else
