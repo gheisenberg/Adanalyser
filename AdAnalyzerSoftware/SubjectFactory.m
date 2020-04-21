@@ -78,17 +78,32 @@ classdef SubjectFactory
                 Subjectmatches = find(~cellfun(@isempty,matches));
                 usedElectrodes = eegDevice.electrodePositions;
                 ElectrodesStates = eegDevice.electrodeState;
-                ListVector = size(usedElectrodes);
-                ListL = ListVector(1);
-                for k = 1:ListL
+                NumElectrodesVector = size(usedElectrodes);
+                NumElectrodes = NumElectrodesVector(1);
+                NumMatches = length(Subjectmatches);
+                %Check for EEG Files
+                if NumMatches ~= NumElectrodes
+                    missing = NumElectrodes - NumMatches;
+                    fprintf(['Subject ' subjectName ' is missing ' num2str(missing) ' EEG File/s!\n'])
+                    fprintf('This subject will neither be filtered nor analyzed!\n\n')
+                    subject.isValid = 0;
+                    continue
+                end               
+                for k = 1:NumElectrodes
                     subjectlist = eegFilePaths(Subjectmatches(1):Subjectmatches(end));
                     electrodelist = strfind(subjectlist,usedElectrodes{k});
                     eegFileIndicies = find(~cellfun(@isempty,electrodelist));
                     %Check State of Electrode
                     if ElectrodesStates{k} == 1
                         if eegFileIndicies > 0
-                            eegFileForSubject = eegFilePaths{eegFileIndicies}; 
-                            subject.eegValuesForElectrodes{k} = self.parseEEGFile(config,eegFileForSubject,StimuIntLength,eegDevice);
+                            eegFileForSubject = subjectlist{eegFileIndicies}; 
+                            [subject.eegValuesForElectrodes{k},Validation] = self.parseEEGFile(config,eegFileForSubject,StimuIntLength,eegDevice);
+                            if Validation ~= 0
+                                fprintf(['The EEG File of subject ' subjectName ' for electrode ' Validation ' is too short!\n'])
+                                fprintf('This subject will neither be filtered nor analyzed!\n\n')
+                                subject.isValid = 0;
+                                continue
+                            end    
                         else
                             MissingElectrode = usedElectrodes(k);
                             Electrode = MissingElectrode{1};
@@ -125,11 +140,13 @@ classdef SubjectFactory
                 % create the subject
                 subject.name = subjectName;
                 subject.edaValues = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
-                subject.hrvValues = self.parseHRVFile(hrvFileForSubject,hrvDevice);    
+                subject.hrvValues = self.parseHRVFile(hrvFileForSubject,hrvDevice);
+                %Check for validation, else dont save subject
                 subjects{i}=subject; 
                 % update waitbar
                 waitbar(i /numberOfSubjects);
             end
+            subjects = subjects(~cellfun('isempty',subjects));
             close(bar);
         end
     end
@@ -137,7 +154,8 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to int array
-        function electrodeEEGdata = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
+        function [electrodeEEGdata,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
+            invalid = [];
             [~,name,~] = fileparts(eegFile);
             splitFileName = textscan(name,'%s','Delimiter','_');
             electrodeName = splitFileName{1}{3};
@@ -151,11 +169,15 @@ classdef SubjectFactory
             EEGSamplingRate = eegDevice.samplingRate;
             start = eegOffset*EEGSamplingRate;
             ende = start+(StimuIntLength*EEGSamplingRate);
+            if length(eegRawValues) < ende
+                invalid = electrodeName;
+            else
             % Cut of eeg values and create eeg matrix for each subject
             eegValsCutoff = eegRawValues(start:ende-1);
             eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
             electrodeEEGdata.eegValues = eegValsCutoff;
             electrodeEEGdata.eegMatrix = double(eegValsMatrix');
+            end
         end
         
         %% Parses HRV file to double array

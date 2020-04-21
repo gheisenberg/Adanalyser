@@ -114,7 +114,7 @@ classdef Plotter
         %   stats: statistics as String
         %   fName: File name as String
         function writeStatistics(self,stats,fName)
-            fig = figure('Visible','on');
+            fig = figure('Visible','off');
             axes('Position',[0.0 0.0 1 1],'Visible','off');
             fig.PaperPositionMode='auto';
             text(0.0,0.85,stats,'FontName','FixedWidth','FontSize',6); %Changed font size to 6 (from 8) for displaying the whole text
@@ -203,28 +203,28 @@ classdef Plotter
             
             %loop for each StimuInt
             for i = 1:numStimuInts
-            StimuInt = StimuDef{i};
-            
-            %prepare print range
-            TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
-            range = TopoStart:interval:TopoEnd;
-            range = double(range);
-            TopoStart = TopoEnd; %defined for the next loop
-                
+                StimuInt = StimuDef{i};
+
+                %prepare print range
+                TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
+                range = TopoStart:interval:TopoEnd;
+                range = double(range);
+                TopoStart = TopoEnd; %defined for the next loop
+
                 %only print Type > 4 = Video/Images/Audio Stimulus
                 if StimuInt.stimuIntType >= 4
 
-                %prepare data for print
-                SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-                pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
-                if pos(end) == EEG.pnts+1
-                pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
-                end
-                nanpos = find(isnan(pos));
-                pos(nanpos) = 1;
-                numPos = length(pos)-1; 
-                task = zeros(numElec,numPos);
-                
+                    %prepare data for print
+                    SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
+                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
+                        if pos(end) == EEG.pnts+1
+                            pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
+                        end
+                    nanpos = find(isnan(pos));
+                    pos(nanpos) = 1;
+                    numPos = length(pos)-1; 
+                    task = zeros(numElec,numPos);
+
                     %get TEI
                     for m = 1:numPos
                         for j = 1:numElec
@@ -242,36 +242,58 @@ classdef Plotter
                             end
                         end
                     end
-                    
-                subjectName = subject.name;
-                numofprint = length(range)-1;
-            
-                    for k = 1:numofprint     
-                    %print preparation
-                    mainfig = figure('Visible','on');
-                    set(mainfig,'PaperUnits','inches','PaperPosition',[0 0 12 7.5])
 
-                    %Print of 2D Topo
-                    subplot(1,2,1);
-                    title(['AVG TEI between ' num2str(range(k)) '-' num2str(range(k+1)) 'ms']);
-                    topoplot(task(:,k),chanloc,'electrodes','ptslabels');
-                    cb = cbar('horiz',50:80,[0,max(task(:,k))]); %,min(task(:,k)):max(task(:,k))
-                    set(cb,'Position',[cb.Position(1) cb.Position(2)+0.15 0.33 0.03]);
+                    subjectName = subject.name;
+                    numofprint = length(range)-1;
 
-                    %print of histogram
-                    barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
-                    barschart = subplot(1,2,2);
-                    barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
-                    imshow(barsimg);
-            
-                    %Subplot title
-                    sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
-            
-                    %save as pdf
-                    fName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo'];
-                    print(fName,'-dpng','-r300',mainfig);
-                    close
-                    end
+                    % video obj
+                    vName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+                    vidObj = VideoWriter(vName);
+                    vidObj.Quality = 100;       
+                    vidObj.FrameRate = 0.5;
+                    numberOfFramesPerSec = 2;
+                    open(vidObj);
+
+                    for k = 1:numofprint
+                        %print preparation
+                        mainfig = figure('Visible','on');
+                        set(mainfig,'PaperUnits','inches','PaperPosition',[0 0 12 7.5])
+                        hold on
+
+                        %Print of 2D Topo
+                        subplot(1,2,1);
+                        title(['AVG TEI between ' num2str(range(k)) '-' num2str(range(k+1)) 'ms']);
+                        topoplot(task(:,k),chanloc,'electrodes','ptslabels');
+                        cb = cbar('horiz',50:80,[0,max(task(:,k))]); %,min(task(:,k)):max(task(:,k))
+                        set(cb,'Position',[cb.Position(1) cb.Position(2)+0.15 0.33 0.03]);
+
+                        %print of histogram
+                        barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
+                        barschart = subplot(1,2,2);
+                        barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
+                        imshow(barsimg);
+
+                        %Subplot title
+                        sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
+
+                        %save as pdf
+                        fName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
+                        print(fName,'-dpng','-r300',mainfig);
+
+
+                        % Folgende Befehle beschleunigen das Plotten innerhalb der Schleife
+                        set(gcf,'renderer','opengl') 
+                        drawnow nocallbacks
+                        for t = 1:numberOfFramesPerSec
+                            % Bild zu Video hinzufügen
+                            writeVideo(vidObj, imread(fName));
+                            hold off    
+                            cla         
+                            hold on
+                        end
+                        %close figure
+                            close
+                    end     
                 end
             end
         end
@@ -289,7 +311,6 @@ classdef Plotter
             set(barsfig,'color','w');
             set(barsfig,'Position', [1, 1, 1200, 1200]);
             
-            maxDataPnts = length(data);          
             data = data(:,startpos:endpos);
             
             %get frequency bands
@@ -304,12 +325,6 @@ classdef Plotter
             beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
             %Beta2(25-40 Hz)
             beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
-%             %Task-Engagement
-%                 if sum(alpha) > 0 && sum(theta) > 0
-%                     task(i) = beta1(i)/(alpha(i)+theta(i));
-%                 else
-%                     task(i) = 0;
-%                 end
             end
             
             allfreq = [delta theta alpha beta1 beta2];% task
@@ -330,7 +345,6 @@ classdef Plotter
             h.CData(3,:) = [0.9290 0.6940 0.1250];
             h.CData(4,:) = [0 1 0];
             h.CData(5,:) = [0.3010 0.7450 0.9330];
-%             h.CData(6,:) = [0 0.4470 0.7410];
             end
             
             %save as img
