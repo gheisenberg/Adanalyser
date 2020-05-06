@@ -97,7 +97,7 @@ classdef AnalyseAction < handle
             % Plot EEG 
             numElectrodes = length(subject.eegValuesForElectrodes); 
             statsMat = cell(4+numElectrodes,9);
-            %Mark unvalid subjects in EEG Statistics
+            % Mark unvalid subjects in EEG Statistics
             if subject.isValid == 1
                 statsMat(1,1) = {['Statistics for subject ' subject.name]};
             elseif subject.isValid == 0
@@ -129,7 +129,7 @@ classdef AnalyseAction < handle
             end
             % EDA statistics 
             orientingResponse = self.getStimuIntIndex(1,StimuIntDefs);
-            [amplitudes,delays] = self.calculateDelays(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals,edaDevice);%2
+            [amplitudes,delays] = self.calculateDelaysEDA(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals,edaDevice);%2
             edaStimuInt = self.getStimuIntIndex([0,1,4,5,6],StimuIntDefs);
             edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
@@ -144,8 +144,53 @@ classdef AnalyseAction < handle
                 self.plotter.writeStatistics([statString newline newline delayString newline ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
             end
             
-            %plot 2D Topo TEST
-            self.plotter.printTopo(config,subject,eegDevice,StimuIntDefs);
+            %Preparing EEG Data for print
+            %Import of Standard 10-20 System chanlocs for electrodes
+            load Standard-10-20-Cap81.mat;
+
+            %Data preparation
+            Usedelectrodes = subject.validElectrodes;
+            numValues = subject.eegValuesForElectrodes; 
+            numElec = length(numValues);
+            for i = 1:numElec              
+                eegValues(:,i) =  subject.eegValuesForElectrodes{1, i}.eegValues;              
+            end
+            PlotOverTimeData = eegValues';
+
+            %needed variables for chanloc preparation
+            chanloc = Chanloc;
+            electrodes = Usedelectrodes';
+            lengthElectrodes = length(electrodes);
+            lengthStandardChanloc = length(Chanloc);
+            deleteRow = zeros(1,lengthStandardChanloc);
+            SumDeleteRow = zeros(1,lengthStandardChanloc);
+
+            %delete all unused electrode chanlocs
+            for i = 1:lengthElectrodes
+                deleteRow = ismember({chanloc.labels}, electrodes{i});
+                SumDeleteRow = SumDeleteRow + deleteRow;
+            end
+            SumDeleteRow = ~SumDeleteRow;
+            chanloc(SumDeleteRow) = [];
+
+            %Create EEG Struct
+            EEG.data = PlotOverTimeData;        %data array (chans x frames x epochs)
+            EEG.setname = subject.name;         %Set name = Number of subject
+            EEG.chanlocs = chanloc;             %name of file containing names and positions of the channels on the scalp
+            EEG.nbchan = length(EEG.chanlocs);  %number of channels in each epoch
+            EEG.pnts = length(EEG.data);        %number of frames (time points) per epoch (trial)
+            EEG.trials = 1;                     %number of epochs (trials) in the dataset (Allways 1 for now)
+            EEG.srate = eegDevice.samplingRate; %sampling rate (in Hz)
+            EEG.xmin = 0;                       %epoch start time (in seconds)
+            EEG.xmax = (EEG.pnts-1)/EEG.srate;  %epoch end time (in seconds)
+            
+            %plot 2D Topo
+            %print 2D Topology maps for different ranges
+            self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes);
+            
+            %print a time overview over the hole timeframe
+            self.plotter.stimulusOverviewChart(config,subject,EEG,StimuIntDefs);
+            
             
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
@@ -185,40 +230,6 @@ classdef AnalyseAction < handle
             %self.plotter.plotMomentaryFrequency(transient,config,subject,stimuIntDef)
             
         end
-        
-        %         %% Frequency estimation algorithmen
-        %         function resultFreq = frequencyEstimation(self, signalData)
-        %             mean1 = 0.0;
-        %             mean2 = 0.0;
-        %             mean3 = 0.0;
-        %             tMean = 0.005;
-        %             tFreq = 0.005;
-        %             k1 = 1;
-        %             k2 = 1;
-        %             w = 1;
-        %             [length,~] = size(signalData);
-        %             resultFreq = zeros(length,1);
-        %             for i=3:length
-        %                 mean1 = self.meanOperator(signalData(i),mean1,tMean);
-        %                 if (mean1 < signalData(i-1))
-        %                     k1=0;
-        %                 end
-        %                 mean2 = self.meanOperator(signalData(i-1),mean2,tMean);
-        %                 if (mean2 < signalData(i-2))
-        %                     k2=0;
-        %                 end
-        %                 if (k1~=k2)
-        %                     w=1;
-        %                 end
-        %                 mean3 = self.meanOperator(w, mean3, tFreq);
-        %                 resultFreq(i-2) = mean3/2;
-        %             end
-        %         end
-        %
-        %         function newMeanValue = meanOperator(self, datapoint, oldMeanValue, adaption_const)
-        %             newMeanValue = oldMeanValue + adaption_const * (datapoint - oldMeanValue);
-        %         end
-        
         
         function meanEEGPerStim = calculateMeanEEGValuesForStimuInt(self,subject)
             numElectrodes = length(subject.eegValuesForElectrodes);
@@ -346,32 +357,14 @@ classdef AnalyseAction < handle
         end
         
         %% Calculates eda delays for given intervals %Tim
-        function [values,delays] = calculateDelays(self,edaValues,intervals,edaDevice)
+        function [values,delays] = calculateDelaysEDA(self,edaValues,intervals,edaDevice)
             edaValuesDetrend = detrend(edaValues);
             numEDAValues = length(edaValuesDetrend);
             edaPerSec = edaDevice.samplingRate;
             intervals(end+1)=numEDAValues/edaPerSec;
-            %delays = zeros(1,length(intervals));
-            %values = zeros(1,length(intervals));
-            %             for i=1:length(intervals)-1;
-            %                 start = uint32(intervals(i)*5);
-            %                 ende = uint32(intervals(i+1)*5);
-            %                 offset = 10;
-            %                 valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);
-            %                 m = mean (smooth(valuesBetweenIntervals));
-            %                 [~,index] = findpeaks(smooth(valuesBetweenIntervals),'MINPEAKDISTANCE',3,'MINPEAKHEIGHT',(m*120)/100);
-            %                 if length(index)~=1
-            %                     delays(i) = 0;
-            %                     values(i) =0;
-            %                 else
-            %                     pos = start+offset+index;
-            %                     delays(i) = double(pos-(intervals(i)*5))/5.0;
-            %                     values(i) = edaValues(pos);
-            %                 end
-            %             end
-            start = uint32(intervals(1)*1); %Hardcoded
+            start = uint32(intervals(1)*1);
             ende = uint32((intervals(2)+5)*1); %end offset (project in next interval)
-            offset = 1; % start offset (start 10 datapoints later from interval start) %Tim HARDCODED - config muss übergeben werden
+            offset = 1; % start offset (start 5 datapoints later from interval start)
             valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);
             m = mean (smooth(valuesBetweenIntervals));
             delays = zeros(1,length(intervals));
