@@ -23,6 +23,8 @@ classdef Config
         QualityFig = 0
         BehaveFig = 0 
         Statistics = 0 
+        topoplot = 1
+        brainactivity = 1
         % Quality Settings
         LowerThreshold = -100
         UpperThreshold = 100
@@ -32,6 +34,7 @@ classdef Config
         EEGCutoffValue = 10
         %Topology Plot
         TopoRange = 2000
+        BrainRange = 2000
         %Subject
         numSubjects = 0
         
@@ -69,7 +72,10 @@ classdef Config
                 'RecurrenceTreshold=',num2str(config.RecurrenceThreshold),newline,...
                 'EEGCutoffValue=',num2str(config.EEGCutoffValue),newline,...
                 'TopoRange=',num2str(config.TopoRange),newline,...
-                'numSubjects=',num2str(config.numSubjects)
+                'BrainRange=',num2str(config.BrainRange),newline,...
+                'numSubjects=',num2str(config.numSubjects),...
+                'topoplot=',num2str(config.topoplot),...
+                'brainactivity=',num2str(config.brainactivity)
                 ];
         end
     end

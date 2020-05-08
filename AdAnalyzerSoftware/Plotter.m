@@ -160,10 +160,27 @@ classdef Plotter
             numStimuInts = length(StimuDef);
             TopoStart = 0;
             interval = config.TopoRange;
+            subjectName = subject.name;
+            
+            %WIP auslagern, da sonst jedes mal Video geladen werden muss                  
+            %get video of test case
+            OutputDirectory = config.OutputDirectory;
+            fileDirectory = strcat(OutputDirectory(1:end-7),'\data\video');%Has to be changed
+            fileDirectory = strcat(fileDirectory,'\PalaSTRONG');
+            fileDirectory = 'C:\Users\Tim Kreitzberg\Desktop\GIT\AdAnalyser\trunk\AdAnalyzerSoftware\data\video\PalaSTRONG.wmv';
+            vid = VideoReader(fileDirectory);
+            vidFrame = read(vid,[1 270]);
+            vidFrameDv3 = vidFrame(:,:,:,1:3:end);
             
             %loop for each StimuInt
             for i = 1:numStimuInts
                 StimuInt = StimuDef{i};
+
+                % video obj
+                vName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+                vidObj = VideoWriter(vName);
+                vidObj.Quality = 100;       
+                vidObj.FrameRate = vid.FrameRate/3; %get framerate from video
 
                 %prepare print range
                 TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
@@ -206,24 +223,9 @@ classdef Plotter
                             end
                         end
                     end
-
-                    subjectName = subject.name;
-                    numofprint = length(range)-1;
-
-                    %WIP                    
-                    %get video of test case
-                    OutputDirectory = config.OutputDirectory;
-%                     fileDirectory = strcat(OutputDirectory(1:end-7),'\data\video');%Has to be changed
-%                     fileDirectory = strcat(fileDirectory,'\PalaSTRONG');
-%                     fileDirectory = 'C:\Users\Tim Kreitzberg\Desktop\GIT\AdAnalyser\trunk\AdAnalyzerSoftware\data\video\PalaSTRONG.wmv';
-%                     vid = VideoReader(fileDirectory);
                     
-
-                    % video obj
-                    vName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
-                    vidObj = VideoWriter(vName);
-                    vidObj.Quality = 100;       
-                    vidObj.FrameRate = 30; %Variable machen
+                    %loop preperation
+                    numofprint = length(range)-1;
                     open(vidObj);
                     
                     for k = 1:numofprint
@@ -249,22 +251,24 @@ classdef Plotter
                         %Subplot title
                         sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
 
-                        %save as pdf
-                        fName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
-                        print(fName,'-dpng','-r300',mainfig);
-
-
                         % Folgende Befehle beschleunigen das Plotten innerhalb der Schleife
                         set(gcf,'renderer','opengl') 
                         drawnow nocallbacks
                         for t = 1:vidObj.FrameRate
-                            % Bild zu Video hinzufügen
+                            %insert video frames
+                            subplot(2,2,[1 2])
+                            imshow(vidFrameDv3(:,:,:,t+(10*(numofprint-1)))); %1o -> 30
+                            
+                            %save as image
+                            fName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
+                            print(fName,'-dpng','-r300',mainfig);
+                            
+                            %create video
                             writeVideo(vidObj, imread(fName));
-                            hold off    
-                            cla         
-                            hold on
+%                             hold off    
+%                             cla         
+%                             hold on
                         end
-                        subplot(2,2,[1 2]);
                         %close figure
                         close
                     end     
@@ -277,11 +281,15 @@ classdef Plotter
             
             % Variables needed for loop
             numStimuInts = length(StimuDef);
+            interval = config.BrainRange;
             TopoStart = 0;
-            interval = 1000; %4 Sekunden
             rangeALL = 0;
             StimulusIntervals = 0;
             StimuIntDefinitions = [];
+            
+            %main figure
+            mainfig = figure('Visible','on');
+            set(mainfig,'Units','pixels');
             
             %prepare vector to draw lines
             for i = 1:numStimuInts
@@ -349,12 +357,9 @@ classdef Plotter
             
             %print preparation
             sizey = 300; %height of image
-            mainfig = figure('Visible','on');
-            set(mainfig,'Units','pixels')
-            pause(1)
-            mainfig.Position = [mainfig.Position(1), mainfig.Position(2), numPrints*150 , sizey]; 
             Pos = cell(1,numPrints);
             topoX = 100;
+            mainfig.Position = [mainfig.Position(1), mainfig.Position(2), numPrints*150 , sizey]; 
             
             for j = 1:numPrints
             %Print of 2D Topo
@@ -369,7 +374,6 @@ classdef Plotter
             end
             
             %set sizeX to mainfig position length
-            pause(1)
             sizex = mainfig.Position(3);
   
             %Legend
@@ -395,6 +399,8 @@ classdef Plotter
                 %timestamp text
                 str = strcat(num2str(rangeALL(index+1)-rangeALL(1)),' ms');
                 timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
+                drawnow
+                timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
                 
                 %additional lines
                 lineCount = (index - lowindex);
@@ -411,6 +417,7 @@ classdef Plotter
                     y = SubplotLeft(2)/sizey; %convert to normazied unit
                     %line
                     tickLines = annotation('line',[x,x],[0.6,y]);
+                    tickLines.Color = 'b';
                     tickLines.LineStyle = '--';
                     tickLines.LineWidth = 0.25;
                     linesPos = linesPos + 1;
@@ -419,7 +426,7 @@ classdef Plotter
                     if length(rangeALL) > linesPos
                     str = strcat(num2str(rangeALL(linesPos)-rangeALL(1)),' ms');
                     addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
-                    pause(0.1)
+                    drawnow
                     addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
                     end
                 end
@@ -435,10 +442,7 @@ classdef Plotter
                 end
                 x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
                 StimulusDefinition = annotation('textbox',[x,0.575,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                
-                %pause
-                pause(0.1)
-                timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
+                drawnow
                 StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
 
             end
@@ -472,7 +476,7 @@ classdef Plotter
             
             %save as pdf
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100;
-            fName = [config.OutputDirectory '\Brain Activity for hole testcase.png'];
+            fName = [config.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
             set(gcf,'color','w');
             F = getframe(mainfig);
             ImageSize = size(F.cdata);

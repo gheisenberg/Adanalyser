@@ -186,11 +186,14 @@ classdef AnalyseAction < handle
             
             %plot 2D Topo
             %print 2D Topology maps for different ranges
+            if config.topoplot == 1
             self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes);
+            end
             
             %print a time overview over the hole timeframe
+            if config.brainactivity == 1
             self.plotter.stimulusOverviewChart(config,subject,EEG,StimuIntDefs);
-            
+            end
             
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
