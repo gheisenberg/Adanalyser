@@ -5,24 +5,50 @@ classdef Plotter
         %% Saves all GUI and DEVICE settings to fName.pdf
         %   config: contains all configs as String
         %   fName: File name as String
+        %   Devices: contains settings of different devices
         function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,fName)
             fatbraid="===========================================================" + newline;
             thinbraid="------------------------------------------------------" + newline;
             
             output_text= strcat(fatbraid,"---> GUI SETTINGS"+newline);
             output_text= strcat(output_text,fatbraid);
+            
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Subject Settings"+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Number of Subjects=" + num2str(config.numSubjects)+newline+newline);
+            
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Output Settings"+newline);
+            output_text= strcat(output_text,thinbraid);
             output_text= strcat(output_text,"SubStimuIntEDAFig=" + num2str(config.SubStimuIntEDAFig)+newline);
             output_text= strcat(output_text,"Statistics=" + num2str(config.Statistics)+newline);
             output_text= strcat(output_text,"BehaveFig=" + num2str(config.BehaveFig)+newline);
             output_text= strcat(output_text,"DetrendedEDAFig=" + num2str(config.DetrendedEDAFig)+newline);
             output_text= strcat(output_text,"RecurrenceFig=" + num2str(config.RecurrenceFig)+newline);
             output_text= strcat(output_text,"QualityFig=" + num2str(config.QualityFig)+newline);
-            output_text= strcat(output_text,"FrequencyFig=" + num2str(config.FrequencyFig)+newline);
+            output_text= strcat(output_text,"FrequencyFig=" + num2str(config.FrequencyFig)+newline+newline);
+            output_text= strcat(output_text,thinbraid);
+            
+            output_text= strcat(output_text,"EEG Quality Settings"+newline);
+            output_text= strcat(output_text,thinbraid);
             output_text= strcat(output_text,"LowerThreshold=" + num2str(config.LowerThreshold)+newline);
             output_text= strcat(output_text,"UpperThreshold=" + num2str(config.UpperThreshold)+newline);
             output_text= strcat(output_text,"QualityIndex=" + num2str(config.QualityIndex)+newline);
-            output_text= strcat(output_text,"RecurrenceTreshold=" + num2str(config.RecurrenceThreshold)+newline);
             output_text= strcat(output_text,"EEGCutoffValue=" + num2str(config.EEGCutoffValue)+newline+newline);
+            output_text= strcat(output_text,thinbraid);
+            
+            output_text= strcat(output_text,"Resccurence Plot Settings"+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"RecurrenceTreshold=" + num2str(config.RecurrenceThreshold)+newline+newline);
+            output_text= strcat(output_text,thinbraid);
+            
+            output_text= strcat(output_text,"2D Topology Plot and Brain Activity Plot"+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Video Frame Rate[fps]=" + num2str(config.UserFrameRate)+newline);
+            output_text= strcat(output_text,"2D Topology Intervals[s]=" + num2str(config.UserFrameRate)+newline);
+            output_text= strcat(output_text,"Brain Acivity Intervals[s]=" + num2str(config.UserFrameRate)+newline+newline);
+
             output_text= strcat(output_text,fatbraid);
             output_text= strcat(output_text,"---> DEVICE SETTINGS"+newline);
             output_text= strcat(output_text,fatbraid);
@@ -45,13 +71,13 @@ classdef Plotter
             
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            text(0.0,0.99,output_text{1},'FontName','FixedWidth','FontSize',8);
+            text(0.0,0.8,output_text{1},'FontName','FixedWidth','FontSize',8);
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
         
         %% Saves ADIndex settings to fName.pdf
-        %   config: contains all configs as String
+        %   StimuInt: contains settings for all Stimulus Intervals
         %   fName: File name as String
         function writeAdIndex(self,StimuInt,fName)
             fatbraid="==================================================================================" + newline;
@@ -78,6 +104,7 @@ classdef Plotter
                 end
                 
                 %Stimulus type
+                %create blank char array
                 CharStimuType = blanks(13);
                 CharStimuType([8:11]) = 'Type';
                 CharStimuType(13) = num2str(StimuInt{1, i}.stimuIntType);
@@ -104,7 +131,7 @@ classdef Plotter
             end                
          
             fig = figure('Visible','off');
-            axes('Position',[00 0.1 1 1],'Visible','off');
+            axes('Position',[0 0.1 1 1],'Visible','off');
             text(0.0,0.99,output_text{1},'FontName','FixedWidth','FontSize',8);
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
@@ -123,7 +150,7 @@ classdef Plotter
         end
         
         %% Saves in/valid Subjects and status
-        %   stats: statistics as String
+        %   index: index as String
         %   fName: File name as String
         function writeValid(self,index, fName)
             fig = figure('Visible','off');
@@ -149,38 +176,29 @@ classdef Plotter
         
         
         %% Print 2D Topo of EEG Data
-        % Print of 2D Topology map over a certain timeframe
-        % config: Config
-        % subject: Subject
-        % eegDevice: EEG Device, with frequency, electrodes
-        % StimuDef: Simulus Class, with Length,Type,Definition
-        
-        function printTopo(self,config,subject,EEG,StimuDef,electrodes)            
+        %  Print of 2D Topology map over a certain timeframe
+        %  config: contains all configs as String
+        %  EEG: contains EEG Structur for topoplot function
+        %  subject: contains all Subjects 
+        %  StimuDef: Simulus Class, with length, type, definition
+        %  electrodes: contains all used electrodes as String
+        %  vidFrameReSize: Contains struct with each video frame     
+        function printTopo(self,config,subject,EEG,StimuDef,electrodes,vidFrameReSize)            
             %Variables needed for loop
             numStimuInts = length(StimuDef);
-            TopoStart = 0;
             interval = config.TopoRange;
             subjectName = subject.name;
-            
-            %WIP auslagern, da sonst jedes mal Video geladen werden muss                  
-            %get video of test case
-            OutputDirectory = config.OutputDirectory;
-            fileDirectory = strcat(OutputDirectory(1:end-7),'\data\video');%Has to be changed
-            fileDirectory = strcat(fileDirectory,'\PalaSTRONG');
-            fileDirectory = 'C:\Users\Tim Kreitzberg\Desktop\GIT\AdAnalyser\trunk\AdAnalyzerSoftware\data\video\PalaSTRONG.wmv';
-            vid = VideoReader(fileDirectory);
-            vidFrame = read(vid,[1 270]);
-            vidFrameDv3 = vidFrame(:,:,:,1:3:end);
+            TopoStart = 0;
             
             %loop for each StimuInt
             for i = 1:numStimuInts
                 StimuInt = StimuDef{i};
 
                 % video obj
-                vName = [config.OutputDirectory '\2D_Topo' '/' 'Subject_' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+                vName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
-                vidObj.FrameRate = vid.FrameRate/3; %get framerate from video
+                vidObj.FrameRate = config.UserFrameRate; %get framerate from video
 
                 %prepare print range
                 TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
@@ -239,8 +257,8 @@ classdef Plotter
                         title({['AVG TEI between ' num2str(range(k)-range(1)) '-' num2str(range(k+1)-range(1)) 'ms'];...
                                ['in test range from ' num2str(range(k)) '-' num2str(range(k+1)) 'ms'               ]});
                         topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
-                        cb = cbar('horiz',50:80,[0,max(task(:,k))]); %,min(task(:,k)):max(task(:,k))
-                        cb.Position = [cb.Position(1) cb.Position(2) 0.33 0.03];
+                        cb = colorbar;
+                        cb.Limits = [0,1];
 
                         %print of histogram
                         barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
@@ -251,13 +269,14 @@ classdef Plotter
                         %Subplot title
                         sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
 
-                        % Folgende Befehle beschleunigen das Plotten innerhalb der Schleife
+                        % Folgende Befehle beschleunigen das Plotten
+                        % innerhalb der Schleife %englisch
                         set(gcf,'renderer','opengl') 
                         drawnow nocallbacks
                         for t = 1:vidObj.FrameRate
                             %insert video frames
-                            subplot(2,2,[1 2])
-                            imshow(vidFrameDv3(:,:,:,t+(10*(numofprint-1)))); %1o -> 30
+                            videochart = subplot(2,2,[1 2]);
+                            imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*(numofprint-1)))); %10 -> 30
                             
                             %save as image
                             fName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
@@ -265,9 +284,6 @@ classdef Plotter
                             
                             %create video
                             writeVideo(vidObj, imread(fName));
-%                             hold off    
-%                             cla         
-%                             hold on
                         end
                         %close figure
                         close
@@ -277,6 +293,11 @@ classdef Plotter
         end
         
         %% Overview of all Simulus in one chart 
+        %  Print of 2D Topology map over a certain timeframe
+        %  config: contains all configs as String
+        %  subject: contains all Subjects 
+        %  EEG: contains EEG Structur for topoplot function
+        %  StimuDef: Simulus Class, with length, type, definition
         function stimulusOverviewChart(self,config,subject,EEG,StimuDef)
             
             % Variables needed for loop
@@ -324,9 +345,9 @@ classdef Plotter
             %prepare data for print
             SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
             pos = round((rangeALL/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
-                if pos(end) == EEG.pnts+1
-                    pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
-                end
+            if pos(end) == EEG.pnts+1
+                pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
+            end
             nanpos = find(isnan(pos));
             pos(nanpos) = 1;
 
@@ -339,17 +360,17 @@ classdef Plotter
             %get TEI
             for m = 1:numPrints
                 for j = 1:numElec
-                %Theta(5-7 Hz)
-                theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
-                %Alpha(8-13 Hz)
-                alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
-                %Beta1(14-24 Hz)
-                beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
-                %Task-Engagement
+                    %Theta(5-7 Hz)
+                    theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
+                    %Alpha(8-13 Hz)
+                    alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
+                    %Beta1(14-24 Hz)
+                    beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
+                    %Task-Engagement
                     if alpha(j) > 0 && theta(j) > 0
-                    task(j,m) = beta1(j)/(alpha(j)+theta(j));
+                        task(j,m) = beta1(j)/(alpha(j)+theta(j));
                     else
-                    task(j,m) = zeros(1,length(range)-1);
+                        task(j,m) = zeros(1,length(range)-1);
                     end
                 end
             end
@@ -357,55 +378,58 @@ classdef Plotter
             
             %print preparation
             sizey = 300; %height of image
-            Pos = cell(1,numPrints);
-            topoX = 100;
+            Pos = cell(1,numPrints); %vector for position
+            topoX = 100; %X position of first head in print
             mainfig.Position = [mainfig.Position(1), mainfig.Position(2), numPrints*150 , sizey]; 
             
             for j = 1:numPrints
-            %Print of 2D Topo
-            topo = subplot(1,numPrints,j);%+numPrints
-            topo.Units = 'pixels';
-            topo.Position = [topoX, 40, 90, 90];
-            topoplot(task(:,j),EEG.chanlocs,'electrodes','on');
-            topoX = topoX + 110;
-            
-            %lines
-            Pos{j} = topo.Position;
+                %Print of 2D Topo
+                topo = subplot(1,numPrints,j);
+                topo.Units = 'pixels';
+                topo.Position = [topoX, 40, 90, 90]; %set position
+                topoplot(task(:,j),EEG.chanlocs,'electrodes','on');
+                topoX = topoX + 110; %move X position for next head
+
+                %get Positions of topo plots
+                Pos{j} = topo.Position;
             end
             
             %set sizeX to mainfig position length
             sizex = mainfig.Position(3);
-  
-            %Legend
+            
             %loop for legend
             counter = 1;
             for m = 1:(length(StimulusIntervals)/2)
+                %get index for Pos vector
                 lowindex = StimulusIntervals(counter);
                 counter = counter + 1;
                 index = StimulusIntervals(counter);
                 counter = counter + 1;
                 if length(Pos) > index
+                    %get position of left/right
                     SubplotLeft = Pos{index};
                     SubplotRight = Pos{index+1};
-                    x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;%convert to normazied unit
+                    %get X coordinate between both heads
+                    x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;%convert from pixels to normazied unit
                 else
                     SubplotLeft = Pos{index};
                     x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
                 end
-                y = SubplotLeft(2)/sizey; %convert to normazied unit
+                y = SubplotLeft(2)/sizey; %convert from pixels to normazied unit
                 %timestamp line
                 timeLine = annotation('line',[x,x],[0.6,y]);
                 timeLine.LineWidth = 1;
                 %timestamp text
                 str = strcat(num2str(rangeALL(index+1)-rangeALL(1)),' ms');
                 timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                drawnow
+                drawnow %force figure update
+                %move text for half its size, because start getting printed on X position
                 timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
                 
-                %additional lines
-                lineCount = (index - lowindex);
+                %dotted lines for clarity 
+                numOfLines = (index - lowindex);
                 linesPos = lowindex;
-                for k = 1:lineCount
+                for k = 1:numOfLines
                     if length(Pos) > linesPos
                         SubplotLeft = Pos{linesPos};
                         SubplotRight = Pos{linesPos+1};
@@ -417,9 +441,9 @@ classdef Plotter
                     y = SubplotLeft(2)/sizey; %convert to normazied unit
                     %line
                     tickLines = annotation('line',[x,x],[0.6,y]);
-                    tickLines.Color = 'b';
-                    tickLines.LineStyle = '--';
-                    tickLines.LineWidth = 0.25;
+                    tickLines.Color = 'b'; %blue
+                    tickLines.LineStyle = '--'; %dotted
+                    tickLines.LineWidth = 0.25; 
                     linesPos = linesPos + 1;
                     
                     %timestamp text
@@ -431,8 +455,10 @@ classdef Plotter
                     end
                 end
                 
-                %Stimulus Definiton
+                %Stimulus definiton text
+                %get Stimulus
                 str = StimuIntDefinitions(m);
+                %get position of first and last head of Interval
                 if length(Pos) > index
                     SubplotLeft = Pos{lowindex};
                     SubplotRight = Pos{index};
@@ -440,14 +466,15 @@ classdef Plotter
                     SubplotLeft = Pos{lowindex};
                     SubplotRight = Pos{index-1};
                 end
+                %get x for middle of this interval
                 x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
                 StimulusDefinition = annotation('textbox',[x,0.575,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
                 drawnow
+                %move text for half its size
                 StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
-
             end
             
-            %timeline
+            %upper horizontal timeline
             SubplotLeft = Pos{1};
             SubplotRight = Pos{end};
             x1 = SubplotLeft(1)/sizex;
@@ -461,34 +488,32 @@ classdef Plotter
             y = SubplotTopo(2)/sizey;
             timeLine = annotation('line',[x,x],[0.6,y]);
             timeLine.LineWidth = 1;
-            %first timestamp test
+            %first timestamp text
             timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String','0 ms','EdgeColor','none');
+            drawnow
+            timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
             
             %Subplot title
             str = 'Per Electrode Brain Activity over all Stimulus Intervals';
             x = (SubplotRight(1)+SubplotRight(3)-100)/2/sizex;
             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-            
-            %repostion
-            pause(0.1)
-            timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
-            
-            
+   
             %save as pdf
-            newWidth = SubplotRight(1)+ SubplotRight(3) + 100;
+            newWidth = SubplotRight(1)+ SubplotRight(3) + 100; %get right width of image
             fName = [config.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
             set(gcf,'color','w');
-            F = getframe(mainfig);
-            ImageSize = size(F.cdata);
-            F.cdata(:,newWidth:ImageSize(2),:) = [];
+            F = getframe(mainfig); %get frame of figure
+            ImageSize = size(F.cdata); %get length of figure
+            F.cdata(:,newWidth:ImageSize(2),:) = []; %delete empty pixel
             imwrite(F.cdata, fName, 'png');
             
             %close figure
             close
         end
+        
         %% Prints of electrode frequency
         % electrodes: List of used electrodes
-        % pos: Range of the printed data
+        % startpos/endpos: Range of the printed data
         % data: data
         % srate: Frequency of the device used
         function barsimg = plotElectrodeBars(self,electrodes,startpos,endpos,data,srate)
@@ -498,41 +523,41 @@ classdef Plotter
             barsfig = figure('visible','off','DefaultAxesFontSize',12);
             set(barsfig,'color','w');
             set(barsfig,'Position', [1, 1, 1200, 1200]);
-            
             data = data(:,startpos:endpos);
             
             %get frequency bands
             for i = 1:numelec
-            %Delta (1-4 Hz)
-            delta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,1,4)).^2));
-            %Theta(5-7 Hz)
-            theta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,5,7)).^2));
-            %Alpha(8-13 Hz)
-            alpha(i) = mean(sqrt((eegfiltfft(data(i,:),srate,8,13)).^2));
-            %Beta1(14-24 Hz)
-            beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
-            %Beta2(25-40 Hz)
-            beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
+                %Delta (1-4 Hz)
+                delta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,1,4)).^2));
+                %Theta(5-7 Hz)
+                theta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,5,7)).^2));
+                %Alpha(8-13 Hz)
+                alpha(i) = mean(sqrt((eegfiltfft(data(i,:),srate,8,13)).^2));
+                %Beta1(14-24 Hz)
+                beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
+                %Beta2(25-40 Hz)
+                beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
             end
-            
-            allfreq = [delta theta alpha beta1 beta2];% task
-            ymax = max(max(allfreq));
+            allfreq = [delta theta alpha beta1 beta2];
+            ymax = max(max(allfreq)); %y max for graph
             
             %Print
             for i = 1:numelec
-            hold on
-            subplot(3,3,i);
-            names = categorical({'delta','theta','alpha','beta1','beta2'});%,'TEI'
-            names = reordercats(names,{'delta','theta','alpha','beta1','beta2'});%,'TEI'
-            bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i)];%, task(i)
-            h = bar(names,bars,'FaceColor','flat');
-            ylim([0 ymax]);
-            title(electrodes(i),'FontSize', 24)            
-            h.CData(1,:) = [1 0 0];
-            h.CData(2,:) = [0.8500 0.3250 0.0980];
-            h.CData(3,:) = [0.9290 0.6940 0.1250];
-            h.CData(4,:) = [0 1 0];
-            h.CData(5,:) = [0.3010 0.7450 0.9330];
+                hold on
+                %create subplot for each electrode
+                subplot(3,3,i);
+                names = categorical({'delta','theta','alpha','beta1','beta2'});
+                names = reordercats(names,{'delta','theta','alpha','beta1','beta2'});
+                bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i)];
+                h = bar(names,bars,'FaceColor','flat');
+                ylim([0 ymax]);
+                title(electrodes(i),'FontSize', 24)
+                %recolor bars
+                h.CData(1,:) = [1 0 0];
+                h.CData(2,:) = [0.8500 0.3250 0.0980];
+                h.CData(3,:) = [0.9290 0.6940 0.1250];
+                h.CData(4,:) = [0 1 0];
+                h.CData(5,:) = [0.3010 0.7450 0.9330];
             end
             
             %save as img
@@ -589,7 +614,7 @@ classdef Plotter
             print(fName,'-dpdf',fig);
         end
         
-        %%Prints recurrence plots for EDA
+        %% Prints recurrence plots for EDA
         %  subjectName: Name of the Subject as String
         %  config: Config 
         %  StimuIntName: String
@@ -705,34 +730,7 @@ classdef Plotter
             fName = [outputDir '/' subjectName '_' stimuIntDescrp '_characteristics.pdf'];
             print(fName,'-dpdf',fig);
             close(fig);
-        end
-        
-%         %% Plots momentary frequency
-%         function plotMomentaryFrequency(self,values,conf,subjectName,StimuIntDef)
-%             maxscale = max(values);
-%             minscale=min(values);
-%             [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
-%             xName = 0:10:completeVidLength;
-%             xTime = xName .* 5;
-%             fig = figure('Visible','off');
-%             plot(values,'k');
-%             grid;
-%             axis([1 length(values) minscale maxscale]);
-%             set(gca,'XTick',xTime,'XTickLabel',xName);
-%             ylabel('momentary frequencie [µS]');
-%             self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[minscale, maxscale],max(xTime)/max(xName));
-%             self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],'r');
-%             xlabel('time [s]');
-%             title(['Momentary frequency for subject' subjectName]);
-%             set(fig, 'PaperType', 'A4');
-%             set(fig, 'PaperOrientation', 'landscape');
-%             set(fig, 'PaperUnits', 'centimeters');
-%             set(fig, 'PaperPositionMode', 'auto');
-%             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-%             print([conf.OutputDirectory '/' subjectName '_EDA_momentary_frequencie'],'-dpdf',fig);
-%             close(fig);
-%         end
-        
+        end      
         
         %% Plots hrv data
         %  hrvValues: hrvValues for Subject as double[]
@@ -768,7 +766,7 @@ classdef Plotter
             fName = [outputDir '/' subjName '_HRV.pdf'];
             print(fName,'-dpdf',fig);
             close(fig);
-        end
+        end   
         
         %% RawEEG figure plot
         %   rawValues: Raw eeg values as double[]
@@ -812,7 +810,7 @@ classdef Plotter
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
             print([config.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
             close(fig);
-        end
+        end 
         
         %% Plots quality index figures for subjects and StimulusIntervals
         %   unfilteredQuality: Percentage of unfiltered eeg values outside interval for each subject
@@ -883,7 +881,7 @@ classdef Plotter
 %             close(fig)
 %             close(h);
 %         end
-        
+
         %% Plots EDA figures for given StimulusIntervals to given file name
         %   StimuIntIndex: StimulusInterval indicies of StimulusIntervals to plot as doubel[]
         %   edaValues: eda values of subject as Cell of double[]

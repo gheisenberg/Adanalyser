@@ -50,24 +50,25 @@ classdef AnalyseAction < handle
         %% Print in/valid subject table
         function subjectValid(self,subject,config)
             Sublength = length(subject);
-            statsMat = cell(length(subject)+3,1); %+3 for Header
-            statsMat(1) = {'Overview of subjects and their EEG status'};
+            validStr = cell(length(subject)+3,1); %+3 for Header
+            validStr(1) = {'Overview of subjects and their EEG status'};
             
             j = 1;
             isValid = 0;
+            %loop to check if subject is in/valid
             for i=1:Sublength 
                sub = subject{i};
                if sub.isValid == 1
                    isValid = isValid+1;
-                   statsMat(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
+                   validStr(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
                    j = j+1;
                else 
-                   statsMat(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
+                   validStr(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
                    isValid = isValid + 0;
                end
             end
-            statsMat(2) = {[num2str(num2str(isValid)) ' of ' num2str(Sublength) ' subjects are valid']};
-            self.plotter.writeValid(statsMat,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
+            validStr(2) = {[num2str(num2str(isValid)) ' of ' num2str(Sublength) ' subjects are valid']};
+            self.plotter.writeValid(validStr,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
             
             if isValid == 0
                 fprintf('\n\nNo valid subject found!\n\n');
@@ -184,10 +185,26 @@ classdef AnalyseAction < handle
             EEG.xmin = 0;                       %epoch start time (in seconds)
             EEG.xmax = (EEG.pnts-1)/EEG.srate;  %epoch end time (in seconds)
             
+            
+            %prepare video for print
+            OutputDirectory = config.OutputDirectory; %get Directory
+            fileDirectory = strcat(OutputDirectory(1:end-7),'\data\Eyetracking_Video\');%Variable? Ändern
+            files = dir(fileDirectory); %get video name
+            for i = 1:length(files)
+               if files(i).bytes > 0
+                   fileDirectory = strcat(fileDirectory,files(i).name);
+               end
+            end
+            vid = VideoReader(fileDirectory); %import video
+            numOfFrames = round(vid.FrameRate*vid.Duration); %calculate number of frames
+            vidFrame = read(vid,[1 numOfFrames]);
+            %resize video according to UserFrameRate
+            vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
+            
             %plot 2D Topo
             %print 2D Topology maps for different ranges
             if config.topoplot == 1
-            self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes);
+            self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes,vidFrameReSize);
             end
             
             %print a time overview over the hole timeframe
