@@ -2,6 +2,9 @@
 %   Starts when button "Filter" was clicked
 %   Analysis quality and filters subjects
 %   Plots quality figures
+%
+% Author: Gernot Heisenberg, Tim Kreitzberg
+%
 classdef FilterAction < handle
     
     properties
@@ -65,12 +68,11 @@ classdef FilterAction < handle
             
                 % rate quality
                 [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
-                end                
+                end       
+                
             % plot quality figures
-
 %           Kreitzberg: Commented out; Reason go to Plotter.m
 %           plotEEGQualityFigures()
-
 %             if (config.QualityFig)
 %                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
 %             end

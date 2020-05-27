@@ -1,5 +1,8 @@
 % Class manages _Config_
 %   Provides methods to load, save and validate _Config_ objects
+%
+% Author: Gernot Heisenberg, Tim Kreitzberg
+%
 classdef ConfigManager
     
     properties
@@ -16,7 +19,6 @@ classdef ConfigManager
                     fid = fopen(fullfile(path, file),'r');
                     while ~feof(fid)
                         line = fgets(fid);
-                        %values = textscan(line,'%s','Delimiter','=','BufSize', 200000);
                         values = textscan(line,'%s','Delimiter','=');
                         splitLine = values{1};
                         if isscalar(splitLine)

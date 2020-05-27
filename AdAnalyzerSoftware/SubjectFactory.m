@@ -1,5 +1,10 @@
-%Creates new Subjects
+% Factory class creating Subjects objects
 %   Reads subject related files and creates appropriate data representation -> See: Subject
+%   Also checks for in/valid of the provided data and if all nessesary
+%   files are provided
+%
+% Author: Gernot Heisenberg, Tim Kreitzberg
+%
 classdef SubjectFactory
     
     properties 

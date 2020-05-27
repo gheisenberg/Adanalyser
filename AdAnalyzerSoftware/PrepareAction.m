@@ -7,6 +7,8 @@ classdef PrepareAction
     %   - DeviceFactory : pares device config files and sets global
     %                     parameters
     %
+    % Author: Gernot Heisenberg
+    %
     
     properties
         configManager = ConfigManager(); 
@@ -14,6 +16,7 @@ classdef PrepareAction
     end
     
     methods
+        %utilize the different factories
         function data = prepare(self,conf,eegDevice,edaDevice,hrvDevice)
             % validate first all paths and settings and if OK 
             % then create the corresponding data

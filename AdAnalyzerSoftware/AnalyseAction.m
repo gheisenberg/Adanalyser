@@ -2,8 +2,13 @@
 %   Starts when button "Analyse" was clicked
 %   Performs eeg frequency analysis
 %   Calculates statistics
+%   Plots 2D Topology Maps with video
+%   Plots 2D Topology Overview chart
 %   Plots eda figures, eeg frequency figures
 %   Calculates statistics
+%
+% Author: Gernot Heisenberg, Tim Kreitzberg
+%
 classdef AnalyseAction < handle
     
     properties
@@ -16,6 +21,7 @@ classdef AnalyseAction < handle
     methods
         %% Main function of this class
         %   Performs "Analyse" calculation step for all valid subjects
+        %   and initialize the AnalyseSubject function
         function analyse(self,data,config,eegDevice,edaDevice,hrvDevice)
             subjects = data.subjects;
             StimuIntDefs = data.stimuIntDefs;
@@ -38,6 +44,7 @@ classdef AnalyseAction < handle
     end
     methods(Access=private)
         %% Counts valid subjects
+        %   subjects: subject class with all nessesary information
         function numValidSubjects = countValidSubjects(self,subjects)
             numValidSubjects=0;
             for i=1:length(subjects)
@@ -47,7 +54,7 @@ classdef AnalyseAction < handle
             end
         end
         
-        %% Print in/valid subject table
+        %% Print in/valid subject table        
         function subjectValid(self,subject,config)
             Sublength = length(subject);
             validStr = cell(length(subject)+3,1); %+3 for Header
@@ -60,6 +67,7 @@ classdef AnalyseAction < handle
                sub = subject{i};
                if sub.isValid == 1
                    isValid = isValid+1;
+                   %Save subject in string
                    validStr(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
                    j = j+1;
                else 
@@ -67,6 +75,7 @@ classdef AnalyseAction < handle
                    isValid = isValid + 0;
                end
             end
+            %Add string with summary of the subject table
             validStr(2) = {[num2str(num2str(isValid)) ' of ' num2str(Sublength) ' subjects are valid']};
             self.plotter.writeValid(validStr,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
             
@@ -76,6 +85,11 @@ classdef AnalyseAction < handle
         end
         
         %% Performs analysis of the data of each subject
+        % Main function of the AdAnalyser
+        %   subject: information about the current subject
+        %   StimuIntDefs: information about all Stimulus Intervals
+        %   config: information on the choosen config of the user
+        %   devices: information of the used devices
         function analyseSubject(self,subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
             edaPerStim = subject.edaPerVid;
             edaComplete = subject.edaValues;
@@ -159,7 +173,7 @@ classdef AnalyseAction < handle
             PlotOverTimeData = eegValues';
 
             %needed variables for chanloc preparation
-            chanloc = Chanloc;
+            chanloc = Chanloc; %Chanloc included in Standard-10-20-Cap81.mat
             electrodes = Usedelectrodes';
             lengthElectrodes = length(electrodes);
             lengthStandardChanloc = length(Chanloc);
@@ -187,27 +201,19 @@ classdef AnalyseAction < handle
             
             
             %prepare video for print
-            OutputDirectory = config.OutputDirectory; %get Directory
-            fileDirectory = strcat(OutputDirectory(1:end-7),'\data\Eyetracking_Video\');%Variable? Ändern
-            files = dir(fileDirectory); %get video name
-            for i = 1:length(files)
-               if files(i).bytes > 0
-                   fileDirectory = strcat(fileDirectory,files(i).name);
-               end
-            end
+            fileDirectory = config.videoName; %get directory
             vid = VideoReader(fileDirectory); %import video
             numOfFrames = round(vid.FrameRate*vid.Duration); %calculate number of frames
             vidFrame = read(vid,[1 numOfFrames]);
             %resize video according to UserFrameRate
             vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
             
-            %plot 2D Topo
-            %print 2D Topology maps for different ranges
+            % Plot 2D Topology Map
             if config.topoplot == 1
             self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes,vidFrameReSize);
             end
             
-            %print a time overview over the hole timeframe
+            % Plot Brain Activity Plot
             if config.brainactivity == 1
             self.plotter.stimulusOverviewChart(config,subject,EEG,StimuIntDefs);
             end
@@ -251,6 +257,7 @@ classdef AnalyseAction < handle
             
         end
         
+        %Calcualtes the mean Value of the EEG for each Stimulus/Subject
         function meanEEGPerStim = calculateMeanEEGValuesForStimuInt(self,subject)
             numElectrodes = length(subject.eegValuesForElectrodes);
             eegForElectrode = subject.eegValuesForElectrodes{1};
@@ -302,8 +309,7 @@ classdef AnalyseAction < handle
                 end 
             end
         end
-        
-        
+              
         %% Method calculates mean of values and standard derivation, max, min for detrended values
         %   Used to create statistics
         function [m,sd,devP,devM] = calculateStatistics(self,values)

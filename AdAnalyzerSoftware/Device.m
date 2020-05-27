@@ -7,6 +7,7 @@
 %
 % Author: Gernot Heisenberg
 %
+
 classdef Device
 
 	properties

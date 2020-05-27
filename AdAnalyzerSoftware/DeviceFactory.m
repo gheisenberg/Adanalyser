@@ -2,7 +2,7 @@
 %   Parses device definitions
 %   Creates a device (containing a device name, a sampling rate and also device specific features 
 %   such as electrode positions in case of EEG) for each one being used
-
+%
 % Author: Gernot Heisenberg
 %
 classdef DeviceFactory
@@ -18,7 +18,7 @@ classdef DeviceFactory
             else
                 eegDevice=self.parseNothing();
             end
-		end
+        end
 		
 		function edaDevice = createEDADevice(self, conf)
 			if(conf.EDA_DEVICE_USED)
@@ -26,8 +26,8 @@ classdef DeviceFactory
 			else
                 edaDevice=self.parseNothing();
             end
-		end
-
+        end
+        
 		function hrvDevice = createHRVDevice(self, conf)
 			if(conf.HRV_DEVICE_USED)
 				hrvDevice=self.parseHRVDeviceDefinitions(conf.HRV_DEVICE);

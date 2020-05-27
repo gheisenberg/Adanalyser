@@ -1,5 +1,18 @@
-%Data representation of all informations related to one subject 
+% Data representation of all informations related to one subject 
+%   Contains:
+%           a name, 
+%           edaValues, 
+%           hrvValues,
+%           eegValuesForElectrodes,
+%           validElectrodes,
+%           isValid,
+%           edaPerVid,
+%   hence, two different constructors are necessary 
 %   See: SubjectFactory, DataFactory
+%
+% Author: Gernot Heisenberg
+%
+
 classdef Subject
    
     properties
@@ -8,7 +21,8 @@ classdef Subject
         % parsed eda values
         edaValues={}
         % parsed hrv values 
-        hrvValues={} 
+        hrvValues={}
+        % parsed eeg values and status of position
         eegValuesForElectrodes ={}
         validElectrodes = []
         %Values set during FilterAction

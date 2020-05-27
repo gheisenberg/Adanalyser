@@ -1,5 +1,11 @@
-% Data representation for seetings set by the user using the gui window
-% Stores all file paths and settings needed for analysis
+% Representation of the config for the analysis
+%   Contains:
+%           all settings of the GUI window
+%           stores all file paths and settings needed for analysis
+%
+% Author: Gernot Heisenberg
+%
+
 classdef Config
     
     properties

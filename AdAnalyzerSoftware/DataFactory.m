@@ -2,6 +2,9 @@
 %   Parses StimulusInterval definitions
 %   Cut off eeg and eda values for each subject
 %   Creates eegMatrix for each subject
+%
+% Author: Gernot Heisenberg
+%
 classdef DataFactory
     
     properties
@@ -9,7 +12,7 @@ classdef DataFactory
     
     methods
         %% Creates new _Data_ object
-        %   Cut off first 10 seconds of eeg values
+        %   Cut off first X seconds of eeg values, selected by user
         %   Cut off eda values at the end
         %   Sets eeg matrix
         function data = createData(self, conf, eegDevice,edaDevice,hrvDevice)

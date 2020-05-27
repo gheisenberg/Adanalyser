@@ -1,4 +1,17 @@
-%Encapsulates functionality to plot PDF figures and write csv files.
+% Performs different plots
+%   Gets utilized by diffferent other functions
+%   Plots settings of the GUI
+%   Plots settings of the different stimulus
+%   Plots statistics 
+%   Plots valid/invalid tabel of subjects
+%   Plots 2D Topology Maps
+%   Plots Brain Activity 
+%   Plots quality figures and HRV/EDA figues
+%
+% Author: Gernot Heisenberg, Tim Kreitzberg
+%
+
+
 classdef Plotter
     methods
         

@@ -1,5 +1,8 @@
 % Utility class to cast statistic values to String and format them for print output.
-%   Used in AnalyseAction
+% Used in AnalyseAction 
+%
+% Author: Gernot Heisenberg
+%
 classdef StringStatistics
     
     properties

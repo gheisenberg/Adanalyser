@@ -1,5 +1,11 @@
-% Data representation of complete Data needed for analysis
-%   Contains subject specific data and StimulusInterval definitions
+% Representation of all data 
+%   Contains:
+%           all subjects, 
+%           all Stimulus, 
+%           status of the subject
+%
+% Author: Gernot Heisenberg
+
 classdef Data
 
     properties
