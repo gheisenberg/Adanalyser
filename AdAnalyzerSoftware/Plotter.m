@@ -69,7 +69,13 @@ classdef Plotter
             output_text= strcat(output_text,thinbraid);
             output_text= strcat(output_text,"Device Manufacturer=" + eegDevice.name +newline);
             output_text= strcat(output_text,"Sampling Frequency[Hz]=" + num2str(eegDevice.samplingRate)+newline);
-            output_text= strcat(output_text,"Electrode Positions=" + eegDevice.electrodePositions +newline);
+            output_text= strcat(output_text,"Electrode Positions=" + eegDevice.electrodePositions);
+            if length(eegDevice.electrodePositions) > 1
+                for i = 2:length(eegDevice.electrodePositions)
+                    output_text= strcat(output_text,", " + eegDevice.electrodePositions(i));
+                end
+            end
+            output_text= strcat(output_text,""+newline);
             output_text= strcat(output_text,thinbraid);
             output_text= strcat(output_text,"EDA-DEVICE SETTINGS"+newline);
             output_text= strcat(output_text,thinbraid);
@@ -84,7 +90,11 @@ classdef Plotter
             
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            text(0.0,0.8,output_text{1},'FontName','FixedWidth','FontSize',8);
+            %set it full size for pdf page
+            set(fig,'Units','centimeters');
+            fig.Position = [0,0,20.635, 29.35];
+            descrp = text(0.1,0.9,output_text{1},'FontName','FixedWidth','FontSize',8);
+            descrp.VerticalAlignment = 'top';
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
@@ -145,7 +155,11 @@ classdef Plotter
          
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            text(0.0,0.99,output_text{1},'FontName','FixedWidth','FontSize',8);
+            %set it full size for pdf page
+            set(fig,'Units','centimeters');
+            fig.Position = [0,0,20.635, 29.35];
+            descrp = text(0.1,0.9,output_text{1},'FontName','FixedWidth','FontSize',8);
+            descrp.VerticalAlignment = 'top';
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
@@ -168,7 +182,12 @@ classdef Plotter
         function writeValid(self,index, fName)
             fig = figure('Visible','off');
             axes('Position',[0.1 0.1 1 1],'Visible','off');
-            text(0.0,0.85,index,'FontName','FixedWidth','FontSize',10);
+            fig.PaperPositionMode='auto';
+            %set it full size for pdf page
+            set(fig,'Units','centimeters');
+            fig.Position = [0,0,20.635, 29.35];
+            descrp = text(0.1,0.9,index,'FontName','FixedWidth','FontSize',8);
+            descrp.VerticalAlignment = 'top';
             print(fName,'-dpdf',fig,'-r0','-fillpage');
             close(fig);
         end
@@ -431,6 +450,7 @@ classdef Plotter
                 y = SubplotLeft(2)/sizey; %convert from pixels to normazied unit
                 %timestamp line
                 timeLine = annotation('line',[x,x],[0.6,y]);
+                drawnow %force figure update
                 timeLine.LineWidth = 1;
                 %timestamp text
                 str = strcat(num2str(rangeALL(index+1)-rangeALL(1)),' ms');
@@ -454,6 +474,7 @@ classdef Plotter
                     y = SubplotLeft(2)/sizey; %convert to normazied unit
                     %line
                     tickLines = annotation('line',[x,x],[0.6,y]);
+                    drawnow %force figure update
                     tickLines.Color = 'b'; %blue
                     tickLines.LineStyle = '--'; %dotted
                     tickLines.LineWidth = 0.25; 
@@ -463,7 +484,7 @@ classdef Plotter
                     if length(rangeALL) > linesPos
                     str = strcat(num2str(rangeALL(linesPos)-rangeALL(1)),' ms');
                     addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
-                    drawnow
+                    drawnow %force figure update
                     addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
                     end
                 end
@@ -493,6 +514,7 @@ classdef Plotter
             x1 = SubplotLeft(1)/sizex;
             x2 = (SubplotRight(1)+SubplotRight(3))/sizex;
             timeLine = annotation('line',[x1,x2],[0.6,0.6]);
+            drawnow %force figure update
             timeLine.LineWidth = 1;
             
             %first timestamp line
@@ -500,6 +522,7 @@ classdef Plotter
             x = SubplotTopo(1)/sizex;
             y = SubplotTopo(2)/sizey;
             timeLine = annotation('line',[x,x],[0.6,y]);
+            drawnow %force figure update
             timeLine.LineWidth = 1;
             %first timestamp text
             timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String','0 ms','EdgeColor','none');
@@ -510,6 +533,7 @@ classdef Plotter
             str = 'Per Electrode Brain Activity over all Stimulus Intervals';
             x = (SubplotRight(1)+SubplotRight(3)-100)/2/sizex;
             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
+            drawnow %force figure update
    
             %save as pdf
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; %get right width of image

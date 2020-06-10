@@ -28,8 +28,16 @@ classdef AnalyseAction < handle
             validSubjects = self.countValidSubjects(subjects);
             message = ['Analysing data for ' num2str(validSubjects) ' valid subject(s)'];
             wBar = waitbar(0,message);
+            
             %Tabel with in/valid Status of Subjects
             self.subjectValid(subjects,config);
+                        
+            %plot the a file as pdf containing all the GUI and all DEVICE settings
+            self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']); 
+            
+            %plot the a file as pdf containing all the ADIndex settings
+            self.plotter.writeAdIndex(StimuIntDefs,[config.OutputDirectory,'/AdIndex.pdf']);
+            
             for i=1:length(subjects)
                 self.frequencies = cell(6,6);
                 self.frequencies4Hz = cell(6,6);
@@ -94,12 +102,6 @@ classdef AnalyseAction < handle
             edaPerStim = subject.edaPerVid;
             edaComplete = subject.edaValues;
             numStimuInt = length(edaPerStim);
-            
-            %plot the a file as pdf containing all the GUI and all DEVICE settings
-            self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']); 
-            
-            %plot the a file as pdf containing all the ADIndex settings
-            self.plotter.writeAdIndex(StimuIntDefs,[config.OutputDirectory,'/AdIndex.pdf']);
             
             % Plot eda
             if (config.EDA_DEVICE_USED)

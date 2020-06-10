@@ -35,35 +35,49 @@ This function calls:
 <li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li><li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="AdAnalyser.html" class="code" title="function varargout = AdAnalyser(varargin)">AdAnalyser</a>	adanalyser class</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
+<li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function data = prepare(self,conf)</a></li></ul>
+<li><a href="#_sub1" class="code">function data = prepare(self,conf,eegDevice,edaDevice,hrvDevice)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 classdef <a href="PrepareAction.html" class="code" title="">PrepareAction</a>
-0002     <span class="comment">%PREPAREACTION Summary of this class goes here</span>
-0003     <span class="comment">%   Detailed explanation goes here</span>
-0004     
-0005     properties
-0006         configManager = <a href="ConfigManager.html" class="code" title="">ConfigManager</a>(); 
-0007         dataFactory = <a href="DataFactory.html" class="code" title="">DataFactory</a>();
-0008     <span class="keyword">end</span>
-0009     
-0010     methods
-0011         <a name="_sub0" href="#_subfunctions" class="code">function data = prepare(self,conf)</a>
-0012             isValid = self.configManager.validate(conf);
-0013             <span class="keyword">if</span> (isValid)
-0014                 data  = self.dataFactory.createData(conf);
-0015                 data.isValid = 1; 
-0016             <span class="keyword">end</span>
-0017         <span class="keyword">end</span>
-0018     <span class="keyword">end</span>
-0019     
-0020 <span class="keyword">end</span>
-0021</pre></div>
-<hr><address>Generated on Mon 06-Jan-2020 10:33:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0002     <span class="comment">% PrepareAction Summary of this class goes here</span>
+0003     <span class="comment">%</span>
+0004     <span class="comment">% PrepareAction creates three Objects:</span>
+0005     <span class="comment">%   - ConfigManager : load, save and validate _Config_ objects</span>
+0006     <span class="comment">%   - DataFactory   : parses StimulusInterval definitions</span>
+0007     <span class="comment">%   - DeviceFactory : pares device config files and sets global</span>
+0008     <span class="comment">%                     parameters</span>
+0009     <span class="comment">%</span>
+0010     <span class="comment">% Author: Gernot Heisenberg</span>
+0011     <span class="comment">%</span>
+0012     
+0013     properties
+0014         configManager = <a href="ConfigManager.html" class="code" title="">ConfigManager</a>(); 
+0015         dataFactory = <a href="DataFactory.html" class="code" title="">DataFactory</a>();
+0016     <span class="keyword">end</span>
+0017     
+0018     methods
+0019         <span class="comment">%utilize the different factories</span>
+0020         <a name="_sub0" href="#_subfunctions" class="code">function data = prepare(self,conf,eegDevice,edaDevice,hrvDevice)</a>
+0021             <span class="comment">% validate first all paths and settings and if OK</span>
+0022             <span class="comment">% then create the corresponding data</span>
+0023             isValid = self.configManager.validate(conf);
+0024             
+0025             <span class="keyword">if</span> (isValid)
+0026                                 
+0027                 data  = self.dataFactory.createData(conf,eegDevice,edaDevice,hrvDevice);
+0028                 data.isValid = 1; 
+0029 
+0030             <span class="keyword">end</span>
+0031         <span class="keyword">end</span>
+0032     <span class="keyword">end</span>
+0033     
+0034 <span class="keyword">end</span>
+0035</pre></div>
+<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

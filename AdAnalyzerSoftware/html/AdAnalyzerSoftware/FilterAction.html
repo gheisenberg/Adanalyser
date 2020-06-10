@@ -29,190 +29,207 @@
 <div class="fragment"><pre class="comment"> Performs filter calculation steps
    Starts when button &quot;Filter&quot; was clicked
    Analysis quality and filters subjects
-   Plots quality figures</pre></div>
+   Plots quality figures
+
+ Author: Gernot Heisenberg, Tim Kreitzberg</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Encapsulates functionality to plot PDF figures and write csv files.</li></ul>
+<li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Performs different plots</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="AdAnalyser.html" class="code" title="function varargout = AdAnalyser(varargin)">AdAnalyser</a>	adanalyser class</li><li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li></ul>
+<li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function data = filter(self,data,config)</a></li><li><a href="#_sub2" class="code">function rawList = buildRawList(self,seconds,eegValsPerSec,rawMatrix)</a></li><li><a href="#_sub3" class="code">function percentOutside = getPercentQutside(self,lowerBound,upperBound,values)</a></li><li><a href="#_sub4" class="code">function splittedValues = getValuesPerVideo(self,videoStart,valuesPerSec,videoDefs,values)</a></li><li><a href="#_sub5" class="code">function [subjects,qualityIndex,totalValidVideo] = rateQuality(self,subjects,quality,videoDefs,qualityThreshold)</a></li><li><a href="#_sub6" class="code">function [baselines,ads,other,clips]= getVideoIndiciesByType(self,videoDefs)</a></li></ul>
+<li><a href="#_sub1" class="code">function data = filter(self,data,config,eegDevice,edaDevice,hrvDevice)</a></li><li><a href="#_sub2" class="code">function rawList = buildRawList(self,seconds,eegValsPerSec,rawMatrix)</a></li><li><a href="#_sub3" class="code">function percentOutside = getPercentQutside(self,lowerBound,upperBound,values)</a></li><li><a href="#_sub4" class="code">function splittedValues = getValuesPerStimuInt(self,StimuIntStart,valuesPerSec,stimuIntDefs,values)</a></li><li><a href="#_sub5" class="code">function [subjects,qualityIndex,totalValidStimuInt] = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold)</a></li><li><a href="#_sub6" class="code">function [baselines,ads,other,clips]= getStimuIntIndiciesByType(self,stimuIntDefs)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <span class="comment">% Performs filter calculation steps</span>
 0002 <span class="comment">%   Starts when button &quot;Filter&quot; was clicked</span>
 0003 <span class="comment">%   Analysis quality and filters subjects</span>
 0004 <span class="comment">%   Plots quality figures</span>
-0005 classdef <a href="FilterAction.html" class="code" title="">FilterAction</a> &lt; handle
-0006     
-0007     properties
-0008         plotter = <a href="Plotter.html" class="code" title="">Plotter</a>;
-0009     <span class="keyword">end</span>
-0010     
-0011     methods
-0012         <span class="comment">%% Main function of this class</span>
-0013         <span class="comment">%   1. substracts mean for each column from eegMatrix column values</span>
-0014         <span class="comment">%   2. calculates values outside allowed interval for filtered and unfiltered eeg values</span>
-0015         <span class="comment">%   3. calculates eeg and eda values per video</span>
-0016         <span class="comment">%   4. rates qualiyt</span>
-0017         <span class="comment">%   5. plots eeg quality figures using _Plotter_</span>
-0018         <a name="_sub0" href="#_subfunctions" class="code">function data = filter(self,data,config)</a>
-0019             message = [<span class="string">'Filtering data for '</span>, num2str(length(data.subjects)), <span class="string">' subject(s)'</span>];
-0020             h = waitbar(0,message);
-0021             numVideos = length(data.videoDefs);
-0022             numSubjects = length(data.subjects);
-0023             edaValsPerSec = 5;
-0024             unfilteredQuality = zeros(numSubjects,numVideos);
-0025             filteredQuality = zeros(numSubjects,numVideos);
-0026             <span class="keyword">for</span> i=1:numSubjects
-0027                 subject = data.subjects{i};
-0028                 numElectrodes = length(subject.eegValuesForElectrodes);
-0029                 <span class="keyword">for</span> j=1:numElectrodes
-0030                     eegValues = subject.eegValuesForElectrodes{j};
-0031                     rawMatrix = eegValues.eegMatrix;
-0032                     [seconds,eegValsPerSec] = size(rawMatrix);
-0033                     rawList = self.buildRawList(seconds,eegValsPerSec,rawMatrix);
-0034                     filteredList = eegfiltfft(rawList,eegValsPerSec,1,49);
-0035                     percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
-0036                     percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
-0037                     <span class="keyword">if</span> (config.EEGFig)
-0038                         self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject.name,eegValues.electrode,config);
-0039                     <span class="keyword">end</span>
-0040                     <span class="comment">%calculate eeg and eda values per video</span>
-0041                     edaValuesPerVid = self.getValuesPerVideo(1,edaValsPerSec,data.videoDefs,subject.edaValues);
-0042                     eegValuesPerVid = self.getValuesPerVideo(1,eegValsPerSec,data.videoDefs,rawList);
-0043                     filteredEEGValuesPerVid = self.getValuesPerVideo(1,512,data.videoDefs,filteredList);
-0044                     subject.edaPerVid = edaValuesPerVid;
-0045                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
-0046                     subject.eegValuesForElectrodes{j} = eegValues;
-0047                     <span class="keyword">if</span> (eegValues.electrode == Electrodes.FZ)
-0048                         <span class="keyword">for</span> v=1:numVideos
-0049                             unfilteredEEGVid = eegValuesPerVid{v};
-0050                             filteredEEGVid = filteredEEGValuesPerVid{v};
-0051                             unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
-0052                             filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
-0053                         <span class="keyword">end</span>
-0054                     <span class="keyword">end</span>
-0055                 <span class="keyword">end</span>
-0056                 data.subjects{i} = subject;
-0057                 waitbar(i/numSubjects);
-0058             <span class="keyword">end</span>
-0059             close(h);
-0060             <span class="comment">% rate quality</span>
-0061             [data.subjects,validVideosPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.videoDefs,config.QualityIndex);
-0062             <span class="comment">% plot quality figures</span>
-0063             <span class="keyword">if</span> (config.QualityFig)
-0064                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validVideosPerSubject,validSubjects,data.videoDefs,config,numSubjects);
-0065             <span class="keyword">end</span>
-0066         <span class="keyword">end</span>
-0067     <span class="keyword">end</span>
-0068     
-0069     methods(Access=private)
-0070         
-0071         <span class="comment">%% Substracts mean for each column from eegMatrix column values</span>
-0072         <a name="_sub1" href="#_subfunctions" class="code">function rawList = buildRawList(self,seconds,eegValsPerSec,rawMatrix)</a>
-0073             <span class="keyword">for</span> j=1:seconds
-0074                 column=rawMatrix(j,:);
-0075                 m=mean(column);
-0076                 rawMatrix(j,:) = column-m;
-0077             <span class="keyword">end</span>
-0078             totalEEGValues = double(seconds*eegValsPerSec);
-0079             rawList = reshape(rawMatrix',1,totalEEGValues);
-0080         <span class="keyword">end</span>
-0081         
-0082         
-0083         <span class="comment">%% Calculates percentage of values outside lower and upper bound</span>
-0084         <a name="_sub2" href="#_subfunctions" class="code">function percentOutside = getPercentQutside(self,lowerBound,upperBound,values)</a>
-0085             numValues = length(values);
-0086             outside = length(find(values &lt; lowerBound | values &gt; upperBound));
-0087             percentOutside = (outside/numValues)*100;
-0088         <span class="keyword">end</span>
-0089         
-0090         <span class="comment">%% Splits given values per video using given videoDefs and video start point</span>
-0091         <a name="_sub3" href="#_subfunctions" class="code">function splittedValues = getValuesPerVideo(self,videoStart,valuesPerSec,videoDefs,values)</a>
-0092             numVideos = length(videoDefs);
-0093             splittedValues = cell(1,numVideos);
-0094             <span class="keyword">for</span> v=1:numVideos
-0095                 curVid = videoDefs{v};
-0096                 eegVideoLength = double(curVid.length*valuesPerSec);
-0097                 eegVideoEnd = videoStart+eegVideoLength-1;
-0098                 splittedValues{v} = values(videoStart:eegVideoEnd);
-0099                 videoStart = videoStart+eegVideoLength;
-0100             <span class="keyword">end</span>
-0101         <span class="keyword">end</span>
-0102         
-0103         <span class="comment">%% Calculates valid videos per subject regarding the relevant video types</span>
-0104         <span class="comment">%   Stores number of valid videos for each subject and video type in _qualityIndex_</span>
-0105         <span class="comment">%   Calculates total number of valid video See: _totalValidVideo_</span>
-0106         <span class="comment">%   Sets isValid flag for each Subject</span>
-0107         <a name="_sub4" href="#_subfunctions" class="code">function [subjects,qualityIndex,totalValidVideo] = rateQuality(self,subjects,quality,videoDefs,qualityThreshold)</a>
-0108             videos = length(videoDefs);
-0109             numSubjects = length(subjects);
-0110             [baselines,ads,other,clips] = self.getVideoIndiciesByType(videoDefs);
-0111             qualityIndex = zeros(numSubjects,3);
-0112             <span class="keyword">for</span> i = 1:numSubjects
-0113                 <span class="keyword">for</span> j = 1:length(clips)
-0114                     <span class="keyword">if</span> quality(i,clips(j)) &lt; qualityThreshold
-0115                         qualityIndex(i,3) = qualityIndex(i,3)+1;
-0116                     <span class="keyword">end</span>
-0117                 <span class="keyword">end</span>
-0118                 <span class="keyword">for</span> j = 1:length(ads)
-0119                     <span class="keyword">if</span> quality(i,ads(j)) &lt; qualityThreshold
-0120                         qualityIndex(i,2) = qualityIndex(i,2)+1;
-0121                     <span class="keyword">end</span>
-0122                 <span class="keyword">end</span>
-0123                 <span class="keyword">for</span> j = 1:length(baselines)
-0124                     <span class="keyword">if</span> quality(i,baselines(j)) &lt; qualityThreshold
-0125                         qualityIndex(i,1) = qualityIndex(i,1)+1;
-0126                     <span class="keyword">end</span>
-0127                 <span class="keyword">end</span>
-0128             <span class="keyword">end</span>
-0129             validVideosPerSubject = sum(qualityIndex,2);
-0130             numRelevantVideos = videos - length(other);
-0131             totalValidVideo = length(find(validVideosPerSubject &gt;= numRelevantVideos));
-0132             <span class="keyword">for</span> i=1:numSubjects
-0133                 numValidVideosForSubject = validVideosPerSubject(i);
-0134                 <span class="keyword">if</span> (numValidVideosForSubject &gt;= numRelevantVideos)
-0135                     subjects{i}.isValid = 1;
-0136                 <span class="keyword">end</span>
-0137             <span class="keyword">end</span>
-0138         <span class="keyword">end</span>
-0139         
-0140         <span class="comment">%% Splits given videoDefs based on there _VideoType_</span>
-0141         <span class="comment">%   Returns videos by _VideoType_</span>
-0142         <a name="_sub5" href="#_subfunctions" class="code">function [baselines,ads,other,clips]= getVideoIndiciesByType(self,videoDefs)</a>
-0143             numVideoDefs = length(videoDefs);
-0144             baselines = zeros(1,numVideoDefs);
-0145             ads = zeros(1,numVideoDefs);
-0146             other = zeros(1,numVideoDefs);
-0147             clips = zeros(1,numVideoDefs);
-0148             <span class="keyword">for</span> i=1:numVideoDefs
-0149                 vid = videoDefs{i};
-0150                 <span class="keyword">if</span> (vid.videoType==VideoType.EEGBaseline)
-0151                     baselines(i) = i;
-0152                 <span class="keyword">elseif</span> (vid.videoType==VideoType.TVCommercial)
-0153                     ads(i) = i;
-0154                 <span class="keyword">elseif</span> (vid.videoType==VideoType.TVProgramm)
-0155                     clips(i) = i;
-0156                 <span class="keyword">else</span>
-0157                     other(i) = i;
-0158                 <span class="keyword">end</span>
-0159             <span class="keyword">end</span>
-0160             baselines = baselines(baselines~=0);
-0161             ads = ads(ads~=0);
-0162             other = other(other~=0);
-0163             clips = clips(clips~=0);
-0164         <span class="keyword">end</span>
-0165     <span class="keyword">end</span>
-0166     
-0167 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 06-Jan-2020 10:33:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Author: Gernot Heisenberg, Tim Kreitzberg</span>
+0007 <span class="comment">%</span>
+0008 classdef <a href="FilterAction.html" class="code" title="">FilterAction</a> &lt; handle
+0009     
+0010     properties
+0011         plotter = <a href="Plotter.html" class="code" title="">Plotter</a>;
+0012     <span class="keyword">end</span>
+0013     
+0014     methods
+0015         <span class="comment">%% Main function of this class</span>
+0016         <span class="comment">%   1. substracts mean for each column from eegMatrix column values</span>
+0017         <span class="comment">%   2. calculates values outside allowed interval for filtered and unfiltered eeg values</span>
+0018         <span class="comment">%   3. calculates eeg and eda values per StimulusInterval</span>
+0019         <span class="comment">%   4. rates qualiyt</span>
+0020         <span class="comment">%   5. plots eeg quality figures using _Plotter_</span>
+0021         <a name="_sub0" href="#_subfunctions" class="code">function data = filter(self,data,config,eegDevice,edaDevice,hrvDevice)</a>
+0022             message = [<span class="string">'Filtering data for '</span>, num2str(length(data.subjects)), <span class="string">' subject(s)'</span>];
+0023             h = waitbar(0,message);
+0024             numStimuInt = length(data.stimuIntDefs);
+0025             numSubjects = length(data.subjects);            
+0026             edaValsPerSec = edaDevice.samplingRate;
+0027             eegValsPerSec = eegDevice.samplingRate;            
+0028             unfilteredQuality = zeros(numSubjects,numStimuInt);
+0029             filteredQuality = zeros(numSubjects,numStimuInt);
+0030             <span class="keyword">for</span> i=1:numSubjects
+0031                 subject = data.subjects{i}; 
+0032                 <span class="keyword">if</span> subject.isValid == 1 <span class="comment">%Filter invalid subjects</span>
+0033                 numElectrodes = length(subject.eegValuesForElectrodes);               
+0034                 <span class="keyword">for</span> j=1:numElectrodes
+0035                     eegValues = subject.eegValuesForElectrodes{j};
+0036                     rawMatrix = eegValues.eegMatrix;
+0037                     [seconds,eegValsPerSec] = size(rawMatrix);
+0038                     rawList = self.buildRawList(seconds,eegValsPerSec,rawMatrix);
+0039                     filteredList = eegfiltfft(rawList,eegValsPerSec,1,49);
+0040                     percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
+0041                     percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
+0042                     <span class="keyword">if</span> (config.EEG_DEVICE_USED)
+0043                         self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject,eegValues.electrode,config);
+0044                     <span class="keyword">end</span>
+0045                     <span class="comment">%calculate eeg values per StimulusInterval</span>
+0046                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
+0047                     filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); <span class="comment">%Tim</span>
+0048                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
+0049                     eegValues.eegValues = filteredList';
+0050                     subject.eegValuesForElectrodes{j} = eegValues;
+0051                     subject.validElectrodes;
+0052                     validElectrode = char(subject.validElectrodes);
+0053                     <span class="comment">%Checks if Electrode is valid</span>
+0054                         <span class="keyword">if</span> sum(ismember(eegValues.electrode,validElectrode))
+0055                             <span class="keyword">for</span> v=1:numStimuInt
+0056                                 unfilteredEEGVid = eegValuesPerStim{v};
+0057                                 filteredEEGVid = filteredEEGValuesPerVid{v};
+0058                                 unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
+0059                                 filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
+0060                             <span class="keyword">end</span>
+0061                         <span class="keyword">end</span>
+0062                     <span class="comment">%calculate eda values per StimulusInterval</span>
+0063                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
+0064                     subject.edaPerVid = edaValuesPerStim;
+0065                 <span class="keyword">end</span>
+0066                 data.subjects{i} = subject;
+0067                 waitbar(i/numSubjects);
+0068             
+0069                 <span class="comment">% rate quality</span>
+0070                 [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
+0071                 <span class="keyword">end</span>       
+0072                 
+0073             <span class="comment">% plot quality figures</span>
+0074 <span class="comment">%           Kreitzberg: Commented out; Reason go to Plotter.m</span>
+0075 <span class="comment">%           plotEEGQualityFigures()</span>
+0076 <span class="comment">%             if (config.QualityFig)</span>
+0077 <span class="comment">%                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);</span>
+0078 <span class="comment">%             end</span>
+0079             <span class="keyword">end</span>
+0080             close(h);
+0081         <span class="keyword">end</span>
+0082     <span class="keyword">end</span>
+0083     
+0084     methods(Access=private)
+0085         
+0086         <span class="comment">%% Substracts mean for each column from eegMatrix column values</span>
+0087         <a name="_sub1" href="#_subfunctions" class="code">function rawList = buildRawList(self,seconds,eegValsPerSec,rawMatrix)</a>
+0088             <span class="keyword">for</span> j=1:seconds
+0089                 column=rawMatrix(j,:);
+0090                 m=mean(column);
+0091                 rawMatrix(j,:) = column-m;
+0092             <span class="keyword">end</span>
+0093             totalEEGValues = double(seconds*eegValsPerSec);
+0094             rawList = reshape(rawMatrix',1,totalEEGValues);
+0095         <span class="keyword">end</span>
+0096         
+0097         
+0098         <span class="comment">%% Calculates percentage of values outside lower and upper bound</span>
+0099         <a name="_sub2" href="#_subfunctions" class="code">function percentOutside = getPercentQutside(self,lowerBound,upperBound,values)</a>
+0100             numValues = length(values);
+0101             outside = length(find(values &lt; lowerBound | values &gt; upperBound));
+0102             percentOutside = (outside/numValues)*100;
+0103         <span class="keyword">end</span>
+0104         
+0105         <span class="comment">%% Splits given values per StimulusInterval using given StimuIntDefs and StimulusInterval start point</span>
+0106         <a name="_sub3" href="#_subfunctions" class="code">function splittedValues = getValuesPerStimuInt(self,StimuIntStart,valuesPerSec,stimuIntDefs,values)</a>
+0107             numStimuInt = length(stimuIntDefs);
+0108             splittedValues = cell(1,numStimuInt);
+0109             <span class="keyword">for</span> v=1:numStimuInt
+0110                 curVid = stimuIntDefs{v};
+0111                 eegStimuIntLength = double(curVid.Stimulength*valuesPerSec);
+0112                 eegStimuIntEnd = StimuIntStart+eegStimuIntLength-1;
+0113                 splittedValues{v} = values(StimuIntStart:eegStimuIntEnd);
+0114                 StimuIntStart = StimuIntStart+eegStimuIntLength;
+0115             <span class="keyword">end</span>
+0116         <span class="keyword">end</span>
+0117         
+0118         <span class="comment">%% Calculates valid StimulusInterval per subject regarding the relevant StimulusInterval types</span>
+0119         <span class="comment">%   Stores number of valid StimulusInterval for each subject and StimulusInterval type in _qualityIndex_</span>
+0120         <span class="comment">%   Calculates total number of valid StimulusInterval See: _totalValidStimuInt_</span>
+0121         <span class="comment">%   Sets isValid flag for each Subject</span>
+0122         <a name="_sub4" href="#_subfunctions" class="code">function [subjects,qualityIndex,totalValidStimuInt] = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold) </a><span class="comment">%Tim ID 9 -&gt; hier werden die invalid subjects gefiltert - kann unterbunden werden wenn gewollt</span>
+0123             StimuInt = length(stimuIntDefs);
+0124             numSubjects = length(subjects);
+0125             [baselines,ads,other,clips] = self.getStimuIntIndiciesByType(stimuIntDefs);
+0126             qualityIndex = zeros(numSubjects,3);
+0127             <span class="keyword">for</span> i = 1:numSubjects
+0128                 <span class="keyword">for</span> j = 1:length(clips)
+0129                     <span class="keyword">if</span> quality(i,clips(j)) &lt; qualityThreshold
+0130                         qualityIndex(i,3) = qualityIndex(i,3)+1;
+0131                     <span class="keyword">end</span>
+0132                 <span class="keyword">end</span>
+0133                 <span class="keyword">for</span> j = 1:length(ads)
+0134                     <span class="keyword">if</span> quality(i,ads(j)) &lt; qualityThreshold
+0135                         qualityIndex(i,2) = qualityIndex(i,2)+1;
+0136                     <span class="keyword">end</span>
+0137                 <span class="keyword">end</span>
+0138                 <span class="keyword">for</span> j = 1:length(baselines)
+0139                     <span class="keyword">if</span> quality(i,baselines(j)) &lt; qualityThreshold
+0140                         qualityIndex(i,1) = qualityIndex(i,1)+1;
+0141                     <span class="keyword">end</span>
+0142                 <span class="keyword">end</span>
+0143             <span class="keyword">end</span>
+0144             validStimuIntPerSubject = sum(qualityIndex,2);
+0145             numRelevantStimuInts = StimuInt - length(other);
+0146             totalValidStimuInt = length(find(validStimuIntPerSubject &gt;= numRelevantStimuInts));
+0147             <span class="keyword">for</span> i=1:numSubjects
+0148                 numValidStimuIntsForSubject = validStimuIntPerSubject(i);
+0149                 <span class="keyword">if</span> (numValidStimuIntsForSubject &gt;= numRelevantStimuInts)
+0150                     subjects{i}.isValid = 1;
+0151                 <span class="keyword">end</span>
+0152             <span class="keyword">end</span>
+0153         <span class="keyword">end</span>
+0154         
+0155         <span class="comment">%% Splits given StimuIntDef based on there SimulationsInterval</span>
+0156         <span class="comment">%   Returns StimulusIntervals by their SimulationsInterval</span>
+0157         <a name="_sub5" href="#_subfunctions" class="code">function [baselines,ads,other,clips]= getStimuIntIndiciesByType(self,stimuIntDefs)</a>
+0158             numStimuIntDefs = length(stimuIntDefs);
+0159             baselines = zeros(1,numStimuIntDefs);
+0160             ads = zeros(1,numStimuIntDefs);
+0161             other = zeros(1,numStimuIntDefs);
+0162             clips = zeros(1,numStimuIntDefs);
+0163             <span class="keyword">for</span> i=1:numStimuIntDefs
+0164                 Stimu = stimuIntDefs{i};
+0165                 <span class="keyword">if</span> (contains(Stimu.stimuIntDescrp,<span class="string">'EDA Baseline'</span>))
+0166                     baselines(i) = i;
+0167                 <span class="keyword">elseif</span> (contains(Stimu.stimuIntDescrp,<span class="string">'TV Commercial'</span>))
+0168                     ads(i) = i;
+0169                 <span class="keyword">elseif</span> (contains(Stimu.stimuIntDescrp,<span class="string">'TV Programm'</span>))
+0170                     clips(i) = i;
+0171                 <span class="keyword">else</span>
+0172                     other(i) = i;
+0173                 <span class="keyword">end</span>
+0174             <span class="keyword">end</span>
+0175             baselines = baselines(baselines~=0);
+0176             ads = ads(ads~=0);
+0177             other = other(other~=0);
+0178             clips = clips(clips~=0);
+0179         <span class="keyword">end</span>
+0180     <span class="keyword">end</span>
+0181     
+0182 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

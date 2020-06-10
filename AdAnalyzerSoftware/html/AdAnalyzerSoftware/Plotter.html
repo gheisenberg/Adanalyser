@@ -4,7 +4,7 @@
 <head>
   <title>Description of Plotter</title>
   <meta name="keywords" content="Plotter">
-  <meta name="description" content="Encapsulates functionality to plot PDF figures and write csv files.">
+  <meta name="description" content="Performs different plots">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -20,793 +20,1327 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>Encapsulates functionality to plot PDF figures and write csv files.</strong></div>
+<div class="box"><strong>Performs different plots</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box"><strong>This is a script file. </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment">Encapsulates functionality to plot PDF figures and write csv files.</pre></div>
+<div class="fragment"><pre class="comment"> Performs different plots
+   Gets utilized by diffferent other functions
+   Plots settings of the GUI
+   Plots settings of the different stimulus
+   Plots statistics 
+   Plots valid/invalid tabel of subjects
+   Plots 2D Topology Maps
+   Plots Brain Activity 
+   Plots quality figures and HRV/EDA figues
+
+ Author: Gernot Heisenberg, Tim Kreitzberg</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="Plotter.html" class="code" title="">Plotter</a>	Encapsulates functionality to plot PDF figures and write csv files.</li></ul>
+<li><a href="Device.html" class="code" title="">Device</a>	Representation of a complete device</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Performs different plots</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analysis steps for valid subjects</li><li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Encapsulates functionality to plot PDF figures and write csv files.</li></ul>
+<li><a href="AnalyseAction.html" class="code" title="">AnalyseAction</a>	Performs analysis steps for valid subjects</li><li><a href="FilterAction.html" class="code" title="">FilterAction</a>	Performs filter calculation steps</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Performs different plots</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function writeStatistics(self,stats, fName)</a></li><li><a href="#_sub2" class="code">function writeCSV(self,fName,format,data)</a></li><li><a href="#_sub3" class="code">function plotECGRecurrence(self,subjectName,config,videoName,ecgData)</a></li><li><a href="#_sub4" class="code">function plotEDARecurrence(self,subjectName,config,videoName,edaData)</a></li><li><a href="#_sub5" class="code">function plotBehavioralCharacteristics(self,subjectName,videoNum,outputDir,frequencies,intervals)</a></li><li><a href="#_sub6" class="code">function plotHRV(self,ecgValues,outputDir,subjName,videoDef)</a></li><li><a href="#_sub7" class="code">function plotRawEEGFigures(self,rawValues,filteredValues,quality,subjectName,electrode,config)</a></li><li><a href="#_sub8" class="code">function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validVideosPerSubject,validSubjects,videoDefs,config,numSubjects)</a></li><li><a href="#_sub9" class="code">function plotSubVideoEDA(self,videos,edaValues,videoDefs,subjectName,fPath,stats)</a></li><li><a href="#_sub10" class="code">function plotEDA(self,videoDef,fPath,edaValues,detrended)</a></li><li><a href="#_sub11" class="code">function plotFrequencys(self,videoLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,intervals,edaSubVideoList)</a></li><li><a href="#_sub12" class="code">function plotFrequencysWithBaselineMagnitude(self,videoLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)</a></li><li><a href="#_sub13" class="code">function massAndTime = calculateMassAndTime(self,values,numDataPoints, mean)</a></li><li><a href="#_sub14" class="code">function [videoStartPoints,videoLabels,intervals,completeVidLength] = calculateVideoStartPointsAndIntervals(self,videoDef)</a></li><li><a href="#_sub15" class="code">function plotIntervals(self,intervals,yPos,scaleFac,labels,color)</a></li><li><a href="#_sub16" class="code">function plotVideoStartPoints(self,startPoints,labels,yPos,scaleFac)</a></li></ul>
+<li><a href="#_sub1" class="code">function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,fName)</a></li><li><a href="#_sub2" class="code">function writeAdIndex(self,StimuInt,fName)</a></li><li><a href="#_sub3" class="code">function writeStatistics(self,stats,fName)</a></li><li><a href="#_sub4" class="code">function writeValid(self,index, fName)</a></li><li><a href="#_sub5" class="code">function writeCSV(self,fName,format,data)</a></li><li><a href="#_sub6" class="code">function printTopo(self,config,subject,EEG,StimuDef,electrodes,vidFrameReSize)</a></li><li><a href="#_sub7" class="code">function stimulusOverviewChart(self,config,subject,EEG,StimuDef)</a></li><li><a href="#_sub8" class="code">function barsimg = plotElectrodeBars(self,electrodes,startpos,endpos,data,srate)</a></li><li><a href="#_sub9" class="code">function plotHRVRecurrence(self,subjectName,config,StimuIntName,hrvData)</a></li><li><a href="#_sub10" class="code">function plotEDARecurrence(self,subjectName,config,StimuIntName,edaData)</a></li><li><a href="#_sub11" class="code">function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef,eegDevice)</a></li><li><a href="#_sub12" class="code">function plotHRV(self,hrvValues,outputDir,subjName,StimuIntDef)</a></li><li><a href="#_sub13" class="code">function plotRawEEGFigures(self,rawValues,filteredValues,quality,subject,electrode,config,data)</a></li><li><a href="#_sub14" class="code">function plotSubStimuIntEDA(self,StimuIntIndex,edaValues,StimuIntDefs,subjectName,fPath,stats)</a></li><li><a href="#_sub15" class="code">function plotEDA(self,StimuIntDef,fPath,edaValues,detrended)</a></li><li><a href="#_sub16" class="code">function plotFrequencys(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaSubStimuIntList)</a></li><li><a href="#_sub17" class="code">function plotFrequencysWithBaselineMagnitude(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)</a></li><li><a href="#_sub18" class="code">function massAndTime = calculateMassAndTime(self,values,numDataPoints, mean)</a></li><li><a href="#_sub19" class="code">function [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = calculateStimuIntStartPointsAndIntervals(self,StimuIntDef)</a></li><li><a href="#_sub20" class="code">function plotIntervals(self,intervals,yPos,scaleFac,labels,color)</a></li><li><a href="#_sub21" class="code">function plotStimuIntStartPoints(self,startPoints,labels,yPos,scaleFac)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <span class="comment">%Encapsulates functionality to plot PDF figures and write csv files.</span>
-0002 classdef <a href="Plotter.html" class="code" title="">Plotter</a>
-0003     methods
-0004         
-0005         <span class="comment">%% Saves statistics as PDF</span>
-0006         <span class="comment">%   stats: statistics as String</span>
-0007         <span class="comment">%   fName: File name as String</span>
-0008         <a name="_sub0" href="#_subfunctions" class="code">function writeStatistics(self,stats, fName)</a>
-0009             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0010             axes(<span class="string">'Position'</span>,[0 0.1 1 1],<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0011             text(0.0,0.5,stats,<span class="string">'FontName'</span>,<span class="string">'FixedWidth'</span>,<span class="string">'FontSize'</span>,8);
-0012             orient(fig,<span class="string">'tall'</span>);
-0013             print(fName,<span class="string">'-dpdf'</span>,fig);
-0014             close(fig);
-0015         <span class="keyword">end</span>
-0016         
-0017         <span class="comment">%% Writes array or cell array to csv file with given format and file name</span>
-0018         <span class="comment">%  fName: Name of the File to write as String</span>
-0019         <span class="comment">%  format: Format String</span>
-0020         <span class="comment">%  data: CellArray or Array</span>
-0021         <a name="_sub1" href="#_subfunctions" class="code">function writeCSV(self,fName,format,data)</a>
-0022             fid = fopen(fName,<span class="string">'w'</span>);
-0023             <span class="keyword">if</span> iscell(data)
-0024                 fprintf(fid,format,data{:});
-0025             <span class="keyword">else</span>
-0026                 fprintf(fid,format,data);
-0027             <span class="keyword">end</span>
-0028             fclose(fid);
-0029         <span class="keyword">end</span>
-0030         
-0031         <span class="comment">%% Prints recurrence plots for ECG</span>
-0032         <span class="comment">%  subjectName: Name of the Subject as String</span>
-0033         <span class="comment">%  config: Config</span>
-0034         <span class="comment">%  videoName: String</span>
-0035         <span class="comment">%  ecgData: ECG values for Subject as double[]</span>
-0036         <a name="_sub2" href="#_subfunctions" class="code">function plotECGRecurrence(self,subjectName,config,videoName,ecgData)</a>
-0037             N = length(ecgData);
-0038             S = zeros(N, N);
-0039             time = zeros(N,1);
-0040             <span class="comment">% Calculate time in seconds for x axis</span>
-0041             <span class="keyword">for</span> i=1:N
-0042                 time(i) = round(sum(ecgData(1:i))/1000);
-0043             <span class="keyword">end</span>
-0044             <span class="keyword">for</span> i = 1:N
-0045                 S(:,i) = abs( repmat( ecgData(i), N, 1 ) - ecgData(:) );
-0046             <span class="keyword">end</span>
-0047             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0048             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0049             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);            
-0050             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
-0051             subplot(2,1,1);
-0052             imagesc(time, time, S);
-0053             axis square;
-0054             xlabel(<span class="string">'Time [s]'</span>);
-0055             ylabel(<span class="string">'Time [s]'</span>);
-0056             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)            
-0057             h = colorbar(<span class="string">'eastoutside'</span>);
-0058             freezeColors;
-0059             freez = cbfreeze(h);
-0060             cblabel(<span class="string">'Time [ms]'</span>);
-0061             set(freez, <span class="string">'Position'</span>, [0.75 0.585 0.05 0.34]);
-0062             title([<span class="string">'Distance map of '</span> videoName <span class="string">' phase space trajectory for subject'</span> subjectName]);
-0063             
-0064             subplot(2,1,2);
-0065             maxDiff = max(max(S) - min(S))*0.001;
-0066             <span class="keyword">if</span> (config.RecurrenceThreshold ~= 0)
-0067                 maxDiff = config.RecurrenceThreshold; 
-0068             <span class="keyword">end</span>
-0069             imagesc(time, time, S &lt; 1);
-0070             axis square;
-0071             colormap([1 1 1;0 0 0]);
-0072             xlabel(<span class="string">'Time [s]'</span>);
-0073             ylabel(<span class="string">'Time [s]'</span>);
-0074             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)
-0075             title([videoName <span class="string">' recurrence plot for subject '</span> subjectName <span class="string">' with threshold '</span> num2str(maxDiff)]);
-0076             fName = [config.OutputDirectory <span class="string">'/'</span> subjectName <span class="string">'_'</span> videoName <span class="string">' _recurrence.pdf'</span>];
-0077             print(fName,<span class="string">'-dpdf'</span>,fig);
-0078         <span class="keyword">end</span>
-0079         
-0080         <span class="comment">%%Prints recurrence plots for EDA</span>
-0081         <span class="comment">%  subjectName: Name of the Subject as String</span>
-0082         <span class="comment">%  config: Config</span>
-0083         <span class="comment">%  videoName: String</span>
-0084         <span class="comment">%  edaData: EDA values for Subject as double[]</span>
-0085         <a name="_sub3" href="#_subfunctions" class="code">function plotEDARecurrence(self,subjectName,config,videoName,edaData)</a>
-0086             N = length(edaData);
-0087             S = zeros(N, N);
-0088             time = zeros(N,1);
-0089             <span class="comment">% Calculate time in seconds for x axis</span>
-0090             <span class="keyword">for</span> i=1:N
-0091                 time(i) = round(sum(edaData(1:i))/5);
-0092             <span class="keyword">end</span>
-0093             <span class="keyword">for</span> i = 1:N
-0094                 S(:,i) = abs( repmat( edaData(i), N, 1 ) - edaData(:) );
-0095             <span class="keyword">end</span>
-0096             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0097             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0098             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);            
-0099             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
-0100             subplot(2,1,1);
-0101             imagesc(time, time, S);
-0102             axis square;
-0103             xlabel(<span class="string">'Time [s]'</span>);
-0104             ylabel(<span class="string">'Time [s]'</span>);
-0105             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)            
-0106             h = colorbar(<span class="string">'eastoutside'</span>);
-0107             freezeColors;
-0108             freez = cbfreeze(h);
-0109             cblabel(<span class="string">'Skin Conductance [µS]'</span>);
-0110             set(freez, <span class="string">'Position'</span>, [0.75 0.585 0.05 0.34]);
-0111             title([<span class="string">'Distance map of '</span> videoName <span class="string">' phase space trajectory for subject'</span> subjectName]);    
-0112             subplot(2,1,2);
-0113             maxDiff = max(max(S) - min(S))*0.001;
-0114             <span class="keyword">if</span> (config.RecurrenceThreshold ~= 0)
-0115                 maxDiff = config.RecurrenceThreshold; 
-0116             <span class="keyword">end</span>
-0117             imagesc(time, time, S &lt; 1);
-0118             axis square;
-0119             colormap([1 1 1;0 0 0]);
-0120             xlabel(<span class="string">'Time [s]'</span>);
-0121             ylabel(<span class="string">'Time [s]'</span>);
-0122             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)
-0123             title([videoName <span class="string">' recurrence plot for subject '</span> subjectName <span class="string">' with threshold '</span> num2str(maxDiff)]);
-0124             fName = [config.OutputDirectory <span class="string">'/'</span> subjectName <span class="string">'_'</span> videoName <span class="string">' _recurrence.pdf'</span>];
-0125             print(fName,<span class="string">'-dpdf'</span>,fig);
-0126         <span class="keyword">end</span>
-0127         
-0128         <span class="comment">%% Plots behavioral characteristics</span>
-0129         <span class="comment">%  subjectName: String</span>
-0130         <span class="comment">%  videoNum: Number of the video</span>
-0131         <span class="comment">%  outputDir: Path to output directory as String</span>
-0132         <span class="comment">%  frequencies: eeg frequency data for subject as CellArray of double[]</span>
-0133         <span class="comment">%  intervals: intervals of interest as int[]</span>
-0134         <a name="_sub4" href="#_subfunctions" class="code">function plotBehavioralCharacteristics(self,subjectName,videoNum,outputDir,frequencies,intervals)</a>
-0135             lengthInSeconds = length(frequencies{1,1})/512; 
-0136             stepWith = 1;
-0137             <span class="keyword">if</span> lengthInSeconds &gt; 30
-0138                 xName = 0:5:lengthInSeconds;
-0139                 stepWith = 5;
-0140             <span class="keyword">else</span>
-0141                 xName = 0:lengthInSeconds;
-0142             <span class="keyword">end</span>
-0143             xTime = xName./stepWith; 
-0144             absolutValuesPerSecond = zeros(length(frequencies),lengthInSeconds/stepWith); 
-0145             [m,n] = size(absolutValuesPerSecond);
-0146             <span class="comment">% make values discrete (calculate mean per second)</span>
-0147             <span class="keyword">for</span> i=1:m
-0148                 start = 1; 
-0149                 ende = 512*stepWith; 
-0150                 freqValues = frequencies{:,i}; 
-0151                 <span class="keyword">for</span> j=1:n
-0152                    absolutValuesPerSecond(i,j) = mean(freqValues(start:ende)); 
-0153                    start = start +512*stepWith;
-0154                    ende = ende +512*stepWith; 
-0155                 <span class="keyword">end</span>
-0156             <span class="keyword">end</span>
-0157             <span class="comment">%Normalize percental</span>
-0158             valuesToPlot = zeros(m,n);
-0159             <span class="comment">% Add TEI values</span>
-0160             valuesToPlot(m,:) = absolutValuesPerSecond(m,:);
-0161             <span class="keyword">for</span> i=1:m 
-0162                 <span class="keyword">for</span> j=1:n
-0163                    maxPerSecond = max(absolutValuesPerSecond(:,j));
-0164                    maximumPos = absolutValuesPerSecond(:,j) == maxPerSecond;
-0165                    valuesToPlot(maximumPos,j) = maxPerSecond/sum(absolutValuesPerSecond(:,j))*100;
-0166                    <span class="comment">%offset = maxPerSecond*90/100; % if a value exists which is 10% smaller then max, show this value in plot</span>
-0167                    <span class="comment">%secondValuePos = absolutValuesPerSecond(:,j) &gt;= offset;</span>
-0168                    <span class="comment">%if (secondValuePos~=maximumPos)</span>
-0169                    <span class="comment">%     valuesToPlot(secondValuePos,j) = absolutValuesPerSecond(secondValuePos,j) / sum(absolutValuesPerSecond(:,j))*100;</span>
-0170                    <span class="comment">%end</span>
-0171                 <span class="keyword">end</span>
-0172             <span class="keyword">end</span>            
-0173             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0174             colormap jet;
-0175             bar(valuesToPlot',<span class="string">'stack'</span>);
-0176             grid; 
-0177             self.plotIntervals(intervals,[0, 100],stepWith,[],<span class="string">'r'</span>);
-0178             title([<span class="string">'Behavioral characteristics for subject'</span> subjectName <span class="string">' video '</span> num2str(videoNum)]);
-0179             warning(<span class="string">'off'</span>,<span class="string">'MATLAB:legend:IgnoringExtraEntries'</span>); 
-0180             legend(<span class="string">'Sleepiness'</span>,<span class="string">'Thinking'</span>,<span class="string">'Relaxation'</span>,<span class="string">'Attention'</span>,<span class="string">'Stress'</span>,<span class="string">'TEI'</span>,<span class="string">'Stimulus'</span>);
-0181             warning(<span class="string">'on'</span>,<span class="string">'MATLAB:legend:IgnoringExtraEntries'</span>); 
-0182             axis([0 max(xTime)+1 0 100]);
-0183             set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xName);
-0184             xlabel(<span class="string">'time [s]'</span>);
-0185             ylabel(<span class="string">'[%]'</span>); 
-0186             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0187             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
-0188             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0189             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
-0190             fName = [outputDir <span class="string">'/'</span> subjectName <span class="string">'_video'</span> num2str(videoNum) <span class="string">'_characteristics.pdf'</span>];
-0191             print(fName,<span class="string">'-dpdf'</span>,fig);
-0192             close(fig);
-0193         <span class="keyword">end</span>
-0194         
-0195 <span class="comment">%         %% Plots momentary frequency</span>
-0196 <span class="comment">%         function plotMomentaryFrequency(self,values,conf,subjectName,videoDef)</span>
-0197 <span class="comment">%             maxscale = max(values);</span>
-0198 <span class="comment">%             minscale=min(values);</span>
-0199 <span class="comment">%             [videoStartPoints,videoLabels,intervals,completeVidLength] = self.calculateVideoStartPointsAndIntervals(videoDef);</span>
-0200 <span class="comment">%             xName = 0:10:completeVidLength;</span>
-0201 <span class="comment">%             xTime = xName .* 5;</span>
-0202 <span class="comment">%             fig = figure('Visible','off');</span>
-0203 <span class="comment">%             plot(values,'k');</span>
-0204 <span class="comment">%             grid;</span>
-0205 <span class="comment">%             axis([1 length(values) minscale maxscale]);</span>
-0206 <span class="comment">%             set(gca,'XTick',xTime,'XTickLabel',xName);</span>
-0207 <span class="comment">%             ylabel('momentary frequencie [µS]');</span>
-0208 <span class="comment">%             self.plotVideoStartPoints(videoStartPoints,videoLabels,[minscale, maxscale],max(xTime)/max(xName));</span>
-0209 <span class="comment">%             self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],'r');</span>
-0210 <span class="comment">%             xlabel('time [s]');</span>
-0211 <span class="comment">%             title(['Momentary frequency for subject' subjectName]);</span>
-0212 <span class="comment">%             set(fig, 'PaperType', 'A4');</span>
-0213 <span class="comment">%             set(fig, 'PaperOrientation', 'landscape');</span>
-0214 <span class="comment">%             set(fig, 'PaperUnits', 'centimeters');</span>
-0215 <span class="comment">%             set(fig, 'PaperPositionMode', 'auto');</span>
-0216 <span class="comment">%             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);</span>
-0217 <span class="comment">%             print([conf.OutputDirectory '/' subjectName '_EDA_momentary_frequencie'],'-dpdf',fig);</span>
-0218 <span class="comment">%             close(fig);</span>
-0219 <span class="comment">%         end</span>
-0220         
-0221         
-0222         <span class="comment">%% Plots hrv data</span>
-0223         <span class="comment">%  ecgValues: ecgValues for Subject as double[]</span>
-0224         <span class="comment">%  outputDir: Path to output directory as String</span>
-0225         <span class="comment">%  subjName: The name of the Subject</span>
-0226         <span class="comment">%  videoDef: VideoDefinition</span>
-0227         <a name="_sub5" href="#_subfunctions" class="code">function plotHRV(self,ecgValues,outputDir,subjName,videoDef)</a>
-0228             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0229             time = zeros(length(ecgValues),1);
-0230             <span class="comment">% Calculate time in seconds for x axis</span>
-0231             <span class="keyword">for</span> i=1:length(ecgValues)
-0232                 time(i) = round(sum(ecgValues(1:i))/1000);
-0233             <span class="keyword">end</span>
-0234             plot(ecgValues,<span class="string">'k'</span>);
-0235             grid;
-0236             xTime = time(1:20:end);
-0237             yMin = min(ecgValues);
-0238             yMax = max(ecgValues);
-0239             [videoStartPoints,videoLabels,intervals,~] = self.calculateVideoStartPointsAndIntervals(videoDef);
-0240             self.plotVideoStartPoints(videoStartPoints,videoLabels,[yMin, yMax],1);
-0241             self.plotIntervals(intervals,[yMin, yMax],1,[],<span class="string">'r'</span>);
-0242             axis([1 max(xTime) yMin yMax]);
-0243             set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xTime);
-0244             ylabel(<span class="string">'RR intervals [ms]'</span>);
-0245             xlabel(<span class="string">'time [s]'</span>);
-0246             m = sprintf(<span class="string">'%.2f'</span>,mean(ecgValues));
-0247             sd = sprintf(<span class="string">'%.2f'</span>,std(ecgValues));
-0248             title([<span class="string">'HRV values for subject '</span> subjName <span class="string">' (mean='</span> m <span class="string">'ms, sd='</span> sd <span class="string">'ms)'</span>]);
-0249             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0250             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
-0251             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0252             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
-0253             fName = [outputDir <span class="string">'/'</span> subjName <span class="string">'_HRV.pdf'</span>];
-0254             print(fName,<span class="string">'-dpdf'</span>,fig);
-0255             close(fig);
-0256         <span class="keyword">end</span>
-0257         
-0258         <span class="comment">%% RawEEG figure plot</span>
-0259         <span class="comment">%   rawValues: Raw eeg values as double[]</span>
-0260         <span class="comment">%   filteredValues: Filteres eeg values as double[]</span>
-0261         <span class="comment">%   quality: Two double values. First is percent outside for</span>
-0262         <span class="comment">%   rawValues. Second is percent outside for filtered values</span>
-0263         <span class="comment">%   subjectName: The name of the subject as String</span>
-0264         <span class="comment">%   config: Config</span>
-0265         <a name="_sub6" href="#_subfunctions" class="code">function plotRawEEGFigures(self,rawValues,filteredValues,quality,subjectName,electrode,config)</a>
-0266             numRawValues = length(rawValues);
-0267             numFilteredValues = length(filteredValues);
-0268             fig = figure(<span class="string">'visible'</span>, <span class="string">'off'</span>);
-0269             subplot(2,1,1);
-0270             plot(rawValues);
-0271             grid;
-0272             hold on;
-0273             line(<span class="string">'XData'</span>,[0 numRawValues],<span class="string">'YData'</span>,[config.LowerThreshold config.LowerThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
-0274             line(<span class="string">'XData'</span>,[0 numRawValues],<span class="string">'YData'</span>,[config.UpperThreshold config.UpperThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
-0275             hold off;
-0276             thresholdString = [<span class="string">'['</span> num2str(config.LowerThreshold) <span class="string">','</span> num2str(config.UpperThreshold) <span class="string">']'</span>];
-0277             title ([<span class="string">'Unfiltered EEG raw data for electrode '</span> char(electrode) <span class="string">' of subject '</span> subjectName <span class="string">' ('</span> sprintf(<span class="string">'%3.2f'</span>,quality(1)) <span class="string">'% of data lies outside the interval '</span> thresholdString <span class="string">'µV)'</span>])
-0278             ylabel(<span class="string">'amplitude [µV]'</span>);
-0279             xlabel(<span class="string">'data point [#]'</span>);
-0280             axis([1 numRawValues min(rawValues) max(rawValues)])
-0281             set(gca,<span class="string">'YDir'</span>,<span class="string">'reverse'</span>);
-0282             subplot(2,1,2);
-0283             plot(filteredValues);
-0284             grid;
-0285             hold on;
-0286             line(<span class="string">'XData'</span>,[0 numFilteredValues],<span class="string">'YData'</span>,[config.LowerThreshold config.LowerThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
-0287             line(<span class="string">'XData'</span>,[0 numFilteredValues],<span class="string">'YData'</span>,[config.UpperThreshold config.UpperThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
-0288             hold off;
-0289             title ([<span class="string">'Filtered EEG raw data for subject '</span>, subjectName ,<span class="string">' ('</span>,sprintf(<span class="string">'%3.2f'</span>,quality(2)),<span class="string">'% of data lies outside the interval '</span> thresholdString <span class="string">'µV)'</span>])
-0290             ylabel(<span class="string">'amplitude [µV]'</span>)
-0291             xlabel(<span class="string">'data point [#]'</span>);
-0292             axis([1 numFilteredValues min(rawValues) max(rawValues)])
-0293             set(gca,<span class="string">'YDir'</span>,<span class="string">'reverse'</span>);
-0294             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0295             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
-0296             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0297             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
-0298             print([config.OutputDirectory <span class="string">'/'</span> subjectName <span class="string">'_'</span> char(electrode) <span class="string">'_EEG.pdf'</span>],<span class="string">'-dpdf'</span>,fig);
-0299             close(fig);
-0300         <span class="keyword">end</span>
-0301         
-0302         <span class="comment">%% Plots quality index figures for subjects and videos</span>
-0303         <span class="comment">%   unfilteredQuality: Percentage of unfiltered eeg values outside interval for each subject</span>
-0304         <span class="comment">%   and video as double[][]</span>
-0305         <span class="comment">%   filteredQuality: Percentage of filtered eeg values outside interval for each subject</span>
-0306         <span class="comment">%   and video as double[][]</span>
-0307         <span class="comment">%   validVideosPerSubject: Number of valid baseline eeg, tv</span>
-0308         <span class="comment">%   programm and tv commercial videos per subject as double[][]</span>
-0309         <span class="comment">%   validSubjects: Total number of valid subjects as double</span>
-0310         <span class="comment">%   videoDefs: Video definitions as Cell&lt;VideoDef&gt;</span>
-0311         <span class="comment">%   config: Config</span>
-0312         <span class="comment">%   numSubjects: total number of subjects as double</span>
-0313         <a name="_sub7" href="#_subfunctions" class="code">function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validVideosPerSubject,validSubjects,videoDefs,config,numSubjects)</a>
-0314             videos = length(videoDefs);
-0315             outputFolder= config.OutputDirectory;
-0316             h = waitbar(0,[<span class="string">'Writing EEG quality figures for '</span> num2str(videos) <span class="string">' video(s)'</span>]);
-0317             xtick = 0:numSubjects;
-0318             <span class="keyword">for</span> i = 1:videos
-0319                 fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0320                 numberExcluded = length(find(filteredQuality(:,i) &gt;= config.QualityIndex));
-0321                 plot(unfilteredQuality(:,i),<span class="string">'b'</span>);
-0322                 hold on;
-0323                 plot(filteredQuality(:,i),<span class="string">'k'</span>);
-0324                 grid;
-0325                 hold off;
-0326                 line(<span class="string">'XData'</span>,[1 numSubjects],<span class="string">'YData'</span>,[config.QualityIndex config.QualityIndex],<span class="string">'Color'</span>,<span class="string">'r'</span>)
-0327                 hold off;
-0328                 legend(<span class="string">'Unfiltered EEG Data'</span>,<span class="string">'Filtered EEG Data'</span>,[num2str(config.QualityIndex) <span class="string">'% cutoff for filtered EEG data'</span>]);
-0329                 thresholdString = [<span class="string">'['</span> num2str(config.LowerThreshold) <span class="string">','</span> num2str(config.UpperThreshold) <span class="string">']'</span>];
-0330                 title ([<span class="string">'Quality index (% of data outside '</span> thresholdString <span class="string">'uV interval) for EEG data for video'</span>,int2str(i),<span class="string">' = '</span>,int2str(numberExcluded),<span class="string">' data sets are excluded'</span>]);
-0331                 ylabel(<span class="string">'Quality index [%]'</span>);
-0332                 xlabel(<span class="string">'subject [#]'</span>);
-0333                 axis([1 numSubjects 0 100]);
-0334                 set(gca,<span class="string">'XTick'</span>,xtick,<span class="string">'xTickLabel'</span>,xtick);
-0335                 set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0336                 set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'portrait'</span>);
-0337                 set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0338                 set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
-0339                 set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
-0340                 print([<span class="string">'-f'</span>,int2str(fig.Number)],<span class="string">'-dpdf'</span>,[outputFolder,<span class="string">'\EEG Quality Index_video'</span>,int2str(i),<span class="string">'.pdf'</span>]);
-0341                 close(fig);
-0342                 waitbar(i/videos);
-0343             <span class="keyword">end</span>
-0344             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0345             ytick = 0:videos;
-0346             xtick = 0:numSubjects;
-0347             bar(validVideosPerSubject,<span class="string">'stack'</span>);
-0348             grid on;
-0349             legend(<span class="string">'Baseline'</span>,<span class="string">'TV commercial'</span>,<span class="string">'TV program'</span>);
-0350             [~,y] = size(validVideosPerSubject);
-0351             axis([0 numSubjects+1 0 y+1]);
-0352             set(gca,<span class="string">'YTick'</span>,ytick,<span class="string">'yTickLabel'</span>,ytick);
-0353             set(gca,<span class="string">'XTick'</span>,xtick,<span class="string">'xTickLabel'</span>,xtick);
-0354             tMessage = [<span class="string">'Number of subjects reaching EEG quality criteria: '</span>,int2str(validSubjects)];
-0355             title(tMessage);
-0356             ylabel(<span class="string">'Number of videos [#]'</span>);
-0357             xlabel(<span class="string">'subject [#]'</span>);
-0358             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0359             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
-0360             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0361             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
-0362             print([<span class="string">'-f'</span>,int2str(fig.Number)],<span class="string">'-dpdf'</span>,[outputFolder,<span class="string">'\EEG Quality Index - Subjects.pdf'</span>]);
-0363             close(fig)
-0364             close(h);
-0365         <span class="keyword">end</span>
-0366         
-0367         <span class="comment">%% Plots EDA figures for given videos to given file name</span>
-0368         <span class="comment">%   videos: video indicies of videos to plot as doubel[]</span>
-0369         <span class="comment">%   edaValues: eda values of subject as Cell of double[]</span>
-0370         <span class="comment">%   videoDefs: Cell&lt;VideoDefinition&gt;</span>
-0371         <span class="comment">%   subjectName: the name of the subject as String</span>
-0372         <span class="comment">%   fPath: file path as String</span>
-0373         <span class="comment">%   stats: eda statistics for subject as String</span>
-0374         <a name="_sub8" href="#_subfunctions" class="code">function plotSubVideoEDA(self,videos,edaValues,videoDefs,subjectName,fPath,stats)</a>
-0375             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0376             allValues=  edaValues(videos);
-0377             allValues = vertcat(allValues{:});
-0378             yMin = min(allValues);
-0379             yMax = max(allValues);
-0380             yL = [yMin yMax];
-0381             <span class="comment">% choose x axis interval on base of video length</span>
-0382             <span class="keyword">for</span> i=1:length(videos);
-0383                 videoNum = videos(i);
-0384                 videoLength = videoDefs{videoNum}.length;
-0385                 labels = [];
-0386                 <span class="keyword">if</span> videoLength &gt; 30
-0387                     xName = 0:5:videoLength;
-0388                     labels = videoDefs{videoNum}.intervals;
-0389                 <span class="keyword">else</span>
-0390                     xName = 0:videoLength;
-0391                 <span class="keyword">end</span>
-0392                 xTime = xName .* 5;
-0393                 subplot(6,1,i);
-0394                 plot(edaValues{videoNum},<span class="string">'k'</span>);
-0395                 self.plotIntervals(videoDefs{videoNum}.intervals,yL,max(xTime)/max(xName),labels,<span class="string">'r'</span>);
-0396                 grid;
-0397                 ylabel([<span class="string">'Video '</span> num2str(videoNum) <span class="string">' [µS]'</span>]);
-0398                 l = length(edaValues{videoNum});
-0399                 axis([1,l, yL]);
-0400                 set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xName);
-0401                 <span class="keyword">if</span> (i==1)
-0402                     title([<span class="string">'EDA values for the videos '</span> mat2str(videos) <span class="string">' of subject '</span> subjectName]);
-0403                 <span class="keyword">end</span>
-0404             <span class="keyword">end</span>
-0405             xlabel(<span class="string">'Time [s]'</span>);
-0406             axes(<span class="string">'Position'</span>,[.08 .30 0.8 1],<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0407             text(0,0,stats,<span class="string">'FontName'</span>,<span class="string">'FixedWidth'</span>,<span class="string">'FontSize'</span>,9);
-0408             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0409             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'portrait'</span>);
-0410             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0411             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
-0412             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.2 20 29 ]);
-0413             print(fPath,<span class="string">'-dpdf'</span>,fig);
-0414             close(fig);
-0415         <span class="keyword">end</span>
-0416         
-0417         <span class="comment">%% Plots complete EDA figure to given file name</span>
-0418         <span class="comment">%   videoDef: Cell&lt;VideoDefinition&gt;</span>
-0419         <span class="comment">%   fPath: Output file path</span>
-0420         <span class="comment">%   edaValues: EDA values as double[]</span>
-0421         <span class="comment">%   detrended: boolean</span>
-0422         <a name="_sub9" href="#_subfunctions" class="code">function plotEDA(self,videoDef,fPath,edaValues,detrended)</a>
-0423             maxscale = max(edaValues);
-0424             minscale=min(edaValues);
-0425             [videoStartPoints,videoLabels,intervals,completeVidLength] = self.calculateVideoStartPointsAndIntervals(videoDef);
-0426             xName = 0:10:completeVidLength;
-0427             xTime = xName .* 5;
-0428             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0429             plot(edaValues,<span class="string">'k'</span>);
-0430             grid;
-0431             axis([1 length(edaValues) minscale maxscale]);
-0432             set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xName);
-0433             xlabel(<span class="string">'Time [s]'</span>);
-0434             self.plotVideoStartPoints(videoStartPoints,videoLabels,[minscale, maxscale],max(xTime)/max(xName));
-0435             self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],<span class="string">'r'</span>);
-0436             ylabel(<span class="string">'Skin Conductance [µS]'</span>);
-0437             <span class="keyword">if</span> (detrended)
-0438                 t = <span class="string">'EDA values (detrended)'</span>;
-0439             <span class="keyword">else</span>
-0440                 t = <span class="string">'EDA values'</span>;
-0441             <span class="keyword">end</span>
-0442             title(t);
-0443             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0444             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
-0445             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0446             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
-0447             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
-0448             print(fPath,<span class="string">'-dpdf'</span>,fig);
-0449             close(fig);
-0450         <span class="keyword">end</span>
-0451         
-0452         <span class="comment">%% Plots eeg frequency bands for video</span>
-0453         <span class="comment">%   videoLength: Length of the video in seconds as double</span>
-0454         <span class="comment">%   fPath: Output file path as String</span>
-0455         <span class="comment">%   theta_s: Theta values as double[]</span>
-0456         <span class="comment">%   alpha_s: Alpha values as double[]</span>
-0457         <span class="comment">%   beta1_s: Beta1 values as double[]</span>
-0458         <span class="comment">%   beta2_s: Beta2 values as double[]</span>
-0459         <span class="comment">%   task_s: TEI values as double[]</span>
-0460         <span class="comment">%   resolution: values per second as double</span>
-0461         <span class="comment">%   intervals: intervals of interest as int[]</span>
-0462         <span class="comment">%   edaSubVideoList: EDA values of video as double[]</span>
-0463         <a name="_sub10" href="#_subfunctions" class="code">function plotFrequencys(self,videoLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,intervals,edaSubVideoList)</a>
-0464             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0465             maxscale = max([max(theta_s) max(alpha_s) max(beta1_s) max(beta2_s) ]);
-0466             labels = [];
-0467             <span class="keyword">if</span> videoLength &gt; 30
-0468                 xname = 0:5:videoLength;
-0469                 labels = intervals;
-0470             <span class="keyword">else</span>
-0471                 xname = 0:videoLength;
-0472             <span class="keyword">end</span>
-0473             xtime = xname .* resolution;
-0474             edaXTime = xname .* 5;
-0475             <span class="comment">%---------------------</span>
-0476             <span class="comment">% subplot(6,1,1)</span>
-0477             <span class="comment">% plot(delta_s,'Color',[65/255 105/255 225/255]);</span>
-0478             <span class="comment">% grid;</span>
-0479             <span class="comment">%  ylabel('Delta');</span>
-0480             <span class="comment">% axis([1 length(delta_s) 0 maxscale]);</span>
-0481             <span class="comment">%  set(gca,'XTick',xtime,'XTickLabel',xname);</span>
-0482             
-0483             subplot(6,1,1);
-0484             plot(theta_s,<span class="string">'Color'</span>,[0/255 191/255 255/255]);
-0485             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0486             grid;
-0487             ylabel(<span class="string">'Theta [µV]'</span>);
-0488             axis([1 length(theta_s) 0 maxscale]);
-0489             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0490             [~,subjName,~] = fileparts(fPath);
-0491             t = title([<span class="string">'Frequency bands, task engagement and EDA for subject: '</span> strrep(subjName,<span class="string">'_freq_bands_video'</span>,<span class="string">' video'</span>)]);
-0492             tP = get(t,<span class="string">'Position'</span>);
-0493             set(t,<span class="string">'Position'</span>,[tP(1) tP(2)+0.3 tP(3)]);
-0494             set(t,<span class="string">'FontSize'</span>,12);
-0495             
-0496             subplot(6,1,2);
-0497             plot(alpha_s,<span class="string">'Color'</span>,[0/255 128/255 0/255]);
-0498             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0499             grid;
-0500             ylabel(<span class="string">'Alpha [µV]'</span>);
-0501             axis([1 length(alpha_s) 0 maxscale]);
-0502             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0503             
-0504             subplot(6,1,3);
-0505             plot(beta1_s,<span class="string">'Color'</span>,[255/255 128/255 0/255]);
-0506             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0507             grid;
-0508             ylabel(<span class="string">'Beta1 [µV]'</span>);
-0509             axis([1 length(beta1_s) 0 maxscale]);
-0510             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0511             
-0512             subplot(6,1,4);
-0513             plot(beta2_s,<span class="string">'Color'</span>,[255/255 69/255 0/255]);
-0514             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0515             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0516             grid;
-0517             ylabel(<span class="string">'Beta2 [µV]'</span>);
-0518             axis([1 length(beta2_s) 0 maxscale]);
-0519             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0520             
-0521             subplot(6,1,5);
-0522             plot(task_s,<span class="string">'k'</span>);
-0523             self.plotIntervals(intervals,[0, max(task_s)],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0524             grid;
-0525             ylabel(<span class="string">'TEI'</span>);
-0526             axis([1 length(task_s) 0 max(task_s)]);
-0527             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0528             
-0529             subplot(6,1,6);
-0530             plot(edaSubVideoList,<span class="string">'k'</span>);
-0531             yL = [min(edaSubVideoList) max(edaSubVideoList)];
-0532             self.plotIntervals(intervals,yL,max(edaXTime)/max(xname),labels,<span class="string">'r'</span>);
-0533             grid;
-0534             ylabel(<span class="string">'EDA [µS]'</span>);
-0535             l = length(edaSubVideoList);
-0536             axis([1,l, yL]);
-0537             set(gca,<span class="string">'XTick'</span>,edaXTime,<span class="string">'XTickLabel'</span>,xname);
-0538             <span class="comment">%             subplot(7,1,7);</span>
-0539             <span class="comment">%             t=0:1/5:videoLength;</span>
-0540             <span class="comment">%             t = t(1:end-1);</span>
-0541             <span class="comment">%             dydt = diff(edaSubVideoList)./diff(t);</span>
-0542             <span class="comment">%             dydt(end+1) = dydt(end);</span>
-0543             <span class="comment">%             plot(dydt,'k');</span>
-0544             <span class="comment">%             yL = [min(dydt) max(dydt)];</span>
-0545             <span class="comment">%             self.plotIntervals(intervals,yL,max(edaXTime)/max(xname),labels,'r');</span>
-0546             <span class="comment">%             crossings = find(diff(dydt&gt;0)~=0)+1;</span>
-0547             <span class="comment">%             self.plotIntervals(t(cossings),yL,max(edaXTime)/max(xname),[],'b');</span>
-0548             <span class="comment">%             line([1 l],[0,0],'Color','b','LineStyle','--');</span>
-0549             <span class="comment">%             grid;</span>
-0550             <span class="comment">%             xlabel('Time [s]');</span>
-0551             <span class="comment">%             ylabel('d(EDA)/dt [µS/s]');</span>
-0552             <span class="comment">%             l = length(dydt);</span>
-0553             <span class="comment">%             axis([1,l, yL]);</span>
-0554             <span class="comment">%             set(gca,'XTick',edaXTime,'XTickLabel',xname);</span>
-0555             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0556             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'portrait'</span>);
-0557             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0558             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
-0559             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
-0560             print([<span class="string">'-f'</span>,int2str(fig.Number)],<span class="string">'-dpdf'</span>,[fPath,<span class="string">'.pdf'</span>]);
-0561             close(fig);
-0562         <span class="keyword">end</span>
-0563         
-0564         
-0565         
-0566         <span class="comment">%% Plots eeg frequency bands for video</span>
-0567         <span class="comment">%   videoLength: Length in seconds as double</span>
-0568         <span class="comment">%   fPath: Path to output file as String</span>
-0569         <span class="comment">%   theta_s: Theta values as double[]</span>
-0570         <span class="comment">%   alpha_s: Alpha values as double[]</span>
-0571         <span class="comment">%   beta1_s: Beta1 values as double[]</span>
-0572         <span class="comment">%   beta2_s: Beta2 values as double[]</span>
-0573         <span class="comment">%   task_s: TEI values as double[]</span>
-0574         <span class="comment">%   baselineTheta: Baseline values for theta as double[]</span>
-0575         <span class="comment">%   baselineAlpha: Baseline values for alpha as double[]</span>
-0576         <span class="comment">%   baselineBeta1: Baseline values for beta1 as double[]</span>
-0577         <span class="comment">%   baselineBeta2: Baseline values for beta2 as double[]</span>
-0578         <span class="comment">%   baselineTEI: Baseline values for TEI as double[]</span>
-0579         <span class="comment">%   resolution: values per second as double</span>
-0580         <span class="comment">%   intervals: intervals of interest as int[]</span>
-0581         <span class="comment">%   t_title: Diagramm title as String</span>
-0582         <a name="_sub11" href="#_subfunctions" class="code">function plotFrequencysWithBaselineMagnitude(self,videoLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)</a>
-0583             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0584             maxscale = 1.2*(max([max(alpha_s) max(beta1_s) max(beta2_s) max(theta_s)])); <span class="comment">%Add 20% to the maxscale for providing more space for the legend</span>
-0585             numDataPoints = videoLength*resolution;
-0586             labels = [];
-0587             <span class="keyword">if</span> videoLength &gt; 30
-0588                 xname = 0:5:videoLength;
-0589                 labels = intervals;
-0590             <span class="keyword">else</span>
-0591                 xname = 0:videoLength;
-0592             <span class="keyword">end</span>
-0593             xtime = xname .* resolution;
-0594             
-0595             <span class="comment">%subplots</span>
-0596             subplot(6,1,1)
-0597             plot(theta_s,<span class="string">'Color'</span>,[65/255 105/255 225/255]);
-0598             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0599             m = mean(baselineTheta);
-0600             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
-0601             grid;
-0602             massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
-0603             
-0604             <span class="keyword">if</span>(isempty(intervals))
-0605                 legend(massAndTime,<span class="string">'theta baseline mean'</span>);
-0606             <span class="keyword">else</span>
-0607                 h=legend(massAndTime,<span class="string">'Stimulus'</span>,<span class="string">'theta baseline mean'</span>);
-0608                 <span class="comment">%leg_line=findobj(h,'Type','Line'); %%Das funktioniert nicht mehr (Gernot)</span>
-0609                 <span class="comment">%set(leg_line(2), 'Color', 'b');</span>
-0610             <span class="keyword">end</span>
-0611             ylabel(<span class="string">'Theta [µV]'</span>);
-0612             axis([0 length(theta_s) 0 maxscale]);
-0613             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0614             
-0615             title(t_title);
-0616             
-0617             subplot(6,1,2);
-0618             plot(alpha_s,<span class="string">'Color'</span>,[0/255 128/255 0/255]);
-0619             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0620             m = mean(baselineAlpha);
-0621             hold on;
-0622             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
-0623             hold off;
-0624             massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
-0625             <span class="keyword">if</span>(isempty(intervals))
-0626                 legend(massAndTime,<span class="string">'alpha baseline mean'</span>);
-0627             <span class="keyword">else</span>
-0628                 h= legend(massAndTime,<span class="string">'Stimulus'</span>,<span class="string">'alpha baseline mean'</span>);
-0629                 <span class="comment">%leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)</span>
-0630                 <span class="comment">%set(h(:,2), 'Color', 'b');</span>
-0631             <span class="keyword">end</span>
-0632             grid;
-0633             ylabel(<span class="string">'Alpha [µV]'</span>);
-0634             axis([0 length(alpha_s) 0 maxscale]);
-0635             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0636                         
-0637             subplot(6,1,3);
-0638             plot(beta1_s,<span class="string">'Color'</span>,[255/255 128/255 0/255]);
-0639             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0640             m = mean(baselineBeta1);
-0641             hold on;
-0642             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
-0643             hold off;
-0644             massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
-0645             <span class="keyword">if</span>(isempty(intervals))
-0646                 legend(massAndTime,<span class="string">'beta1 baseline mean'</span>);
-0647             <span class="keyword">else</span>
-0648                 h= legend(massAndTime,<span class="string">'Stimulus'</span>,<span class="string">'beta1 baseline mean'</span>);
-0649                 <span class="comment">%leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)</span>
-0650                 <span class="comment">%set(leg_line(2), 'Color', 'b');</span>
-0651             <span class="keyword">end</span>
-0652             grid;
-0653             ylabel(<span class="string">'Beta1 [µV]'</span>);
-0654             axis([0 length(beta1_s) 0 maxscale]);
-0655             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0656             
-0657             subplot(6,1,4);
-0658             plot(beta2_s,<span class="string">'Color'</span>,[255/255 69/255 0/255]);
-0659             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0660             m = mean(baselineBeta2);
-0661             hold on;
-0662             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
-0663             hold off;
-0664             massAndTime = self.calculateMassAndTime(beta2_s,numDataPoints,mean(baselineBeta2));
-0665             <span class="keyword">if</span>(isempty(intervals))
-0666                 legend(massAndTime,<span class="string">'beta2 baseline mean'</span>);
-0667             <span class="keyword">else</span>
-0668                 h=legend(massAndTime,<span class="string">'Stimulus'</span>,<span class="string">'beta2 baseline mean'</span>);
-0669                 <span class="comment">%leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)</span>
-0670                 <span class="comment">%set(leg_line(2), 'Color', 'b');</span>
-0671             <span class="keyword">end</span>
-0672             grid;
-0673             ylabel(<span class="string">'Beta2 [µV]'</span>);
-0674             axis([0 length(beta2_s) 0 maxscale]);
-0675             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0676             
-0677             subplot(6,1,5);
-0678             plot(task_s,<span class="string">'k'</span>);
-0679             self.plotIntervals(intervals,[0, (1.2*max(task_s))],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
-0680             m = mean(baselineTEI);
-0681             hold on;
-0682             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
-0683             hold off;
-0684             massAndTime = self.calculateMassAndTime(task_s,numDataPoints,mean(baselineTEI));
-0685             <span class="keyword">if</span>(isempty(intervals))
-0686                 legend(massAndTime,<span class="string">'TEI baseline mean'</span>);
-0687             <span class="keyword">else</span>
-0688                 h=legend(massAndTime,<span class="string">'Stimulus'</span>,<span class="string">'TEI baseline mean'</span>);
-0689                 <span class="comment">%leg_line=findobj(h,'Type','Line');%%Das funktioniert nicht mehr (Gernot)</span>
-0690                 <span class="comment">%set(leg_line(2), 'Color', 'b');</span>
-0691             <span class="keyword">end</span>
-0692             grid;
-0693             ylabel(<span class="string">'TEI'</span>);
-0694             axis([0 length(task_s) 0 (1.2*max(task_s))]);
-0695             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
-0696                         
-0697             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
-0698             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'portrait'</span>);
-0699             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
-0700             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
-0701             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
-0702             print([<span class="string">'-f'</span>,int2str(fig.Number)],<span class="string">'-dpdf'</span>,fPath);
-0703             close(fig);
-0704         <span class="keyword">end</span>
-0705     <span class="keyword">end</span>
-0706     
-0707     methods(Access=private)   
-0708         
-0709         <span class="comment">%% Helper method to calculate mass and time</span>
-0710         <a name="_sub12" href="#_subfunctions" class="code">function massAndTime = calculateMassAndTime(self,values,numDataPoints, mean)</a>
-0711             valuesOverMean = find(values &gt; mean);
-0712             overCount = length(valuesOverMean);
-0713             overMass = sum(values(valuesOverMean));
-0714             mass = int8(overMass/sum(values)*100);
-0715             time = int8(overCount/numDataPoints*100);
-0716             massAndTime = [num2str(time) <span class="string">'% time | '</span> num2str(mass) <span class="string">'% weighted mass is over baseline'</span>];
-0717         <span class="keyword">end</span>
-0718         
-0719         <span class="comment">%% Helper method to calculate intervals and video start points</span>
-0720         <a name="_sub13" href="#_subfunctions" class="code">function [videoStartPoints,videoLabels,intervals,completeVidLength] = calculateVideoStartPointsAndIntervals(self,videoDef)</a>
-0721             videoStartPoints = [];
-0722             videoLabels={};
-0723             intervals = [];
-0724             completeVidLength =0;
-0725             <span class="keyword">for</span> i=1:length(videoDef)
-0726                 completeVidLength = completeVidLength + videoDef{i}.length;
-0727                 videoLabels{i} = [<span class="string">'Video'</span> num2str(i)];
-0728                 <span class="keyword">if</span> i==1
-0729                     videoStartPoints(i) = 0;
-0730                 <span class="keyword">else</span>
-0731                     videoStartPoints(i) = videoDef{i-1}.length + videoStartPoints(i-1);
-0732                 <span class="keyword">end</span>
-0733                 curIntervals = videoDef{i}.intervals;
-0734                 curIntervals= curIntervals +videoStartPoints(i);
-0735                 intervals = horzcat(intervals,curIntervals');
-0736             <span class="keyword">end</span>
-0737         <span class="keyword">end</span>
-0738         
-0739         <span class="comment">%% Helper method to plot intervals of interest</span>
-0740         <a name="_sub14" href="#_subfunctions" class="code">function plotIntervals(self,intervals,yPos,scaleFac,labels,color)</a>
-0741             labels = labels';
-0742             <span class="keyword">for</span> i=1:length(intervals)
-0743                 xPosition = intervals(i);
-0744                 xPosition = xPosition*double(scaleFac);
-0745                 line([double(xPosition) double(xPosition)],yPos,<span class="string">'Color'</span>,color);
-0746                 <span class="keyword">if</span> ~isempty(labels)
-0747                     text([double(xPosition) double(xPosition)],[yPos(2) yPos(2)], num2str(labels(i)), <span class="string">'VerticalAlignment'</span>,<span class="string">'bottom'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontSize'</span>,8);
-0748                 <span class="keyword">end</span>
-0749             <span class="keyword">end</span>
-0750         <span class="keyword">end</span>
-0751         
-0752         <span class="comment">%% Helper method to plot the video start points</span>
-0753         <a name="_sub15" href="#_subfunctions" class="code">function plotVideoStartPoints(self,startPoints,labels,yPos,scaleFac)</a>
-0754             <span class="keyword">for</span> i=1:length(startPoints)
-0755                 xPosition = startPoints(i);
-0756                 xPosition = double(xPosition*scaleFac);
-0757                 line([xPosition xPosition],yPos,<span class="string">'Color'</span>,<span class="string">'g'</span>);
-0758                 text([xPosition xPosition],[yPos(2) yPos(2)], labels(i), <span class="string">'VerticalAlignment'</span>,<span class="string">'bottom'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontSize'</span>,7);
+<div class="fragment"><pre>0001 <span class="comment">% Performs different plots</span>
+0002 <span class="comment">%   Gets utilized by diffferent other functions</span>
+0003 <span class="comment">%   Plots settings of the GUI</span>
+0004 <span class="comment">%   Plots settings of the different stimulus</span>
+0005 <span class="comment">%   Plots statistics</span>
+0006 <span class="comment">%   Plots valid/invalid tabel of subjects</span>
+0007 <span class="comment">%   Plots 2D Topology Maps</span>
+0008 <span class="comment">%   Plots Brain Activity</span>
+0009 <span class="comment">%   Plots quality figures and HRV/EDA figues</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Author: Gernot Heisenberg, Tim Kreitzberg</span>
+0012 <span class="comment">%</span>
+0013 
+0014 
+0015 classdef <a href="Plotter.html" class="code" title="">Plotter</a>
+0016     methods
+0017         
+0018         <span class="comment">%% Saves all GUI and DEVICE settings to fName.pdf</span>
+0019         <span class="comment">%   config: contains all configs as String</span>
+0020         <span class="comment">%   fName: File name as String</span>
+0021         <span class="comment">%   Devices: contains settings of different devices</span>
+0022         <a name="_sub0" href="#_subfunctions" class="code">function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,fName)</a>
+0023             fatbraid=&quot;===========================================================&quot; + newline;
+0024             thinbraid=&quot;------------------------------------------------------&quot; + newline;
+0025             
+0026             output_text= strcat(fatbraid,&quot;---&gt; GUI SETTINGS&quot;+newline);
+0027             output_text= strcat(output_text,fatbraid);
+0028             
+0029             output_text= strcat(output_text,thinbraid);
+0030             output_text= strcat(output_text,&quot;<a href="Subject.html" class="code" title="">Subject</a> Settings&quot;+newline);
+0031             output_text= strcat(output_text,thinbraid);
+0032             output_text= strcat(output_text,&quot;Number of Subjects=&quot; + num2str(config.numSubjects)+newline+newline);
+0033             
+0034             output_text= strcat(output_text,thinbraid);
+0035             output_text= strcat(output_text,&quot;Output Settings&quot;+newline);
+0036             output_text= strcat(output_text,thinbraid);
+0037             output_text= strcat(output_text,&quot;SubStimuIntEDAFig=&quot; + num2str(config.SubStimuIntEDAFig)+newline);
+0038             output_text= strcat(output_text,&quot;Statistics=&quot; + num2str(config.Statistics)+newline);
+0039             output_text= strcat(output_text,&quot;BehaveFig=&quot; + num2str(config.BehaveFig)+newline);
+0040             output_text= strcat(output_text,&quot;DetrendedEDAFig=&quot; + num2str(config.DetrendedEDAFig)+newline);
+0041             output_text= strcat(output_text,&quot;RecurrenceFig=&quot; + num2str(config.RecurrenceFig)+newline);
+0042             output_text= strcat(output_text,&quot;QualityFig=&quot; + num2str(config.QualityFig)+newline);
+0043             output_text= strcat(output_text,&quot;FrequencyFig=&quot; + num2str(config.FrequencyFig)+newline+newline);
+0044             output_text= strcat(output_text,thinbraid);
+0045             
+0046             output_text= strcat(output_text,&quot;EEG Quality Settings&quot;+newline);
+0047             output_text= strcat(output_text,thinbraid);
+0048             output_text= strcat(output_text,&quot;LowerThreshold=&quot; + num2str(config.LowerThreshold)+newline);
+0049             output_text= strcat(output_text,&quot;UpperThreshold=&quot; + num2str(config.UpperThreshold)+newline);
+0050             output_text= strcat(output_text,&quot;QualityIndex=&quot; + num2str(config.QualityIndex)+newline);
+0051             output_text= strcat(output_text,&quot;EEGCutoffValue=&quot; + num2str(config.EEGCutoffValue)+newline+newline);
+0052             output_text= strcat(output_text,thinbraid);
+0053             
+0054             output_text= strcat(output_text,&quot;Resccurence Plot Settings&quot;+newline);
+0055             output_text= strcat(output_text,thinbraid);
+0056             output_text= strcat(output_text,&quot;RecurrenceTreshold=&quot; + num2str(config.RecurrenceThreshold)+newline+newline);
+0057             output_text= strcat(output_text,thinbraid);
+0058             
+0059             output_text= strcat(output_text,&quot;2D Topology Plot and Brain Activity Plot&quot;+newline);
+0060             output_text= strcat(output_text,thinbraid);
+0061             output_text= strcat(output_text,&quot;Video Frame Rate[fps]=&quot; + num2str(config.UserFrameRate)+newline);
+0062             output_text= strcat(output_text,&quot;2D Topology Intervals[s]=&quot; + num2str(config.UserFrameRate)+newline);
+0063             output_text= strcat(output_text,&quot;Brain Acivity Intervals[s]=&quot; + num2str(config.UserFrameRate)+newline+newline);
+0064 
+0065             output_text= strcat(output_text,fatbraid);
+0066             output_text= strcat(output_text,&quot;---&gt; DEVICE SETTINGS&quot;+newline);
+0067             output_text= strcat(output_text,fatbraid);
+0068             output_text= strcat(output_text,&quot;EEG-DEVICE SETTINGS&quot;+newline);
+0069             output_text= strcat(output_text,thinbraid);
+0070             output_text= strcat(output_text,&quot;<a href="Device.html" class="code" title="">Device</a> Manufacturer=&quot; + eegDevice.name +newline);
+0071             output_text= strcat(output_text,&quot;Sampling Frequency[Hz]=&quot; + num2str(eegDevice.samplingRate)+newline);
+0072             output_text= strcat(output_text,&quot;Electrode Positions=&quot; + eegDevice.electrodePositions +newline);
+0073             output_text= strcat(output_text,thinbraid);
+0074             output_text= strcat(output_text,&quot;EDA-DEVICE SETTINGS&quot;+newline);
+0075             output_text= strcat(output_text,thinbraid);
+0076             output_text= strcat(output_text,&quot;<a href="Device.html" class="code" title="">Device</a> Manufacturer=&quot; + edaDevice.name +newline);
+0077             output_text= strcat(output_text,&quot;Sampling Frequency[Hz]=&quot; + num2str(edaDevice.samplingRate)+newline);
+0078             output_text= strcat(output_text,thinbraid);
+0079             output_text= strcat(output_text,&quot;HRV-DEVICE SETTINGS&quot;+newline);
+0080             output_text= strcat(output_text,thinbraid);
+0081             output_text= strcat(output_text,&quot;<a href="Device.html" class="code" title="">Device</a> Manufacturer=&quot; + hrvDevice.name +newline);
+0082             output_text= strcat(output_text,&quot;Sampling Frequency[Hz]=&quot; + num2str(hrvDevice.samplingRate)+newline);
+0083             output_text= strcat(output_text,fatbraid);
+0084             
+0085             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0086             axes(<span class="string">'Position'</span>,[0 0.1 1 1],<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0087             text(0.0,0.8,output_text{1},<span class="string">'FontName'</span>,<span class="string">'FixedWidth'</span>,<span class="string">'FontSize'</span>,8);
+0088             print(fName,<span class="string">'-dpdf'</span>,fig,<span class="string">'-r0'</span>);
+0089             close(fig);
+0090         <span class="keyword">end</span>
+0091         
+0092         <span class="comment">%% Saves ADIndex settings to fName.pdf</span>
+0093         <span class="comment">%   StimuInt: contains settings for all Stimulus Intervals</span>
+0094         <span class="comment">%   fName: File name as String</span>
+0095         <a name="_sub1" href="#_subfunctions" class="code">function writeAdIndex(self,StimuInt,fName)</a>
+0096             fatbraid=&quot;==================================================================================&quot; + newline;
+0097             thinbraid=&quot;----------------------------------------------------------------------------------&quot; + newline;
+0098             
+0099             output_text = strcat(fatbraid,&quot;---&gt; AdIndex SETTINGS&quot;+newline);
+0100             output_text= strcat(output_text,fatbraid);
+0101             output_text= strcat(output_text,&quot;Stimulus length | Stimulus Type | Stimulus Description |         Stimulus Interval&quot; + newline);
+0102             output_text= strcat(output_text,thinbraid);
+0103             
+0104             <span class="comment">%create textboxes</span>
+0105             <span class="keyword">for</span> i = 1:length(StimuInt)
+0106                 
+0107                 <span class="comment">%Stimulus length</span>
+0108                 CharStimuLength = blanks(15);
+0109                 CharStimuLength([9:15]) = <span class="string">'seconds'</span>;
+0110                 counter = length(num2str(StimuInt{1, i}.Stimulength));
+0111                 <span class="keyword">if</span> counter == 1
+0112                     CharStimuLength(7) = num2str(StimuInt{1, i}.Stimulength);
+0113                 <span class="keyword">elseif</span> counter == 2
+0114                     CharStimuLength(6:7) = num2str(StimuInt{1, i}.Stimulength);
+0115                 <span class="keyword">else</span>
+0116                     CharStimuLength(5:7) = num2str(StimuInt{1, i}.Stimulength);
+0117                 <span class="keyword">end</span>
+0118                 
+0119                 <span class="comment">%Stimulus type</span>
+0120                 <span class="comment">%create blank char array</span>
+0121                 CharStimuType = blanks(13);
+0122                 CharStimuType([8:11]) = <span class="string">'Type'</span>;
+0123                 CharStimuType(13) = num2str(StimuInt{1, i}.stimuIntType);
+0124                 
+0125                 <span class="comment">%Stimulus Description</span>
+0126                 CharStimuDesc = blanks(20);
+0127                 CharStartDesc = 20-length(StimuInt{1, i}.stimuIntDescrp)+1;
+0128                 CharStimuDesc([CharStartDesc:end]) = StimuInt{1, i}.stimuIntDescrp;
+0129                 
+0130                 <span class="comment">%Stimulus Intervals</span>
+0131                 CharStimuInt = blanks(26);            
+0132                 hold = num2str(StimuInt{1, i}.intervals);
+0133                 IntChar = <span class="string">''</span>;
+0134                 <span class="keyword">for</span> i = 1:length(hold)
+0135                 IntChar = append(IntChar,hold(i,:));
+0136                 IntChar = append(IntChar,<span class="string">' '</span>);
+0137                 <span class="keyword">end</span>
+0138                 CharStartInt = 26-length(IntChar)+1;
+0139                 CharStimuInt([CharStartInt:end]) = IntChar;
+0140                 
+0141                 <span class="comment">%Save text</span>
+0142                 output_text= strcat(output_text,[CharStimuLength <span class="string">' | '</span> CharStimuType <span class="string">' | '</span> CharStimuDesc <span class="string">' | '</span> CharStimuInt]);
+0143                 output_text= strcat(output_text,&quot; &quot; + newline);
+0144             <span class="keyword">end</span>                
+0145          
+0146             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0147             axes(<span class="string">'Position'</span>,[0 0.1 1 1],<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0148             text(0.0,0.99,output_text{1},<span class="string">'FontName'</span>,<span class="string">'FixedWidth'</span>,<span class="string">'FontSize'</span>,8);
+0149             print(fName,<span class="string">'-dpdf'</span>,fig,<span class="string">'-r0'</span>);
+0150             close(fig);
+0151         <span class="keyword">end</span>
+0152         
+0153         <span class="comment">%% Saves statistics as PDF</span>
+0154         <span class="comment">%   stats: statistics as String</span>
+0155         <span class="comment">%   fName: File name as String</span>
+0156         <a name="_sub2" href="#_subfunctions" class="code">function writeStatistics(self,stats,fName)</a>
+0157             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0158             axes(<span class="string">'Position'</span>,[0.0 0.0 1 1],<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0159             fig.PaperPositionMode=<span class="string">'auto'</span>;
+0160             text(0.0,0.85,stats,<span class="string">'FontName'</span>,<span class="string">'FixedWidth'</span>,<span class="string">'FontSize'</span>,6); <span class="comment">%Changed font size to 6 (from 8) for displaying the whole text</span>
+0161             print(fName,<span class="string">'-dpdf'</span>,fig,<span class="string">'-r0'</span>);
+0162             close(fig);
+0163         <span class="keyword">end</span>
+0164         
+0165         <span class="comment">%% Saves in/valid Subjects and status</span>
+0166         <span class="comment">%   index: index as String</span>
+0167         <span class="comment">%   fName: File name as String</span>
+0168         <a name="_sub3" href="#_subfunctions" class="code">function writeValid(self,index, fName)</a>
+0169             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0170             axes(<span class="string">'Position'</span>,[0.1 0.1 1 1],<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0171             text(0.0,0.85,index,<span class="string">'FontName'</span>,<span class="string">'FixedWidth'</span>,<span class="string">'FontSize'</span>,10);
+0172             print(fName,<span class="string">'-dpdf'</span>,fig,<span class="string">'-r0'</span>,<span class="string">'-fillpage'</span>);
+0173             close(fig);
+0174         <span class="keyword">end</span>
+0175         
+0176         <span class="comment">%% Writes array or cell array to csv file with given format and file name</span>
+0177         <span class="comment">%  fName: Name of the File to write as String</span>
+0178         <span class="comment">%  format: Format String</span>
+0179         <span class="comment">%  data: CellArray or Array</span>
+0180         <a name="_sub4" href="#_subfunctions" class="code">function writeCSV(self,fName,format,data)</a>
+0181             fid = fopen(fName,<span class="string">'w'</span>);
+0182             <span class="keyword">if</span> iscell(data)
+0183                 fprintf(fid,format,data{:});
+0184             <span class="keyword">else</span>
+0185                 fprintf(fid,format,data);
+0186             <span class="keyword">end</span>
+0187             fclose(fid);
+0188         <span class="keyword">end</span>
+0189         
+0190         
+0191         <span class="comment">%% Print 2D Topo of EEG Data</span>
+0192         <span class="comment">%  Print of 2D Topology map over a certain timeframe</span>
+0193         <span class="comment">%  config: contains all configs as String</span>
+0194         <span class="comment">%  EEG: contains EEG Structur for topoplot function</span>
+0195         <span class="comment">%  subject: contains all Subjects</span>
+0196         <span class="comment">%  StimuDef: Simulus Class, with length, type, definition</span>
+0197         <span class="comment">%  electrodes: contains all used electrodes as String</span>
+0198         <span class="comment">%  vidFrameReSize: Contains struct with each video frame</span>
+0199         <a name="_sub5" href="#_subfunctions" class="code">function printTopo(self,config,subject,EEG,StimuDef,electrodes,vidFrameReSize)            </a>
+0200             <span class="comment">%Variables needed for loop</span>
+0201             numStimuInts = length(StimuDef);
+0202             interval = config.TopoRange;
+0203             subjectName = subject.name;
+0204             TopoStart = 0;
+0205             
+0206             <span class="comment">%loop for each StimuInt</span>
+0207             <span class="keyword">for</span> i = 1:numStimuInts
+0208                 StimuInt = StimuDef{i};
+0209 
+0210                 <span class="comment">% video obj</span>
+0211                 vName = [config.OutputDirectory <span class="string">'\2D_Topo'</span> <span class="string">'/'</span> subjectName <span class="string">'_'</span> StimuInt.stimuIntDescrp <span class="string">'_2D Topo_Video.mp4'</span>];
+0212                 vidObj = VideoWriter(vName);
+0213                 vidObj.Quality = 100;       
+0214                 vidObj.FrameRate = config.UserFrameRate; <span class="comment">%get framerate from video</span>
+0215 
+0216                 <span class="comment">%prepare print range</span>
+0217                 TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
+0218                 range = TopoStart:interval:TopoEnd;
+0219                 range = double(range);
+0220                 TopoStart = TopoEnd; <span class="comment">%defined for the next loop</span>
+0221 
+0222                 <span class="comment">%only print Type &gt; 4 = Video/Images/Audio Stimulus</span>
+0223                 <span class="keyword">if</span> StimuInt.stimuIntType &gt;= 4
+0224 
+0225                     <span class="comment">%prepare data for print</span>
+0226                     SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
+0227                     pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
+0228                         <span class="keyword">if</span> pos(end) == EEG.pnts+1
+0229                             pos(end) = pos(end)-1; <span class="comment">%Cut 1 so index of pnts and pos is ==</span>
+0230                         <span class="keyword">end</span>
+0231                     nanpos = find(isnan(pos));
+0232                     pos(nanpos) = 1;
+0233                     
+0234                     <span class="comment">%prepare task variable</span>
+0235                     numPos = length(pos)-1;
+0236                     numValues = subject.eegValuesForElectrodes; 
+0237                     numElec = length(numValues);
+0238                     task = zeros(numElec,numPos);
+0239 
+0240                     <span class="comment">%get TEI</span>
+0241                     <span class="keyword">for</span> m = 1:numPos
+0242                         <span class="keyword">for</span> j = 1:numElec
+0243                         <span class="comment">%Theta(5-7 Hz)</span>
+0244                         theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
+0245                         <span class="comment">%Alpha(8-13 Hz)</span>
+0246                         alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
+0247                         <span class="comment">%Beta1(14-24 Hz)</span>
+0248                         beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
+0249                         <span class="comment">%Task-Engagement</span>
+0250                             <span class="keyword">if</span> alpha(j) &gt; 0 &amp;&amp; theta(j) &gt; 0
+0251                             task(j,m) = beta1(j)/(alpha(j)+theta(j));
+0252                             <span class="keyword">else</span>
+0253                             task(j,m) = zeros(1,length(range)-1);
+0254                             <span class="keyword">end</span>
+0255                         <span class="keyword">end</span>
+0256                     <span class="keyword">end</span>
+0257                     
+0258                     <span class="comment">%loop preperation</span>
+0259                     numofprint = length(range)-1;
+0260                     open(vidObj);
+0261                     
+0262                     <span class="keyword">for</span> k = 1:numofprint
+0263                         <span class="comment">%print preparation</span>
+0264                         mainfig = figure(<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0265                         set(mainfig,<span class="string">'PaperUnits'</span>,<span class="string">'inches'</span>,<span class="string">'PaperPosition'</span>,[0 0 12 7.5])
+0266                         hold on
+0267 
+0268                         <span class="comment">%Print of 2D Topo</span>
+0269                         subplot(2,2,3);
+0270                         title({[<span class="string">'AVG TEI between '</span> num2str(range(k)-range(1)) <span class="string">'-'</span> num2str(range(k+1)-range(1)) <span class="string">'ms'</span>];<span class="keyword">...</span>
+0271                                [<span class="string">'in test range from '</span> num2str(range(k)) <span class="string">'-'</span> num2str(range(k+1)) <span class="string">'ms'</span>               ]});
+0272                         topoplot(task(:,k),EEG.chanlocs,<span class="string">'electrodes'</span>,<span class="string">'ptslabels'</span>);
+0273                         cb = colorbar;
+0274                         cb.Limits = [0,1];
+0275 
+0276                         <span class="comment">%print of histogram</span>
+0277                         barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
+0278                         barschart = subplot(2,2,4);
+0279                         barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
+0280                         imshow(barsimg);
+0281 
+0282                         <span class="comment">%Subplot title</span>
+0283                         sgtitle([StimuInt.stimuIntDescrp <span class="string">' for subject '</span> subject.name]);
+0284 
+0285                         <span class="comment">% Folgende Befehle beschleunigen das Plotten</span>
+0286                         <span class="comment">% innerhalb der Schleife %englisch</span>
+0287                         set(gcf,<span class="string">'renderer'</span>,<span class="string">'opengl'</span>) 
+0288                         drawnow nocallbacks
+0289                         <span class="keyword">for</span> t = 1:vidObj.FrameRate
+0290                             <span class="comment">%insert video frames</span>
+0291                             videochart = subplot(2,2,[1 2]);
+0292                             imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*(numofprint-1)))); <span class="comment">%10 -&gt; 30</span>
+0293                             
+0294                             <span class="comment">%save as image</span>
+0295                             fName = [config.OutputDirectory <span class="string">'\2D_Topo'</span> <span class="string">'/'</span> subjectName <span class="string">'_'</span> StimuInt.stimuIntDescrp <span class="string">'_'</span> num2str(range(k+1)) <span class="string">'ms_2D Topo.png'</span>];
+0296                             print(fName,<span class="string">'-dpng'</span>,<span class="string">'-r300'</span>,mainfig);
+0297                             
+0298                             <span class="comment">%create video</span>
+0299                             writeVideo(vidObj, imread(fName));
+0300                         <span class="keyword">end</span>
+0301                         <span class="comment">%close figure</span>
+0302                         close
+0303                     <span class="keyword">end</span>     
+0304                 <span class="keyword">end</span>
+0305             <span class="keyword">end</span>
+0306         <span class="keyword">end</span>
+0307         
+0308         <span class="comment">%% Overview of all Simulus in one chart</span>
+0309         <span class="comment">%  Print of 2D Topology map over a certain timeframe</span>
+0310         <span class="comment">%  config: contains all configs as String</span>
+0311         <span class="comment">%  subject: contains all Subjects</span>
+0312         <span class="comment">%  EEG: contains EEG Structur for topoplot function</span>
+0313         <span class="comment">%  StimuDef: Simulus Class, with length, type, definition</span>
+0314         <a name="_sub6" href="#_subfunctions" class="code">function stimulusOverviewChart(self,config,subject,EEG,StimuDef)</a>
+0315             
+0316             <span class="comment">% Variables needed for loop</span>
+0317             numStimuInts = length(StimuDef);
+0318             interval = config.BrainRange;
+0319             TopoStart = 0;
+0320             rangeALL = 0;
+0321             StimulusIntervals = 0;
+0322             StimuIntDefinitions = [];
+0323             
+0324             <span class="comment">%main figure</span>
+0325             mainfig = figure(<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0326             set(mainfig,<span class="string">'Units'</span>,<span class="string">'pixels'</span>);
+0327             
+0328             <span class="comment">%prepare vector to draw lines</span>
+0329             <span class="keyword">for</span> i = 1:numStimuInts
+0330                 StimuInt = StimuDef{i};   
+0331                 <span class="keyword">if</span> StimuInt.stimuIntType &gt; 2
+0332                     <span class="comment">%Initialisation for first loop</span>
+0333                     <span class="keyword">if</span> TopoStart == 0
+0334                         rangeALL = double(StimuInt.Stimulength*1000);
+0335                         TopoStart = double(StimuInt.Stimulength*1000);
+0336                     <span class="keyword">end</span>
+0337                     <span class="comment">%prepare print range</span>
+0338                     TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
+0339                     range = TopoStart:interval:TopoEnd;
+0340                     range = double(range);
+0341                     <span class="keyword">if</span> range(end) ~= TopoEnd
+0342                         range(end+1) = TopoEnd;
+0343                     <span class="keyword">end</span>
+0344                     TopoStart = TopoEnd; <span class="comment">%defined for the next loop</span>
+0345 
+0346                     rangeALL = [rangeALL range(1,2:end)];
+0347                     <span class="keyword">if</span> StimulusIntervals == 0
+0348                         StimulusIntervals = size(rangeALL);
+0349                         StimulusIntervals(2) = StimulusIntervals(2)-1;
+0350                     <span class="keyword">else</span>
+0351                         StimulusIntervals = [StimulusIntervals, StimulusIntervals(end)+1,length(rangeALL)-1];
+0352                     <span class="keyword">end</span>
+0353                     
+0354                     StimuIntDefinitions = [StimuIntDefinitions, convertCharsToStrings(StimuInt.stimuIntDescrp)];
+0355                 <span class="keyword">end</span>
+0356             <span class="keyword">end</span>
+0357 
+0358             <span class="comment">%prepare data for print</span>
+0359             SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
+0360             pos = round((rangeALL/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
+0361             <span class="keyword">if</span> pos(end) == EEG.pnts+1
+0362                 pos(end) = pos(end)-1; <span class="comment">%Cut 1 so index of pnts and pos is ==</span>
+0363             <span class="keyword">end</span>
+0364             nanpos = find(isnan(pos));
+0365             pos(nanpos) = 1;
+0366 
+0367             <span class="comment">%prepare task variable</span>
+0368             numPrints = length(pos)-1;
+0369             numValues = subject.eegValuesForElectrodes; 
+0370             numElec = length(numValues);
+0371             task = zeros(numElec,numPrints);
+0372 
+0373             <span class="comment">%get TEI</span>
+0374             <span class="keyword">for</span> m = 1:numPrints
+0375                 <span class="keyword">for</span> j = 1:numElec
+0376                     <span class="comment">%Theta(5-7 Hz)</span>
+0377                     theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
+0378                     <span class="comment">%Alpha(8-13 Hz)</span>
+0379                     alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
+0380                     <span class="comment">%Beta1(14-24 Hz)</span>
+0381                     beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
+0382                     <span class="comment">%Task-Engagement</span>
+0383                     <span class="keyword">if</span> alpha(j) &gt; 0 &amp;&amp; theta(j) &gt; 0
+0384                         task(j,m) = beta1(j)/(alpha(j)+theta(j));
+0385                     <span class="keyword">else</span>
+0386                         task(j,m) = zeros(1,length(range)-1);
+0387                     <span class="keyword">end</span>
+0388                 <span class="keyword">end</span>
+0389             <span class="keyword">end</span>
+0390 
+0391             
+0392             <span class="comment">%print preparation</span>
+0393             sizey = 300; <span class="comment">%height of image</span>
+0394             Pos = cell(1,numPrints); <span class="comment">%vector for position</span>
+0395             topoX = 100; <span class="comment">%X position of first head in print</span>
+0396             mainfig.Position = [mainfig.Position(1), mainfig.Position(2), numPrints*150 , sizey]; 
+0397             
+0398             <span class="keyword">for</span> j = 1:numPrints
+0399                 <span class="comment">%Print of 2D Topo</span>
+0400                 topo = subplot(1,numPrints,j);
+0401                 topo.Units = <span class="string">'pixels'</span>;
+0402                 topo.Position = [topoX, 40, 90, 90]; <span class="comment">%set position</span>
+0403                 topoplot(task(:,j),EEG.chanlocs,<span class="string">'electrodes'</span>,<span class="string">'on'</span>);
+0404                 topoX = topoX + 110; <span class="comment">%move X position for next head</span>
+0405 
+0406                 <span class="comment">%get Positions of topo plots</span>
+0407                 Pos{j} = topo.Position;
+0408             <span class="keyword">end</span>
+0409             
+0410             <span class="comment">%set sizeX to mainfig position length</span>
+0411             sizex = mainfig.Position(3);
+0412             
+0413             <span class="comment">%loop for legend</span>
+0414             counter = 1;
+0415             <span class="keyword">for</span> m = 1:(length(StimulusIntervals)/2)
+0416                 <span class="comment">%get index for Pos vector</span>
+0417                 lowindex = StimulusIntervals(counter);
+0418                 counter = counter + 1;
+0419                 index = StimulusIntervals(counter);
+0420                 counter = counter + 1;
+0421                 <span class="keyword">if</span> length(Pos) &gt; index
+0422                     <span class="comment">%get position of left/right</span>
+0423                     SubplotLeft = Pos{index};
+0424                     SubplotRight = Pos{index+1};
+0425                     <span class="comment">%get X coordinate between both heads</span>
+0426                     x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;<span class="comment">%convert from pixels to normazied unit</span>
+0427                 <span class="keyword">else</span>
+0428                     SubplotLeft = Pos{index};
+0429                     x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
+0430                 <span class="keyword">end</span>
+0431                 y = SubplotLeft(2)/sizey; <span class="comment">%convert from pixels to normazied unit</span>
+0432                 <span class="comment">%timestamp line</span>
+0433                 timeLine = annotation(<span class="string">'line'</span>,[x,x],[0.6,y]);
+0434                 timeLine.LineWidth = 1;
+0435                 <span class="comment">%timestamp text</span>
+0436                 str = strcat(num2str(rangeALL(index+1)-rangeALL(1)),<span class="string">' ms'</span>);
+0437                 timestamp = annotation(<span class="string">'textbox'</span>,[x,0.035,0.1,0.1],<span class="string">'String'</span>,str,<span class="string">'EdgeColor'</span>,<span class="string">'none'</span>,<span class="string">'FitBoxToText'</span>,<span class="string">'on'</span>);
+0438                 drawnow <span class="comment">%force figure update</span>
+0439                 <span class="comment">%move text for half its size, because start getting printed on X position</span>
+0440                 timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
+0441                 
+0442                 <span class="comment">%dotted lines for clarity</span>
+0443                 numOfLines = (index - lowindex);
+0444                 linesPos = lowindex;
+0445                 <span class="keyword">for</span> k = 1:numOfLines
+0446                     <span class="keyword">if</span> length(Pos) &gt; linesPos
+0447                         SubplotLeft = Pos{linesPos};
+0448                         SubplotRight = Pos{linesPos+1};
+0449                         x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;<span class="comment">%convert to normazied unit</span>
+0450                     <span class="keyword">else</span>
+0451                         SubplotLeft = Pos{linesPos};
+0452                         x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
+0453                     <span class="keyword">end</span>
+0454                     y = SubplotLeft(2)/sizey; <span class="comment">%convert to normazied unit</span>
+0455                     <span class="comment">%line</span>
+0456                     tickLines = annotation(<span class="string">'line'</span>,[x,x],[0.6,y]);
+0457                     tickLines.Color = <span class="string">'b'</span>; <span class="comment">%blue</span>
+0458                     tickLines.LineStyle = <span class="string">'--'</span>; <span class="comment">%dotted</span>
+0459                     tickLines.LineWidth = 0.25; 
+0460                     linesPos = linesPos + 1;
+0461                     
+0462                     <span class="comment">%timestamp text</span>
+0463                     <span class="keyword">if</span> length(rangeALL) &gt; linesPos
+0464                     str = strcat(num2str(rangeALL(linesPos)-rangeALL(1)),<span class="string">' ms'</span>);
+0465                     addLines = annotation(<span class="string">'textbox'</span>,[x,0.035,0.1,0.1],<span class="string">'String'</span>,str,<span class="string">'EdgeColor'</span>,<span class="string">'none'</span>,<span class="string">'FitBoxToText'</span>,<span class="string">'on'</span>,<span class="string">'FontSize'</span>, 8);
+0466                     drawnow
+0467                     addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
+0468                     <span class="keyword">end</span>
+0469                 <span class="keyword">end</span>
+0470                 
+0471                 <span class="comment">%Stimulus definiton text</span>
+0472                 <span class="comment">%get Stimulus</span>
+0473                 str = StimuIntDefinitions(m);
+0474                 <span class="comment">%get position of first and last head of Interval</span>
+0475                 <span class="keyword">if</span> length(Pos) &gt; index
+0476                     SubplotLeft = Pos{lowindex};
+0477                     SubplotRight = Pos{index};
+0478                 <span class="keyword">else</span>
+0479                     SubplotLeft = Pos{lowindex};
+0480                     SubplotRight = Pos{index-1};
+0481                 <span class="keyword">end</span>
+0482                 <span class="comment">%get x for middle of this interval</span>
+0483                 x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
+0484                 StimulusDefinition = annotation(<span class="string">'textbox'</span>,[x,0.575,0.1,0.1],<span class="string">'String'</span>,str,<span class="string">'EdgeColor'</span>,<span class="string">'none'</span>,<span class="string">'FitBoxToText'</span>,<span class="string">'on'</span>);
+0485                 drawnow
+0486                 <span class="comment">%move text for half its size</span>
+0487                 StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
+0488             <span class="keyword">end</span>
+0489             
+0490             <span class="comment">%upper horizontal timeline</span>
+0491             SubplotLeft = Pos{1};
+0492             SubplotRight = Pos{end};
+0493             x1 = SubplotLeft(1)/sizex;
+0494             x2 = (SubplotRight(1)+SubplotRight(3))/sizex;
+0495             timeLine = annotation(<span class="string">'line'</span>,[x1,x2],[0.6,0.6]);
+0496             timeLine.LineWidth = 1;
+0497             
+0498             <span class="comment">%first timestamp line</span>
+0499             SubplotTopo = Pos{1};
+0500             x = SubplotTopo(1)/sizex;
+0501             y = SubplotTopo(2)/sizey;
+0502             timeLine = annotation(<span class="string">'line'</span>,[x,x],[0.6,y]);
+0503             timeLine.LineWidth = 1;
+0504             <span class="comment">%first timestamp text</span>
+0505             timestamp = annotation(<span class="string">'textbox'</span>,[x,0.035,0.1,0.1],<span class="string">'String'</span>,<span class="string">'0 ms'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'none'</span>);
+0506             drawnow
+0507             timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
+0508             
+0509             <span class="comment">%Subplot title</span>
+0510             str = <span class="string">'Per Electrode Brain Activity over all Stimulus Intervals'</span>;
+0511             x = (SubplotRight(1)+SubplotRight(3)-100)/2/sizex;
+0512             annotation(<span class="string">'textbox'</span>,[x,0.8,0.1,0.1],<span class="string">'String'</span>,str,<span class="string">'EdgeColor'</span>,<span class="string">'none'</span>,<span class="string">'FitBoxToText'</span>,<span class="string">'on'</span>);
+0513    
+0514             <span class="comment">%save as pdf</span>
+0515             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; <span class="comment">%get right width of image</span>
+0516             fName = [config.OutputDirectory <span class="string">'\'</span> subject.name <span class="string">'_Brain activity over entire stimulus period.png'</span>];
+0517             set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>);
+0518             F = getframe(mainfig); <span class="comment">%get frame of figure</span>
+0519             ImageSize = size(F.cdata); <span class="comment">%get length of figure</span>
+0520             F.cdata(:,newWidth:ImageSize(2),:) = []; <span class="comment">%delete empty pixel</span>
+0521             imwrite(F.cdata, fName, <span class="string">'png'</span>);
+0522             
+0523             <span class="comment">%close figure</span>
+0524             close
+0525         <span class="keyword">end</span>
+0526         
+0527         <span class="comment">%% Prints of electrode frequency</span>
+0528         <span class="comment">% electrodes: List of used electrodes</span>
+0529         <span class="comment">% startpos/endpos: Range of the printed data</span>
+0530         <span class="comment">% data: data</span>
+0531         <span class="comment">% srate: Frequency of the device used</span>
+0532         <a name="_sub7" href="#_subfunctions" class="code">function barsimg = plotElectrodeBars(self,electrodes,startpos,endpos,data,srate)</a>
+0533             
+0534             <span class="comment">%prepare plot</span>
+0535             numelec = length(electrodes);
+0536             barsfig = figure(<span class="string">'visible'</span>,<span class="string">'off'</span>,<span class="string">'DefaultAxesFontSize'</span>,12);
+0537             set(barsfig,<span class="string">'color'</span>,<span class="string">'w'</span>);
+0538             set(barsfig,<span class="string">'Position'</span>, [1, 1, 1200, 1200]);
+0539             data = data(:,startpos:endpos);
+0540             
+0541             <span class="comment">%get frequency bands</span>
+0542             <span class="keyword">for</span> i = 1:numelec
+0543                 <span class="comment">%Delta (1-4 Hz)</span>
+0544                 delta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,1,4)).^2));
+0545                 <span class="comment">%Theta(5-7 Hz)</span>
+0546                 theta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,5,7)).^2));
+0547                 <span class="comment">%Alpha(8-13 Hz)</span>
+0548                 alpha(i) = mean(sqrt((eegfiltfft(data(i,:),srate,8,13)).^2));
+0549                 <span class="comment">%Beta1(14-24 Hz)</span>
+0550                 beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
+0551                 <span class="comment">%Beta2(25-40 Hz)</span>
+0552                 beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
+0553             <span class="keyword">end</span>
+0554             allfreq = [delta theta alpha beta1 beta2];
+0555             ymax = max(max(allfreq)); <span class="comment">%y max for graph</span>
+0556             
+0557             <span class="comment">%Print</span>
+0558             <span class="keyword">for</span> i = 1:numelec
+0559                 hold on
+0560                 <span class="comment">%create subplot for each electrode</span>
+0561                 subplot(3,3,i);
+0562                 names = categorical({<span class="string">'delta'</span>,<span class="string">'theta'</span>,<span class="string">'alpha'</span>,<span class="string">'beta1'</span>,<span class="string">'beta2'</span>});
+0563                 names = reordercats(names,{<span class="string">'delta'</span>,<span class="string">'theta'</span>,<span class="string">'alpha'</span>,<span class="string">'beta1'</span>,<span class="string">'beta2'</span>});
+0564                 bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i)];
+0565                 h = bar(names,bars,<span class="string">'FaceColor'</span>,<span class="string">'flat'</span>);
+0566                 ylim([0 ymax]);
+0567                 title(electrodes(i),<span class="string">'FontSize'</span>, 24)
+0568                 <span class="comment">%recolor bars</span>
+0569                 h.CData(1,:) = [1 0 0];
+0570                 h.CData(2,:) = [0.8500 0.3250 0.0980];
+0571                 h.CData(3,:) = [0.9290 0.6940 0.1250];
+0572                 h.CData(4,:) = [0 1 0];
+0573                 h.CData(5,:) = [0.3010 0.7450 0.9330];
+0574             <span class="keyword">end</span>
+0575             
+0576             <span class="comment">%save as img</span>
+0577             barsFrame = getframe(barsfig);
+0578             barsimg = barsFrame.cdata;
+0579         <span class="keyword">end</span>
+0580         
+0581         <span class="comment">%% Prints recurrence plots for HRV</span>
+0582         <span class="comment">%  subjectName: Name of the Subject as String</span>
+0583         <span class="comment">%  config: Config</span>
+0584         <span class="comment">%  StimuIntName: String</span>
+0585         <span class="comment">%  hrvData: HRV values for Subject as double[]</span>
+0586         <a name="_sub8" href="#_subfunctions" class="code">function plotHRVRecurrence(self,subjectName,config,StimuIntName,hrvData)</a>
+0587             N = length(hrvData);
+0588             S = zeros(N, N);
+0589             time = zeros(N,1);
+0590             <span class="comment">% Calculate time in seconds for x axis</span>
+0591             <span class="keyword">for</span> i=1:N
+0592                 time(i) = round(sum(hrvData(1:i))/1000);
+0593             <span class="keyword">end</span>
+0594             <span class="keyword">for</span> i = 1:N
+0595                 S(:,i) = abs( repmat( hrvData(i), N, 1 ) - hrvData(:) );
+0596             <span class="keyword">end</span>
+0597             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0598             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+0599             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);            
+0600             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
+0601             subplot(2,1,1);
+0602             imagesc(time, time, S);
+0603             axis square;
+0604             xlabel(<span class="string">'Time [s]'</span>);
+0605             ylabel(<span class="string">'Time [s]'</span>);
+0606             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)            
+0607             h = colorbar(<span class="string">'eastoutside'</span>);
+0608             freezeColors;
+0609             freez = cbfreeze(h);
+0610             cblabel(<span class="string">'Time [ms]'</span>);
+0611             set(freez, <span class="string">'Position'</span>, [0.75 0.585 0.05 0.34]);
+0612             title([<span class="string">'Distance map of '</span> StimuIntName <span class="string">' phase space trajectory for subject'</span> subjectName]);
+0613             
+0614             subplot(2,1,2);
+0615             maxDiff = max(max(S) - min(S))*0.001;
+0616             <span class="keyword">if</span> (config.RecurrenceThreshold ~= 0)
+0617                 maxDiff = config.RecurrenceThreshold; 
+0618             <span class="keyword">end</span>
+0619             imagesc(time, time, S &lt; 1);
+0620             axis square;
+0621             colormap([1 1 1;0 0 0]);
+0622             xlabel(<span class="string">'Time [s]'</span>);
+0623             ylabel(<span class="string">'Time [s]'</span>);
+0624             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)
+0625             title([StimuIntName <span class="string">' recurrence plot for subject '</span> subjectName <span class="string">' with threshold '</span> num2str(maxDiff)]);
+0626             fName = [config.OutputDirectory <span class="string">'/'</span> subjectName <span class="string">'_'</span> StimuIntName <span class="string">' _recurrence.pdf'</span>];
+0627             print(fName,<span class="string">'-dpdf'</span>,fig);
+0628         <span class="keyword">end</span>
+0629         
+0630         <span class="comment">%% Prints recurrence plots for EDA</span>
+0631         <span class="comment">%  subjectName: Name of the Subject as String</span>
+0632         <span class="comment">%  config: Config</span>
+0633         <span class="comment">%  StimuIntName: String</span>
+0634         <span class="comment">%  edaData: EDA values for Subject as double[]</span>
+0635         <a name="_sub9" href="#_subfunctions" class="code">function plotEDARecurrence(self,subjectName,config,StimuIntName,edaData)</a>
+0636             N = length(edaData);
+0637             S = zeros(N, N);
+0638             time = zeros(N,1);
+0639             <span class="comment">% Calculate time in seconds for x axis</span>
+0640             <span class="keyword">for</span> i=1:N
+0641                 time(i) = round(sum(edaData(1:i))/5);
+0642             <span class="keyword">end</span>
+0643             <span class="keyword">for</span> i = 1:N
+0644                 S(:,i) = abs( repmat( edaData(i), N, 1 ) - edaData(:) );
+0645             <span class="keyword">end</span>
+0646             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0647             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+0648             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);            
+0649             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
+0650             subplot(2,1,1);
+0651             imagesc(time, time, S);
+0652             axis square;
+0653             xlabel(<span class="string">'Time [s]'</span>);
+0654             ylabel(<span class="string">'Time [s]'</span>);
+0655             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)            
+0656             h = colorbar(<span class="string">'eastoutside'</span>);
+0657             freezeColors;
+0658             freez = cbfreeze(h);
+0659             cblabel(<span class="string">'Skin Conductance [ÂµS]'</span>);
+0660             set(freez, <span class="string">'Position'</span>, [0.75 0.585 0.05 0.34]);
+0661             title([<span class="string">'Distance map of '</span> StimuIntName <span class="string">' phase space trajectory for subject'</span> subjectName]);    
+0662             subplot(2,1,2);
+0663             maxDiff = max(max(S) - min(S))*0.001;
+0664             <span class="keyword">if</span> (config.RecurrenceThreshold ~= 0)
+0665                 maxDiff = config.RecurrenceThreshold; 
+0666             <span class="keyword">end</span>
+0667             imagesc(time, time, S &lt; 1);
+0668             axis square;
+0669             colormap([1 1 1;0 0 0]);
+0670             xlabel(<span class="string">'Time [s]'</span>);
+0671             ylabel(<span class="string">'Time [s]'</span>);
+0672             set(gca,<span class="string">'YDir'</span>,<span class="string">'normal'</span>)
+0673             title([StimuIntName <span class="string">' recurrence plot for subject '</span> subjectName <span class="string">' with threshold '</span> num2str(maxDiff)]);
+0674             fName = [config.OutputDirectory <span class="string">'/'</span> subjectName <span class="string">'_'</span> StimuIntName <span class="string">' _recurrence.pdf'</span>];
+0675             print(fName,<span class="string">'-dpdf'</span>,fig);
+0676         <span class="keyword">end</span>
+0677         
+0678         <span class="comment">%% Plots behavioral characteristics</span>
+0679         <span class="comment">%  subjectName: String</span>
+0680         <span class="comment">%  StimuIntNum: Number of the StimulusInterval</span>
+0681         <span class="comment">%  outputDir: Path to output directory as String</span>
+0682         <span class="comment">%  frequencies: eeg frequency data for subject as CellArray of double[]</span>
+0683         <span class="comment">%  intervals: intervals of interest as int[]</span>
+0684         <a name="_sub10" href="#_subfunctions" class="code">function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef,eegDevice)</a>
+0685             EEGSamplingRate=eegDevice.samplingRate;
+0686             intervals = StimuIntDef.intervals;
+0687             stimuIntDescrp = StimuIntDef.stimuIntDescrp;
+0688             lengthInSeconds = length(frequencies{1,1})/EEGSamplingRate; 
+0689             stepWith = 1;
+0690             <span class="keyword">if</span> lengthInSeconds &gt; 30
+0691                 xName = 0:5:lengthInSeconds;
+0692                 stepWith = 5;
+0693             <span class="keyword">else</span>
+0694                 xName = 0:lengthInSeconds;
+0695             <span class="keyword">end</span>
+0696             xTime = xName./stepWith; 
+0697             absolutValuesPerSecond = zeros(length(frequencies),lengthInSeconds/stepWith); 
+0698             [m,n] = size(absolutValuesPerSecond);
+0699             <span class="comment">% make values discrete (calculate mean per second)</span>
+0700             <span class="keyword">for</span> i=1:m
+0701                 start = 1; 
+0702                 ende = EEGSamplingRate*stepWith; 
+0703                 freqValues = frequencies{:,i}; 
+0704                 <span class="keyword">for</span> j=1:n
+0705                    absolutValuesPerSecond(i,j) = mean(freqValues(start:ende)); 
+0706                    start = start +EEGSamplingRate*stepWith;
+0707                    ende = ende +EEGSamplingRate*stepWith; 
+0708                 <span class="keyword">end</span>
+0709             <span class="keyword">end</span>
+0710             <span class="comment">%Normalize percental</span>
+0711             valuesToPlot = zeros(m,n);
+0712             <span class="comment">% Add TEI values</span>
+0713             valuesToPlot(m,:) = absolutValuesPerSecond(m,:);
+0714             <span class="keyword">for</span> i=1:m 
+0715                 <span class="keyword">for</span> j=1:n
+0716                    maxPerSecond = max(absolutValuesPerSecond(:,j));
+0717                    maximumPos = absolutValuesPerSecond(:,j) == maxPerSecond;
+0718                    valuesToPlot(maximumPos,j) = maxPerSecond/sum(absolutValuesPerSecond(:,j))*100;
+0719                    <span class="comment">%offset = maxPerSecond*90/100; % if a value exists which is 10% smaller then max, show this value in plot</span>
+0720                    <span class="comment">%secondValuePos = absolutValuesPerSecond(:,j) &gt;= offset;</span>
+0721                    <span class="comment">%if (secondValuePos~=maximumPos)</span>
+0722                    <span class="comment">%     valuesToPlot(secondValuePos,j) = absolutValuesPerSecond(secondValuePos,j) / sum(absolutValuesPerSecond(:,j))*100;</span>
+0723                    <span class="comment">%end</span>
+0724                 <span class="keyword">end</span>
+0725             <span class="keyword">end</span>            
+0726             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0727             colormap jet;
+0728             bar(valuesToPlot',<span class="string">'stack'</span>);
+0729             grid; 
+0730             self.plotIntervals(intervals,[0, 100],stepWith,[],<span class="string">'r'</span>);
+0731             title([<span class="string">'Behavioral characteristics for subject'</span> subjectName <span class="string">' '</span> stimuIntDescrp]);
+0732             warning(<span class="string">'off'</span>,<span class="string">'MATLAB:legend:IgnoringExtraEntries'</span>); 
+0733             legend(<span class="string">'Sleepiness'</span>,<span class="string">'Thinking'</span>,<span class="string">'Relaxation'</span>,<span class="string">'Attention'</span>,<span class="string">'Stress'</span>,<span class="string">'TEI'</span>,<span class="string">'Stimulus'</span>);
+0734             warning(<span class="string">'on'</span>,<span class="string">'MATLAB:legend:IgnoringExtraEntries'</span>); 
+0735             axis([0 max(xTime)+1 0 100]);
+0736             set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xName);
+0737             xlabel(<span class="string">'time [s]'</span>);
+0738             ylabel(<span class="string">'[%]'</span>); 
+0739             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+0740             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
+0741             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
+0742             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
+0743             fName = [outputDir <span class="string">'/'</span> subjectName <span class="string">'_'</span> stimuIntDescrp <span class="string">'_characteristics.pdf'</span>];
+0744             print(fName,<span class="string">'-dpdf'</span>,fig);
+0745             close(fig);
+0746         <span class="keyword">end</span>      
+0747         
+0748         <span class="comment">%% Plots hrv data</span>
+0749         <span class="comment">%  hrvValues: hrvValues for Subject as double[]</span>
+0750         <span class="comment">%  outputDir: Path to output directory as String</span>
+0751         <span class="comment">%  subjName: The name of the Subject</span>
+0752         <span class="comment">%  StimuIntDef: StimulusInterval Definition</span>
+0753         <a name="_sub11" href="#_subfunctions" class="code">function plotHRV(self,hrvValues,outputDir,subjName,StimuIntDef)</a>
+0754             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0755             time = zeros(length(hrvValues),1);
+0756             <span class="comment">% Calculate time in seconds for x axis</span>
+0757             <span class="keyword">for</span> i=1:length(hrvValues)
+0758                 time(i) = round(sum(hrvValues(1:i))/1000);
 0759             <span class="keyword">end</span>
-0760         <span class="keyword">end</span>
-0761         
-0762     <span class="keyword">end</span>
-0763 <span class="keyword">end</span>
-0764</pre></div>
-<hr><address>Generated on Mon 06-Jan-2020 10:33:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0760             plot(hrvValues,<span class="string">'k'</span>);
+0761             grid;
+0762             xTime = time(1:20:end);
+0763             yMin = min(hrvValues);
+0764             yMax = max(hrvValues);
+0765             [StimuIntStartPoints,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
+0766             self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[yMin, yMax],1);
+0767             self.plotIntervals(intervals,[yMin, yMax],1,[],<span class="string">'r'</span>);
+0768             axis([1 max(xTime) yMin yMax]);
+0769             set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xTime);
+0770             ylabel(<span class="string">'RR intervals [ms]'</span>);
+0771             xlabel(<span class="string">'time [s]'</span>);
+0772             m = sprintf(<span class="string">'%.2f'</span>,mean(hrvValues));
+0773             sd = sprintf(<span class="string">'%.2f'</span>,std(hrvValues));
+0774             title({[<span class="string">'HRV values for subject '</span> subjName <span class="string">' (mean='</span> m <span class="string">'ms, sd='</span> sd <span class="string">'ms)'</span>],<span class="string">''</span>});
+0775             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+0776             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
+0777             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
+0778             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
+0779             fName = [outputDir <span class="string">'/'</span> subjName <span class="string">'_HRV.pdf'</span>];
+0780             print(fName,<span class="string">'-dpdf'</span>,fig);
+0781             close(fig);
+0782         <span class="keyword">end</span>   
+0783         
+0784         <span class="comment">%% RawEEG figure plot</span>
+0785         <span class="comment">%   rawValues: Raw eeg values as double[]</span>
+0786         <span class="comment">%   filteredValues: Filteres eeg values as double[]</span>
+0787         <span class="comment">%   quality: Two double values. First is percent outside for</span>
+0788         <span class="comment">%   rawValues. Second is percent outside for filtered values</span>
+0789         <span class="comment">%   subject: Data of Subject</span>
+0790         <span class="comment">%   config: Config</span>
+0791         <a name="_sub12" href="#_subfunctions" class="code">function plotRawEEGFigures(self,rawValues,filteredValues,quality,subject,electrode,config,data)</a>
+0792             numRawValues = length(rawValues);
+0793             numFilteredValues = length(filteredValues);
+0794             fig = figure(<span class="string">'visible'</span>, <span class="string">'off'</span>);
+0795             subplot(2,1,1);
+0796             plot(rawValues);
+0797             grid;
+0798             hold on;
+0799             line(<span class="string">'XData'</span>,[0 numRawValues],<span class="string">'YData'</span>,[config.LowerThreshold config.LowerThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
+0800             line(<span class="string">'XData'</span>,[0 numRawValues],<span class="string">'YData'</span>,[config.UpperThreshold config.UpperThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
+0801             hold off;
+0802             thresholdString = [<span class="string">'['</span> num2str(config.LowerThreshold) <span class="string">','</span> num2str(config.UpperThreshold) <span class="string">']'</span>];
+0803             title ([<span class="string">'Unfiltered EEG raw data for electrode '</span> char(electrode) <span class="string">' of subject '</span> subject.name <span class="string">' ('</span> sprintf(<span class="string">'%3.2f'</span>,quality(1)) <span class="string">'% of data lies outside the interval '</span> thresholdString <span class="string">'ÂµV)'</span>])
+0804             ylabel(<span class="string">'amplitude [ÂµV]'</span>);
+0805             xlabel(<span class="string">'data point [#]'</span>);
+0806             axis([1 numRawValues min(rawValues) max(rawValues)])
+0807             set(gca,<span class="string">'YDir'</span>,<span class="string">'reverse'</span>);
+0808             subplot(2,1,2);
+0809             plot(filteredValues);
+0810             grid;
+0811             hold on;
+0812             line(<span class="string">'XData'</span>,[0 numFilteredValues],<span class="string">'YData'</span>,[config.LowerThreshold config.LowerThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
+0813             line(<span class="string">'XData'</span>,[0 numFilteredValues],<span class="string">'YData'</span>,[config.UpperThreshold config.UpperThreshold],<span class="string">'Color'</span>,<span class="string">'r'</span>)
+0814             hold off;
+0815             title ([<span class="string">'Filtered EEG raw data for subject '</span>, subject.name ,<span class="string">' ('</span>,sprintf(<span class="string">'%3.2f'</span>,quality(2)),<span class="string">'% of data lies outside the interval '</span> thresholdString <span class="string">'ÂµV)'</span>])
+0816             ylabel(<span class="string">'amplitude [ÂµV]'</span>)
+0817             xlabel(<span class="string">'data point [#]'</span>);
+0818             axis([1 numFilteredValues min(rawValues) max(rawValues)])
+0819             set(gca,<span class="string">'YDir'</span>,<span class="string">'reverse'</span>);
+0820             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+0821             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
+0822             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
+0823             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
+0824             print([config.OutputDirectory <span class="string">'/'</span> subject.name <span class="string">'_'</span> char(electrode) <span class="string">'_EEG.pdf'</span>],<span class="string">'-dpdf'</span>,fig);
+0825             close(fig);
+0826         <span class="keyword">end</span> 
+0827         
+0828         <span class="comment">%% Plots quality index figures for subjects and StimulusIntervals</span>
+0829         <span class="comment">%   unfilteredQuality: Percentage of unfiltered eeg values outside interval for each subject</span>
+0830         <span class="comment">%   and StimuInt as double[][]</span>
+0831         <span class="comment">%   filteredQuality: Percentage of filtered eeg values outside interval for each subject</span>
+0832         <span class="comment">%   and StimuInt as double[][]</span>
+0833         <span class="comment">%   validStimuIntsPerSubject: Number of valid baseline eeg, tv</span>
+0834         <span class="comment">%   programm and tv commercial StimulusIntervals per subject as double[][]</span>
+0835         <span class="comment">%   validSubjects: Total number of valid subjects as double</span>
+0836         <span class="comment">%   StimuIntDefs: StimulusInterval definitions as Cell&lt;StimuIntDef&gt;</span>
+0837         <span class="comment">%   config: Config</span>
+0838         <span class="comment">%   numSubjects: total number of subjects as double</span>
+0839         
+0840 <span class="comment">%         Kreitzberg: Commented out, until functionality and usecase is declared</span>
+0841 <span class="comment">%         or function is change</span>
+0842         
+0843 <span class="comment">%         function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects) %Tim ID 12 plot of QualityFigs</span>
+0844 <span class="comment">%             StimuIntIndex = length(StimuIntDefs);</span>
+0845 <span class="comment">%             outputFolder= config.OutputDirectory;</span>
+0846 <span class="comment">%             h = waitbar(0,['Writing EEG quality figures for ' num2str(StimuIntIndex) ' StimulusInterval(s)']);</span>
+0847 <span class="comment">%             xtick = 0:numSubjects;</span>
+0848 <span class="comment">%             for i = 1:StimuIntIndex</span>
+0849 <span class="comment">%                 fig = figure('Visible','off');</span>
+0850 <span class="comment">%                 numberExcluded = length(find(filteredQuality(:,i) &gt;= config.QualityIndex));</span>
+0851 <span class="comment">%                 plot(unfilteredQuality(:,i),'b');</span>
+0852 <span class="comment">%                 hold on;</span>
+0853 <span class="comment">%                 plot(filteredQuality(:,i),'k');</span>
+0854 <span class="comment">%                 grid;</span>
+0855 <span class="comment">%                 hold off;</span>
+0856 <span class="comment">%                 line('XData',[1 numSubjects],'YData',[config.QualityIndex config.QualityIndex],'Color','r')</span>
+0857 <span class="comment">%                 hold off;</span>
+0858 <span class="comment">%                 legend('Unfiltered EEG Data','Filtered EEG Data',[num2str(config.QualityIndex) '% cutoff for filtered EEG data']);</span>
+0859 <span class="comment">%                 thresholdString = ['[' num2str(config.LowerThreshold) ',' num2str(config.UpperThreshold) ']'];</span>
+0860 <span class="comment">%                 StimuIntClass = StimuIntDefs{1,i}(1);</span>
+0861 <span class="comment">%                 title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for ',StimuIntClass.stimuIntDescrp,' ',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);</span>
+0862 <span class="comment">%                 ylabel('Quality index [%]');</span>
+0863 <span class="comment">%                 xlabel('subject [#]');</span>
+0864 <span class="comment">%                 axis([1 numSubjects 0 100]);</span>
+0865 <span class="comment">%                 set(gca,'XTick',xtick,'xTickLabel',xtick);</span>
+0866 <span class="comment">%                 set(fig, 'PaperType', 'A4');</span>
+0867 <span class="comment">%                 set(fig, 'PaperOrientation', 'portrait');</span>
+0868 <span class="comment">%                 set(fig, 'PaperUnits', 'centimeters');</span>
+0869 <span class="comment">%                 set(fig, 'PaperPositionMode', 'auto');</span>
+0870 <span class="comment">%                 set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);</span>
+0871 <span class="comment">%                 print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality ',StimuIntClass.stimuIntDescrp,'.pdf']);</span>
+0872 <span class="comment">%                 close(fig);</span>
+0873 <span class="comment">%                 waitbar(i/StimuIntIndex);</span>
+0874 <span class="comment">%             end</span>
+0875 <span class="comment">%             fig = figure('Visible','off');</span>
+0876 <span class="comment">%             ytick = 0:StimuIntIndex;</span>
+0877 <span class="comment">%             xtick = 0:numSubjects;</span>
+0878 <span class="comment">%             bar(validStimuIntsPerSubject,'stack');</span>
+0879 <span class="comment">%             grid on;</span>
+0880 <span class="comment">%             legend('Baseline','TV commercial','TV program');</span>
+0881 <span class="comment">%             [~,y] = size(validStimuIntsPerSubject);</span>
+0882 <span class="comment">%             axis([0 numSubjects+1 0 y+1]);</span>
+0883 <span class="comment">%             set(gca,'YTick',ytick,'yTickLabel',ytick);</span>
+0884 <span class="comment">%             set(gca,'XTick',xtick,'xTickLabel',xtick);</span>
+0885 <span class="comment">%             tMessage = ['Number of subjects reaching EEG quality criteria: ',int2str(validSubjects)];</span>
+0886 <span class="comment">%             title(tMessage);</span>
+0887 <span class="comment">%             ylabel('Number of StimulusInterval [#]');</span>
+0888 <span class="comment">%             xlabel('subject [#]');</span>
+0889 <span class="comment">%             set(fig, 'PaperType', 'A4');</span>
+0890 <span class="comment">%             set(fig, 'PaperOrientation', 'landscape');</span>
+0891 <span class="comment">%             set(fig, 'PaperUnits', 'centimeters');</span>
+0892 <span class="comment">%             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);</span>
+0893 <span class="comment">%             print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality Index - Subjects.pdf']);</span>
+0894 <span class="comment">%             close(fig)</span>
+0895 <span class="comment">%             close(h);</span>
+0896 <span class="comment">%         end</span>
+0897 
+0898         <span class="comment">%% Plots EDA figures for given StimulusIntervals to given file name</span>
+0899         <span class="comment">%   StimuIntIndex: StimulusInterval indicies of StimulusIntervals to plot as doubel[]</span>
+0900         <span class="comment">%   edaValues: eda values of subject as Cell of double[]</span>
+0901         <span class="comment">%   StimuIntDefs: Cell&lt;StimuIntDefinition&gt;</span>
+0902         <span class="comment">%   subjectName: the name of the subject as String</span>
+0903         <span class="comment">%   fPath: file path as String</span>
+0904         <span class="comment">%   stats: eda statistics for subject as String</span>
+0905         <a name="_sub13" href="#_subfunctions" class="code">function plotSubStimuIntEDA(self,StimuIntIndex,edaValues,StimuIntDefs,subjectName,fPath,stats)</a>
+0906             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0907             allValues=  edaValues(StimuIntIndex);
+0908             allValues = vertcat(allValues{:});
+0909             yMin = min(allValues);
+0910             yMax = max(allValues);
+0911             yL = [yMin yMax];
+0912             <span class="comment">% choose x axis interval on base of StimulusInterval length</span>
+0913             <span class="keyword">for</span> i=1:length(StimuIntIndex)
+0914                 StimuIntClass = StimuIntDefs{1,i}(1);
+0915                 StimuIntNum = StimuIntIndex(i);
+0916                 StimuIntLength = StimuIntDefs{StimuIntNum}.Stimulength;
+0917                 labels = [];
+0918                 <span class="keyword">if</span> StimuIntLength &gt; 30
+0919                     xName = 0:5:StimuIntLength;
+0920                     labels = StimuIntDefs{StimuIntNum}.intervals;
+0921                 <span class="keyword">else</span>
+0922                     xName = 0:StimuIntLength;
+0923                 <span class="keyword">end</span>
+0924                 xTime = xName .* 5;
+0925                 subplot(6,1,i);
+0926                 plot(edaValues{StimuIntNum},<span class="string">'k'</span>);
+0927                 self.plotIntervals(StimuIntDefs{StimuIntNum}.intervals,yL,max(xTime)/max(xName),labels,<span class="string">'r'</span>);
+0928                 grid;
+0929                 ylabel([StimuIntClass.stimuIntDescrp <span class="string">' [ÂµS]'</span>]);
+0930                 l = length(edaValues{StimuIntNum});
+0931                 axis([1,l, yL]);
+0932                 set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xName);
+0933                 <span class="keyword">if</span> (i==1)
+0934                     title([<span class="string">'EDA values for the StimulusInterval '</span> mat2str(StimuIntIndex) <span class="string">' of subject '</span> subjectName]);
+0935                 <span class="keyword">end</span>
+0936             <span class="keyword">end</span>
+0937             xlabel(<span class="string">'Time [s]'</span>);
+0938             axes(<span class="string">'Position'</span>,[.08 .10 0.8 1],<span class="string">'Visible'</span>,<span class="string">'off'</span>); <span class="comment">%Tim Position Hardcoded bei mehr Stimus kommt es zu Problemen!</span>
+0939             text(0,0,stats,<span class="string">'FontName'</span>,<span class="string">'FixedWidth'</span>,<span class="string">'FontSize'</span>,8);
+0940             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+0941             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'portrait'</span>);
+0942             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
+0943             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
+0944             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.2 20 29 ]);
+0945             print(fPath,<span class="string">'-dpdf'</span>,fig);
+0946             close(fig);
+0947         <span class="keyword">end</span>
+0948         
+0949         <span class="comment">%% Plots complete EDA figure to given file name</span>
+0950         <span class="comment">%   StimuIntDef: Cell&lt;StimuIntDefinition&gt;</span>
+0951         <span class="comment">%   fPath: Output file path</span>
+0952         <span class="comment">%   edaValues: EDA values as double[]</span>
+0953         <span class="comment">%   detrended: boolean</span>
+0954         <a name="_sub14" href="#_subfunctions" class="code">function plotEDA(self,StimuIntDef,fPath,edaValues,detrended)</a>
+0955             maxscale = max(edaValues);
+0956             minscale=min(edaValues);
+0957             [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
+0958             xName = 0:10:completeVidLength;
+0959             xTime = xName .* 5;
+0960             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0961             plot(edaValues,<span class="string">'k'</span>);
+0962             grid;
+0963             axis([1 length(edaValues) minscale maxscale]);
+0964             set(gca,<span class="string">'XTick'</span>,xTime,<span class="string">'XTickLabel'</span>,xName);
+0965             xlabel(<span class="string">'Time [s]'</span>);
+0966             self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[minscale, maxscale],max(xTime)/max(xName));
+0967             self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],<span class="string">'r'</span>);
+0968             ylabel(<span class="string">'Skin Conductance [ÂµS]'</span>);
+0969             <span class="keyword">if</span> (detrended)
+0970                 t = <span class="string">'EDA values (detrended)'</span>;
+0971             <span class="keyword">else</span>
+0972                 t = <span class="string">'EDA values'</span>;
+0973             <span class="keyword">end</span>
+0974             title({t,<span class="string">''</span>});
+0975             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+0976             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'landscape'</span>);
+0977             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
+0978             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
+0979             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 29 20 ]);
+0980             print(fPath,<span class="string">'-dpdf'</span>,fig);
+0981             close(fig);
+0982         <span class="keyword">end</span>
+0983         
+0984         <span class="comment">%% Plots eeg frequency bands for StimulusInterval</span>
+0985         <span class="comment">%   StimuIntLength: Length of the StimulusInterval in seconds as double</span>
+0986         <span class="comment">%   fPath: Output file path as String</span>
+0987         <span class="comment">%   theta_s: Theta values as double[]</span>
+0988         <span class="comment">%   alpha_s: Alpha values as double[]</span>
+0989         <span class="comment">%   beta1_s: Beta1 values as double[]</span>
+0990         <span class="comment">%   beta2_s: Beta2 values as double[]</span>
+0991         <span class="comment">%   task_s: TEI values as double[]</span>
+0992         <span class="comment">%   resolution: values per second as double</span>
+0993         <span class="comment">%   intervals: intervals of interest as int[]</span>
+0994         <span class="comment">%   edaSubStimuIntList: EDA values of StimulusInterval as double[]</span>
+0995         <a name="_sub15" href="#_subfunctions" class="code">function plotFrequencys(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaSubStimuIntList)</a>
+0996             intervals = StimuIntDef.intervals;
+0997             stimuIntDescrp = StimuIntDef.stimuIntDescrp;
+0998             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0999             maxscale = max([max(theta_s) max(alpha_s) max(beta1_s) max(beta2_s) ]);
+1000             labels = [];
+1001             <span class="keyword">if</span> StimuIntLength &gt; 30
+1002                 xname = 0:5:StimuIntLength;
+1003                 labels = intervals;
+1004             <span class="keyword">else</span>
+1005                 xname = 0:StimuIntLength;
+1006             <span class="keyword">end</span>
+1007             xtime = xname .* resolution;
+1008             edaXTime = xname .* 5;
+1009             <span class="comment">%---------------------</span>
+1010             <span class="comment">% subplot(6,1,1)</span>
+1011             <span class="comment">% plot(delta_s,'Color',[65/255 105/255 225/255]);</span>
+1012             <span class="comment">% grid;</span>
+1013             <span class="comment">%  ylabel('Delta');</span>
+1014             <span class="comment">% axis([1 length(delta_s) 0 maxscale]);</span>
+1015             <span class="comment">%  set(gca,'XTick',xtime,'XTickLabel',xname);</span>
+1016             
+1017             subplot(6,1,1);
+1018             plot(theta_s,<span class="string">'Color'</span>,[0/255 191/255 255/255]);
+1019             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1020             grid;
+1021             ylabel(<span class="string">'Theta [ÂµV]'</span>);
+1022             axis([1 length(theta_s) 0 maxscale]);
+1023             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1024             [~,subjName,~] = fileparts(fPath);
+1025             t = title({[<span class="string">'Frequency bands, task engagement and EDA for subject: '</span> strrep(subjName,<span class="string">'_freq_bands_'</span>,<span class="string">' '</span>)],<span class="string">''</span>});
+1026             tP = get(t,<span class="string">'Position'</span>);
+1027             set(t,<span class="string">'Position'</span>,[tP(1) tP(2)+0.3 tP(3)]);
+1028             set(t,<span class="string">'FontSize'</span>,12);
+1029             
+1030             subplot(6,1,2);
+1031             plot(alpha_s,<span class="string">'Color'</span>,[0/255 128/255 0/255]);
+1032             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1033             grid;
+1034             ylabel(<span class="string">'Alpha [ÂµV]'</span>);
+1035             axis([1 length(alpha_s) 0 maxscale]);
+1036             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1037             
+1038             subplot(6,1,3);
+1039             plot(beta1_s,<span class="string">'Color'</span>,[255/255 128/255 0/255]);
+1040             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1041             grid;
+1042             ylabel(<span class="string">'Beta1 [ÂµV]'</span>);
+1043             axis([1 length(beta1_s) 0 maxscale]);
+1044             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1045             
+1046             subplot(6,1,4);
+1047             plot(beta2_s,<span class="string">'Color'</span>,[255/255 69/255 0/255]);
+1048             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1049             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1050             grid;
+1051             ylabel(<span class="string">'Beta2 [ÂµV]'</span>);
+1052             axis([1 length(beta2_s) 0 maxscale]);
+1053             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1054             
+1055             subplot(6,1,5);
+1056             plot(task_s,<span class="string">'k'</span>);
+1057             self.plotIntervals(intervals,[0, max(task_s)],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1058             grid;
+1059             ylabel(<span class="string">'TEI'</span>);
+1060             axis([1 length(task_s) 0 max(task_s)]);
+1061             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1062             
+1063             subplot(6,1,6);
+1064             plot(edaSubStimuIntList,<span class="string">'k'</span>);
+1065             yL = [min(edaSubStimuIntList) max(edaSubStimuIntList)];
+1066             self.plotIntervals(intervals,yL,max(edaXTime)/max(xname),labels,<span class="string">'r'</span>);
+1067             grid;
+1068             ylabel(<span class="string">'EDA [ÂµS]'</span>);
+1069             l = length(edaSubStimuIntList);
+1070             axis([1,l, yL]);
+1071             set(gca,<span class="string">'XTick'</span>,edaXTime,<span class="string">'XTickLabel'</span>,xname);
+1072             <span class="comment">%             subplot(7,1,7);</span>
+1073             <span class="comment">%             t=0:1/5:StimuIntLength;</span>
+1074             <span class="comment">%             t = t(1:end-1);</span>
+1075             <span class="comment">%             dydt = diff(edaSubStimuIntList)./diff(t);</span>
+1076             <span class="comment">%             dydt(end+1) = dydt(end);</span>
+1077             <span class="comment">%             plot(dydt,'k');</span>
+1078             <span class="comment">%             yL = [min(dydt) max(dydt)];</span>
+1079             <span class="comment">%             self.plotIntervals(intervals,yL,max(edaXTime)/max(xname),labels,'r');</span>
+1080             <span class="comment">%             crossings = find(diff(dydt&gt;0)~=0)+1;</span>
+1081             <span class="comment">%             self.plotIntervals(t(cossings),yL,max(edaXTime)/max(xname),[],'b');</span>
+1082             <span class="comment">%             line([1 l],[0,0],'Color','b','LineStyle','--');</span>
+1083             <span class="comment">%             grid;</span>
+1084             <span class="comment">%             xlabel('Time [s]');</span>
+1085             <span class="comment">%             ylabel('d(EDA)/dt [ÂµS/s]');</span>
+1086             <span class="comment">%             l = length(dydt);</span>
+1087             <span class="comment">%             axis([1,l, yL]);</span>
+1088             <span class="comment">%             set(gca,'XTick',edaXTime,'XTickLabel',xname);</span>
+1089             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+1090             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'portrait'</span>);
+1091             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
+1092             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
+1093             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
+1094             print([<span class="string">'-f'</span>,int2str(fig.Number)],<span class="string">'-dpdf'</span>,[fPath,<span class="string">'.pdf'</span>]);
+1095             close(fig);
+1096         <span class="keyword">end</span>
+1097                
+1098         <span class="comment">%% Plots eeg frequency bands for StimulusInterval</span>
+1099         <span class="comment">%   StimuIntLength: Length in seconds as double</span>
+1100         <span class="comment">%   fPath: Path to output file as String</span>
+1101         <span class="comment">%   theta_s: Theta values as double[]</span>
+1102         <span class="comment">%   alpha_s: Alpha values as double[]</span>
+1103         <span class="comment">%   beta1_s: Beta1 values as double[]</span>
+1104         <span class="comment">%   beta2_s: Beta2 values as double[]</span>
+1105         <span class="comment">%   task_s: TEI values as double[]</span>
+1106         <span class="comment">%   baselineTheta: Baseline values for theta as double[]</span>
+1107         <span class="comment">%   baselineAlpha: Baseline values for alpha as double[]</span>
+1108         <span class="comment">%   baselineBeta1: Baseline values for beta1 as double[]</span>
+1109         <span class="comment">%   baselineBeta2: Baseline values for beta2 as double[]</span>
+1110         <span class="comment">%   baselineTEI: Baseline values for TEI as double[]</span>
+1111         <span class="comment">%   resolution: values per second as double</span>
+1112         <span class="comment">%   intervals: intervals of interest as int[]</span>
+1113         <span class="comment">%   t_title: Diagramm title as String</span>
+1114         <a name="_sub16" href="#_subfunctions" class="code">function plotFrequencysWithBaselineMagnitude(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)</a>
+1115             fig = figure(<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+1116             maxscale = 1.2*(max([max(alpha_s) max(beta1_s) max(beta2_s) max(theta_s)])); <span class="comment">%Add 20% to the maxscale for providing more space for the legend</span>
+1117             numDataPoints = StimuIntLength*resolution;
+1118             labels = [];
+1119             <span class="keyword">if</span> StimuIntLength &gt; 30
+1120                 xname = 0:5:StimuIntLength;
+1121                 labels = intervals;
+1122             <span class="keyword">else</span>
+1123                 xname = 0:StimuIntLength;
+1124             <span class="keyword">end</span>
+1125             xtime = xname .* resolution;
+1126             
+1127             <span class="comment">%subplots</span>
+1128             subplot(6,1,1)
+1129             hold on
+1130             plot(theta_s,<span class="string">'Color'</span>,[65/255 105/255 225/255]);
+1131             m = mean(baselineTheta);
+1132             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
+1133             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1134             grid;
+1135             hold off
+1136             massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
+1137             
+1138             <span class="keyword">if</span>(isempty(intervals))
+1139                 legend(massAndTime,<span class="string">'theta baseline mean'</span>);
+1140             <span class="keyword">else</span>
+1141                 h=legend(massAndTime,<span class="string">'theta baseline mean'</span>,<span class="string">'Stimulus'</span>);
+1142             <span class="keyword">end</span>
+1143             ylabel(<span class="string">'Theta [ÂµV]'</span>);
+1144             axis([0 length(theta_s) 0 maxscale]);
+1145             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1146             
+1147             title(t_title);
+1148             
+1149             subplot(6,1,2);
+1150             hold on;
+1151             plot(alpha_s,<span class="string">'Color'</span>,[0/255 128/255 0/255]);
+1152             m = mean(baselineAlpha);
+1153             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
+1154             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1155             hold off;
+1156             massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
+1157             <span class="keyword">if</span>(isempty(intervals))
+1158                 legend(massAndTime,<span class="string">'alpha baseline mean'</span>);
+1159             <span class="keyword">else</span>
+1160                 h= legend(massAndTime,<span class="string">'alpha baseline mean'</span>,<span class="string">'Stimulus'</span>);
+1161             <span class="keyword">end</span>
+1162             grid;
+1163             ylabel(<span class="string">'Alpha [ÂµV]'</span>);
+1164             axis([0 length(alpha_s) 0 maxscale]);
+1165             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1166                         
+1167             subplot(6,1,3);
+1168             hold on;
+1169             plot(beta1_s,<span class="string">'Color'</span>,[255/255 128/255 0/255]);
+1170             m = mean(baselineBeta1);
+1171             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
+1172             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1173             massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
+1174             hold off;
+1175             <span class="keyword">if</span>(isempty(intervals))
+1176                 legend(massAndTime,<span class="string">'beta1 baseline mean'</span>);
+1177             <span class="keyword">else</span>
+1178                 h= legend(massAndTime,<span class="string">'beta1 baseline mean'</span>,<span class="string">'Stimulus'</span>);
+1179             <span class="keyword">end</span>
+1180             grid;
+1181             ylabel(<span class="string">'Beta1 [ÂµV]'</span>);
+1182             axis([0 length(beta1_s) 0 maxscale]);
+1183             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1184             
+1185             subplot(6,1,4);
+1186             hold on;
+1187             plot(beta2_s,<span class="string">'Color'</span>,[255/255 69/255 0/255]);
+1188             m = mean(baselineBeta2);
+1189             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
+1190             massAndTime = self.calculateMassAndTime(beta2_s,numDataPoints,mean(baselineBeta2));
+1191             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1192             hold off;
+1193             <span class="keyword">if</span>(isempty(intervals))
+1194                 legend(massAndTime,<span class="string">'beta2 baseline mean'</span>);
+1195             <span class="keyword">else</span>
+1196                 h=legend(massAndTime,<span class="string">'beta2 baseline mean'</span>,<span class="string">'Stimulus'</span>);
+1197             <span class="keyword">end</span>
+1198             grid;
+1199             ylabel(<span class="string">'Beta2 [ÂµV]'</span>);
+1200             axis([0 length(beta2_s) 0 maxscale]);
+1201             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1202             
+1203             subplot(6,1,5);
+1204             hold on;
+1205             plot(task_s,<span class="string">'k'</span>);
+1206             m = mean(baselineTEI);
+1207             line(<span class="string">'XData'</span>,[0 xtime(end)],<span class="string">'YData'</span>,[m,m],<span class="string">'Color'</span>,<span class="string">'b'</span>)
+1208             massAndTime = self.calculateMassAndTime(task_s,numDataPoints,mean(baselineTEI));
+1209             self.plotIntervals(intervals,[0, (1.2*max(task_s))],max(xtime)/max(xname),labels,<span class="string">'r'</span>);
+1210             hold off;
+1211             <span class="keyword">if</span>(isempty(intervals))
+1212                 legend(massAndTime,<span class="string">'TEI baseline mean'</span>);
+1213             <span class="keyword">else</span>
+1214                 legend(massAndTime,<span class="string">'TEI baseline mean'</span>,<span class="string">'Stimulus'</span>);
+1215             <span class="keyword">end</span>
+1216             grid;
+1217             ylabel(<span class="string">'TEI'</span>);
+1218             axis([0 length(task_s) 0 (1.2*max(task_s))]);
+1219             set(gca,<span class="string">'XTick'</span>,xtime,<span class="string">'XTickLabel'</span>,xname);
+1220                         
+1221             set(fig, <span class="string">'PaperType'</span>, <span class="string">'A4'</span>);
+1222             set(fig, <span class="string">'PaperOrientation'</span>, <span class="string">'portrait'</span>);
+1223             set(fig, <span class="string">'PaperUnits'</span>, <span class="string">'centimeters'</span>);
+1224             set(fig, <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
+1225             set(fig, <span class="string">'PaperPosition'</span>, [0.2 0.1 20 29 ]);
+1226             print([<span class="string">'-f'</span>,int2str(fig.Number)],<span class="string">'-dpdf'</span>,fPath);
+1227             close(fig);
+1228         <span class="keyword">end</span>
+1229     <span class="keyword">end</span>
+1230     
+1231     methods(Access=private)   
+1232         
+1233         <span class="comment">%% Helper method to calculate mass and time</span>
+1234         <a name="_sub17" href="#_subfunctions" class="code">function massAndTime = calculateMassAndTime(self,values,numDataPoints, mean)</a>
+1235             valuesOverMean = find(values &gt; mean);
+1236             overCount = length(valuesOverMean);
+1237             overMass = sum(values(valuesOverMean));
+1238             mass = int8(overMass/sum(values)*100);
+1239             time = int8(overCount/numDataPoints*100);
+1240             massAndTime = [num2str(time) <span class="string">'% time | '</span> num2str(mass) <span class="string">'% weighted mass is over baseline'</span>];
+1241         <span class="keyword">end</span>
+1242         
+1243         <span class="comment">%% Helper method to calculate intervals and StimulusInterval start points</span>
+1244         <a name="_sub18" href="#_subfunctions" class="code">function [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = calculateStimuIntStartPointsAndIntervals(self,StimuIntDef)</a>
+1245             StimuIntStartPoints = [];
+1246             StimuIntLabels={};
+1247             intervals = [];
+1248             completeVidLength =0;
+1249             <span class="keyword">for</span> i=1:length(StimuIntDef)
+1250                 completeVidLength = completeVidLength + StimuIntDef{i}.Stimulength;
+1251                 StimuIntLabels{i} = [<span class="string">'StimuInt'</span> num2str(i)];
+1252                 <span class="keyword">if</span> i==1
+1253                     StimuIntStartPoints(i) = 0;
+1254                 <span class="keyword">else</span>
+1255                     StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength + StimuIntStartPoints(i-1);
+1256                 <span class="keyword">end</span>
+1257                 curIntervals = StimuIntDef{i}.intervals;
+1258                 curIntervals= curIntervals + StimuIntStartPoints(i);
+1259                 intervals = horzcat(intervals,curIntervals');
+1260             <span class="keyword">end</span>
+1261         <span class="keyword">end</span>
+1262         
+1263         <span class="comment">%% Helper method to plot intervals of interest</span>
+1264         <a name="_sub19" href="#_subfunctions" class="code">function plotIntervals(self,intervals,yPos,scaleFac,labels,color)</a>
+1265             labels = labels';
+1266             <span class="keyword">for</span> i=1:length(intervals)
+1267                 xPosition = intervals(i);
+1268                 xPosition = xPosition*double(scaleFac);
+1269                 line([double(xPosition) double(xPosition)],yPos,<span class="string">'Color'</span>,color);
+1270                 <span class="keyword">if</span> ~isempty(labels)
+1271                     text([double(xPosition) double(xPosition)],[yPos(2) yPos(2)], num2str(labels(i)), <span class="string">'VerticalAlignment'</span>,<span class="string">'bottom'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontSize'</span>,8);
+1272                 <span class="keyword">end</span>
+1273             <span class="keyword">end</span>
+1274         <span class="keyword">end</span>
+1275         
+1276         <span class="comment">%% Helper method to plot the StimulusInterval start points</span>
+1277         <a name="_sub20" href="#_subfunctions" class="code">function plotStimuIntStartPoints(self,startPoints,labels,yPos,scaleFac)</a>
+1278             <span class="keyword">for</span> i=1:length(startPoints)
+1279                 xPosition = startPoints(i);
+1280                 xPosition = double(xPosition*scaleFac);
+1281                 line([xPosition xPosition],yPos,<span class="string">'Color'</span>,<span class="string">'g'</span>);
+1282                 text([xPosition xPosition],[yPos(2) yPos(2)], labels(i), <span class="string">'VerticalAlignment'</span>,<span class="string">'bottom'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontSize'</span>,7);
+1283             <span class="keyword">end</span>
+1284         <span class="keyword">end</span>
+1285         
+1286     <span class="keyword">end</span>
+1287 <span class="keyword">end</span>
+1288</pre></div>
+<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

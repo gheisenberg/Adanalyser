@@ -26,8 +26,19 @@
 <div class="box"><strong>This is a script file. </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment">Data representation of all informations related to one subject 
-   See: SubjectFactory, DataFactory</pre></div>
+<div class="fragment"><pre class="comment"> Data representation of all informations related to one subject 
+   Contains:
+           a name, 
+           edaValues, 
+           hrvValues,
+           eegValuesForElectrodes,
+           validElectrodes,
+           isValid,
+           edaPerVid,
+   hence, two different constructors are necessary 
+   See: SubjectFactory, DataFactory
+
+ Author: Gernot Heisenberg</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -36,7 +47,7 @@ This function calls:
 <li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Creates new Subjects</li></ul>
+<li><a href="Plotter.html" class="code" title="">Plotter</a>	Performs different plots</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Factory class creating Subjects objects</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -44,40 +55,55 @@ This function is called by:
 <li><a href="#_sub1" class="code">function eegValues = eegValuesByElectrode(self, electrode)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <span class="comment">%Data representation of all informations related to one subject</span>
-0002 <span class="comment">%   See: SubjectFactory, DataFactory</span>
-0003 classdef <a href="Subject.html" class="code" title="">Subject</a>
-0004    
-0005     properties
-0006         <span class="comment">%Initial values set during creation in SubjectFactory</span>
-0007         name = <span class="string">''</span> 
-0008         <span class="comment">% parsed eda values</span>
-0009         edaValues={}
-0010         <span class="comment">% parsed ecg values</span>
-0011         ecgValues={} 
-0012         eegValuesForElectrodes ={}
-0013         <span class="comment">%Values set during FilterAction</span>
-0014         isValid = 0 
-0015         edaPerVid= {}
-0016     <span class="keyword">end</span>
-0017     
-0018     methods
-0019         
-0020         <a name="_sub0" href="#_subfunctions" class="code">function eegValues = eegValuesByElectrode(self, electrode)</a>
-0021             eegValues = {}; 
-0022             numEegValues = length(self.eegValuesForElectrodes); 
-0023             <span class="keyword">for</span> i=1:numEegValues
-0024                 currentElectrode = self.eegValuesForElectrodes{i}.electrode; 
-0025                 <span class="keyword">if</span> (electrode == currentElectrode)
-0026                     eegValues = self.eegValuesForElectrodes{i}; 
-0027                 <span class="keyword">end</span>
-0028             <span class="keyword">end</span>
-0029         <span class="keyword">end</span> 
-0030         
+<div class="fragment"><pre>0001 <span class="comment">% Data representation of all informations related to one subject</span>
+0002 <span class="comment">%   Contains:</span>
+0003 <span class="comment">%           a name,</span>
+0004 <span class="comment">%           edaValues,</span>
+0005 <span class="comment">%           hrvValues,</span>
+0006 <span class="comment">%           eegValuesForElectrodes,</span>
+0007 <span class="comment">%           validElectrodes,</span>
+0008 <span class="comment">%           isValid,</span>
+0009 <span class="comment">%           edaPerVid,</span>
+0010 <span class="comment">%   hence, two different constructors are necessary</span>
+0011 <span class="comment">%   See: SubjectFactory, DataFactory</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% Author: Gernot Heisenberg</span>
+0014 <span class="comment">%</span>
+0015 
+0016 classdef <a href="Subject.html" class="code" title="">Subject</a>
+0017    
+0018     properties
+0019         <span class="comment">%Initial values set during creation in SubjectFactory</span>
+0020         name = <span class="string">''</span> 
+0021         <span class="comment">% parsed eda values</span>
+0022         edaValues={}
+0023         <span class="comment">% parsed hrv values</span>
+0024         hrvValues={}
+0025         <span class="comment">% parsed eeg values and status of position</span>
+0026         eegValuesForElectrodes ={}
+0027         validElectrodes = []
+0028         <span class="comment">%Values set during FilterAction</span>
+0029         isValid = 1
+0030         edaPerVid= {}
 0031     <span class="keyword">end</span>
 0032     
-0033 <span class="keyword">end</span>
-0034</pre></div>
-<hr><address>Generated on Mon 06-Jan-2020 10:33:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0033     methods
+0034         
+0035         <a name="_sub0" href="#_subfunctions" class="code">function eegValues = eegValuesByElectrode(self, electrode)</a>
+0036             eegValues = {}; 
+0037             numEegValues = length(self.eegValuesForElectrodes); 
+0038             <span class="keyword">for</span> i=1:numEegValues
+0039                 currentElectrode = self.eegValuesForElectrodes{i}.electrode; 
+0040                 <span class="keyword">if</span> (electrode == currentElectrode)
+0041                     eegValues = self.eegValuesForElectrodes{i}; 
+0042                 <span class="keyword">end</span>
+0043             <span class="keyword">end</span>
+0044         <span class="keyword">end</span> 
+0045         
+0046     <span class="keyword">end</span>
+0047     
+0048 <span class="keyword">end</span>
+0049</pre></div>
+<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

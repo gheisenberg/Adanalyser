@@ -48,30 +48,26 @@ classdef FilterAction < handle
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
                     eegValues.eegValues = filteredList';
                     subject.eegValuesForElectrodes{j} = eegValues;
-                    subject.validElectrodes;
-                    validElectrode = char(subject.validElectrodes);
-                    %Checks if Electrode is valid
-                        if sum(ismember(eegValues.electrode,validElectrode))
-                            for v=1:numStimuInt
-                                unfilteredEEGVid = eegValuesPerStim{v};
-                                filteredEEGVid = filteredEEGValuesPerVid{v};
-                                unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
-                                filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
-                            end
-                        end
+                    %Rate Quality for EEG Electrode
+                    for v=1:numStimuInt
+                        unfilteredEEGVid = eegValuesPerStim{v};
+                        filteredEEGVid = filteredEEGValuesPerVid{v};
+                        %unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
+                        filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
+                    end
+                    % rate quality
+                    subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex);
                     %calculate eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
                     subject.edaPerVid = edaValuesPerStim;
                 end
                 data.subjects{i} = subject;
                 waitbar(i/numSubjects);
-            
-                % rate quality
-                [data.subjects,validStimuIntPerSubject,validSubjects] = self.rateQuality(data.subjects,filteredQuality,data.stimuIntDefs,config.QualityIndex);
                 end       
                 
             % plot quality figures
 %           Kreitzberg: Commented out; Reason go to Plotter.m
+%           rateQuality change, therefore is this function missing input variables 
 %           plotEEGQualityFigures()
 %             if (config.QualityFig)
 %                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
@@ -119,64 +115,38 @@ classdef FilterAction < handle
         %   Stores number of valid StimulusInterval for each subject and StimulusInterval type in _qualityIndex_
         %   Calculates total number of valid StimulusInterval See: _totalValidStimuInt_
         %   Sets isValid flag for each Subject
-        function [subjects,qualityIndex,totalValidStimuInt] = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold) %Tim ID 9 -> hier werden die invalid subjects gefiltert - kann unterbunden werden wenn gewollt
-            StimuInt = length(stimuIntDefs);
-            numSubjects = length(subjects);
-            [baselines,ads,other,clips] = self.getStimuIntIndiciesByType(stimuIntDefs);
-            qualityIndex = zeros(numSubjects,3);
-            for i = 1:numSubjects
-                for j = 1:length(clips)
-                    if quality(i,clips(j)) < qualityThreshold
-                        qualityIndex(i,3) = qualityIndex(i,3)+1;
-                    end
-                end
-                for j = 1:length(ads)
-                    if quality(i,ads(j)) < qualityThreshold
-                        qualityIndex(i,2) = qualityIndex(i,2)+1;
-                    end
-                end
-                for j = 1:length(baselines)
-                    if quality(i,baselines(j)) < qualityThreshold
-                        qualityIndex(i,1) = qualityIndex(i,1)+1;
-                    end
-                end
-            end
-            validStimuIntPerSubject = sum(qualityIndex,2);
-            numRelevantStimuInts = StimuInt - length(other);
-            totalValidStimuInt = length(find(validStimuIntPerSubject >= numRelevantStimuInts));
-            for i=1:numSubjects
-                numValidStimuIntsForSubject = validStimuIntPerSubject(i);
-                if (numValidStimuIntsForSubject >= numRelevantStimuInts)
-                    subjects{i}.isValid = 1;
-                end
+        function subjects = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold) 
+            numStimuInts = length(stimuIntDefs);
+            if sum(any(quality < qualityThreshold)) == numStimuInts
+                subjects.validElectrodes
             end
         end
         
         %% Splits given StimuIntDef based on there SimulationsInterval
-        %   Returns StimulusIntervals by their SimulationsInterval
-        function [baselines,ads,other,clips]= getStimuIntIndiciesByType(self,stimuIntDefs)
-            numStimuIntDefs = length(stimuIntDefs);
-            baselines = zeros(1,numStimuIntDefs);
-            ads = zeros(1,numStimuIntDefs);
-            other = zeros(1,numStimuIntDefs);
-            clips = zeros(1,numStimuIntDefs);
-            for i=1:numStimuIntDefs
-                Stimu = stimuIntDefs{i};
-                if (contains(Stimu.stimuIntDescrp,'EDA Baseline'))
-                    baselines(i) = i;
-                elseif (contains(Stimu.stimuIntDescrp,'TV Commercial'))
-                    ads(i) = i;
-                elseif (contains(Stimu.stimuIntDescrp,'TV Programm'))
-                    clips(i) = i;
-                else
-                    other(i) = i;
-                end
-            end
-            baselines = baselines(baselines~=0);
-            ads = ads(ads~=0);
-            other = other(other~=0);
-            clips = clips(clips~=0);
-        end
+        % Returns StimulusIntervals by their SimulationsInterval
+%         function [baselines,ads,other,clips]= getStimuIntIndiciesByType(self,stimuIntDefs)
+%             numStimuIntDefs = length(stimuIntDefs);
+%             baselines = zeros(1,numStimuIntDefs);
+%             ads = zeros(1,numStimuIntDefs);
+%             other = zeros(1,numStimuIntDefs);
+%             clips = zeros(1,numStimuIntDefs);
+%             for i=1:numStimuIntDefs
+%                 Stimu = stimuIntDefs{i};
+%                 if (contains(Stimu.stimuIntDescrp,'EDA Baseline'))
+%                     baselines(i) = i;
+%                 elseif (contains(Stimu.stimuIntDescrp,'TV Commercial'))
+%                     ads(i) = i;
+%                 elseif (contains(Stimu.stimuIntDescrp,'TV Programm'))
+%                     clips(i) = i;
+%                 else
+%                     other(i) = i;
+%                 end
+%             end
+%             baselines = baselines(baselines~=0);
+%             ads = ads(ads~=0);
+%             other = other(other~=0);
+%             clips = clips(clips~=0);
+%         end
     end
     
 end
