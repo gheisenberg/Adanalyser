@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of StimuIntDefinition</title>
+  <meta name="keywords" content="StimuIntDefinition">
+  <meta name="description" content="Representation of a Stimulus">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyzerSoftware -->
+<h1>StimuIntDefinition
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Representation of a Stimulus</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Representation of a Stimulus 
+   Contains:
+           Stimulus Length, 
+           Stimulus Type, 
+           Description of the Stimulus,
+           Interval of interest
+
+ Author: Tim Kreitzberg</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="StimuIntDefinition.html" class="code" title="">StimuIntDefinition</a>	Representation of a Stimulus</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="StimuIntDefinition.html" class="code" title="">StimuIntDefinition</a>	Representation of a Stimulus</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function ST = StimuIntDefinition(Stimulength,type,stimuIntDescrp,intervals)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% Representation of a Stimulus</span>
+0002 <span class="comment">%   Contains:</span>
+0003 <span class="comment">%           Stimulus Length,</span>
+0004 <span class="comment">%           Stimulus Type,</span>
+0005 <span class="comment">%           Description of the Stimulus,</span>
+0006 <span class="comment">%           Interval of interest</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Author: Tim Kreitzberg</span>
+0009 <span class="comment">%</span>
+0010 classdef <a href="StimuIntDefinition.html" class="code" title="">StimuIntDefinition</a>
+0011         
+0012     properties
+0013         Stimulength <span class="comment">% Length of the Stimulus Interval in [s]</span>
+0014         stimuIntType <span class="comment">%Type of the Stimulus Interval</span>
+0015         <span class="comment">%List of StimuInt Types</span>
+0016         <span class="comment">%0: EDA Baseline</span>
+0017         <span class="comment">%1: EDA Orientation Response</span>
+0018         <span class="comment">%2: EEG Baseline</span>
+0019         <span class="comment">%3: Black Screen</span>
+0020         <span class="comment">%4: Video Stimulus</span>
+0021         <span class="comment">%5: Audio Stimulus</span>
+0022         <span class="comment">%6: Image Stimulus</span>
+0023         stimuIntDescrp <span class="comment">%Description of Stimu Interval, choosen by user</span>
+0024         intervals ={} <span class="comment">% Intervals of interest</span>
+0025     <span class="keyword">end</span>
+0026         
+0027     methods
+0028         <span class="comment">%% Constructor: Creates new StimuIntDefinition and sets properties</span>
+0029         <span class="comment">%See DataFactory</span>
+0030         <a name="_sub0" href="#_subfunctions" class="code">function ST = StimuIntDefinition(Stimulength,type,stimuIntDescrp,intervals)</a>
+0031             ST.Stimulength = Stimulength;
+0032             ST.stimuIntType = type;
+0033             ST.stimuIntDescrp = stimuIntDescrp;
+0034             ST.intervals = intervals;
+0035         <span class="keyword">end</span>
+0036     <span class="keyword">end</span>
+0037 <span class="keyword">end</span>
+0038</pre></div>
+<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

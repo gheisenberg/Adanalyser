@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of DeviceFactory</title>
+  <meta name="keywords" content="DeviceFactory">
+  <meta name="description" content="DeviceFactory class creating _Devices_ objects (see device class in device.m)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyzerSoftware -->
+<h1>DeviceFactory
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>DeviceFactory class creating _Devices_ objects (see device class in device.m)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> DeviceFactory class creating _Devices_ objects (see device class in device.m)
+   Parses device definitions
+   Creates a device (containing a device name, a sampling rate and also device specific features 
+   such as electrode positions in case of EEG) for each one being used
+
+ Author: Gernot Heisenberg</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Device.html" class="code" title="">Device</a>	Representation of a complete device</li><li><a href="DeviceFactory.html" class="code" title="">DeviceFactory</a>	DeviceFactory class creating _Devices_ objects (see device class in device.m)</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ConfigManager.html" class="code" title="">ConfigManager</a>	Class manages _Config_</li><li><a href="DeviceFactory.html" class="code" title="">DeviceFactory</a>	DeviceFactory class creating _Devices_ objects (see device class in device.m)</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function eegDevice = createEEGDevice(self, conf)</a></li><li><a href="#_sub2" class="code">function edaDevice = createEDADevice(self, conf)</a></li><li><a href="#_sub3" class="code">function hrvDevice = createHRVDevice(self, conf)</a></li><li><a href="#_sub4" class="code">function DeviceDefs=parseNothing();</a></li><li><a href="#_sub5" class="code">function EEGdevice=parseEEGDeviceDefinitions(self,EEGDeviceConfigFile)</a></li><li><a href="#_sub6" class="code">function EDAdevice=parseEDADeviceDefinitions(self,EDADeviceConfigFile)</a></li><li><a href="#_sub7" class="code">function HRVdevice=parseHRVDeviceDefinitions(self,HRVDeviceConfigFile)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% DeviceFactory class creating _Devices_ objects (see device class in device.m)</span>
+0002 <span class="comment">%   Parses device definitions</span>
+0003 <span class="comment">%   Creates a device (containing a device name, a sampling rate and also device specific features</span>
+0004 <span class="comment">%   such as electrode positions in case of EEG) for each one being used</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Author: Gernot Heisenberg</span>
+0007 <span class="comment">%</span>
+0008 classdef <a href="DeviceFactory.html" class="code" title="">DeviceFactory</a>
+0009 
+0010     properties
+0011     <span class="keyword">end</span>
+0012     
+0013     methods
+0014         <span class="comment">% call the parsing methods, if and only if the devices were used and hence the _USED_ flags are set to TRUE</span>
+0015         <a name="_sub0" href="#_subfunctions" class="code">function eegDevice = createEEGDevice(self, conf)</a>
+0016             <span class="keyword">if</span>(conf.EEG_DEVICE_USED)
+0017                 eegDevice=self.parseEEGDeviceDefinitions(conf.EEG_DEVICE);
+0018             <span class="keyword">else</span>
+0019                 eegDevice=self.parseNothing();
+0020             <span class="keyword">end</span>
+0021         <span class="keyword">end</span>
+0022         
+0023         <a name="_sub1" href="#_subfunctions" class="code">function edaDevice = createEDADevice(self, conf)</a>
+0024             <span class="keyword">if</span>(conf.EDA_DEVICE_USED)
+0025                 edaDevice=self.parseEDADeviceDefinitions(conf.EDA_DEVICE);
+0026             <span class="keyword">else</span>
+0027                 edaDevice=self.parseNothing();
+0028             <span class="keyword">end</span>
+0029         <span class="keyword">end</span>
+0030         
+0031         <a name="_sub2" href="#_subfunctions" class="code">function hrvDevice = createHRVDevice(self, conf)</a>
+0032             <span class="keyword">if</span>(conf.HRV_DEVICE_USED)
+0033                 hrvDevice=self.parseHRVDeviceDefinitions(conf.HRV_DEVICE);
+0034             <span class="keyword">else</span>
+0035                 hrvDevice=self.parseNothing();
+0036             <span class="keyword">end</span>
+0037         <span class="keyword">end</span>
+0038     <span class="keyword">end</span>
+0039     
+0040     methods(Access=private)
+0041         <a name="_sub3" href="#_subfunctions" class="code">function DeviceDefs=parseNothing();</a>
+0042             <span class="comment">%do Nothing</span>
+0043         <span class="keyword">end</span>
+0044         <span class="comment">% parses Config files and gets the device definitions</span>
+0045         <span class="comment">% parse EEG Device File</span>
+0046         <a name="_sub4" href="#_subfunctions" class="code">function EEGdevice=parseEEGDeviceDefinitions(self,EEGDeviceConfigFile)</a>
+0047             EEGDeviceName=&quot;NULL&quot;;
+0048             EEGDeviceSamplingRate=0;
+0049             EEGDeviceElectrodePos={};<span class="comment">% electrodePositions is a cell containing the strings for each electrode position</span>
+0050             EEGDeviceElectrodeUse = {}; <span class="comment">%will save the state of the electordes</span>
+0051             
+0052             fileID = fopen(EEGDeviceConfigFile);
+0053             ConfigFileContents = textscan(fileID,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'\n'</span>);
+0054             fclose(fileID);
+0055             ConfigFileContents = ConfigFileContents{1};
+0056             [numEEGDeviceDefs,~] = size(ConfigFileContents);
+0057             <span class="keyword">for</span> i = 1:numEEGDeviceDefs
+0058                 eegDeviceDef = ConfigFileContents{i};
+0059                 values = textscan(eegDeviceDef,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'='</span>);
+0060                 values = values{1}; <span class="comment">%this is essential for accessing the cells correctly as values pairs</span>
+0061                 <span class="keyword">if</span> values(1) == &quot;EEG_DEVICE_NAME&quot;
+0062                     EEGDeviceName = values(2);
+0063                 <span class="keyword">elseif</span> values(1)== &quot;EEG_SAMPLING_FREQUENCY&quot;
+0064                     EEGDeviceSamplingRate = str2double(values(2));
+0065                 <span class="keyword">elseif</span> values(1) == &quot;EEG_ELECTRODES_POSITIONS&quot;
+0066                     <span class="comment">%split the Electrode positions by the comma delimiter</span>
+0067                     <span class="comment">%and make it a cell</span>
+0068                     EEGDeviceElectrodePos = split(values(2),&quot;,&quot;);
+0069                     sizeElect = size(EEGDeviceElectrodePos);
+0070                     EEGDeviceElectrodeUse = cell(sizeElect);
+0071                     EEGDeviceElectrodeUse(:,1) = {1};
+0072                 <span class="keyword">else</span>
+0073                     <span class="comment">%do nothing</span>
+0074                 <span class="keyword">end</span>
+0075             <span class="keyword">end</span>
+0076             <span class="comment">%create a device Object and make it a special EEG device</span>
+0077             device=<a href="Device.html" class="code" title="">Device</a>();
+0078             EEGdevice=device.createEEGDevice(EEGDeviceName,EEGDeviceSamplingRate,EEGDeviceElectrodePos,EEGDeviceElectrodeUse);
+0079         <span class="keyword">end</span>
+0080         
+0081         <span class="comment">% parse EDA Device File</span>
+0082         <a name="_sub5" href="#_subfunctions" class="code">function EDAdevice=parseEDADeviceDefinitions(self,EDADeviceConfigFile)</a>
+0083             fileID = fopen(EDADeviceConfigFile);
+0084             ConfigFileContents = textscan(fileID,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'\n'</span>);
+0085             fclose(fileID);
+0086             ConfigFileContents = ConfigFileContents{1};
+0087             [numEDADeviceDefs,~] = size(ConfigFileContents);
+0088             <span class="keyword">for</span> i = 1:numEDADeviceDefs
+0089                 edaDeviceDef = ConfigFileContents{i};
+0090                 values = textscan(edaDeviceDef,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'='</span>);
+0091                 values = values{1}; <span class="comment">%this is essential for accessing the cells correctly as values pairs</span>
+0092                 <span class="keyword">if</span> values(1) == &quot;EDA_DEVICE_NAME&quot;
+0093                     EDADeviceName = values(2);
+0094                 <span class="keyword">elseif</span> values(1)== &quot;EDA_SAMPLING_FREQUENCY&quot;
+0095                     EDADeviceSamplingRate = str2double(values(2));
+0096                 <span class="keyword">else</span>
+0097                     <span class="comment">%do nothing</span>
+0098                 <span class="keyword">end</span>
+0099             <span class="keyword">end</span>
+0100             <span class="comment">%create a device Object and make it a special EDA standard device</span>
+0101             device=<a href="Device.html" class="code" title="">Device</a>();
+0102             EDAdevice=device.createStandardDevice(EDADeviceName,EDADeviceSamplingRate);
+0103         <span class="keyword">end</span>
+0104         
+0105         <span class="comment">% parse HRV Device File</span>
+0106         <a name="_sub6" href="#_subfunctions" class="code">function HRVdevice=parseHRVDeviceDefinitions(self,HRVDeviceConfigFile)</a>
+0107             fileID = fopen(HRVDeviceConfigFile);
+0108             ConfigFileContents = textscan(fileID,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'\n'</span>);
+0109             fclose(fileID);
+0110             ConfigFileContents = ConfigFileContents{1};
+0111             [numHRVDeviceDefs,~] = size(ConfigFileContents);
+0112             <span class="keyword">for</span> i = 1:numHRVDeviceDefs
+0113                 hrvDeviceDef = ConfigFileContents{i};
+0114                 values = textscan(hrvDeviceDef,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'='</span>);
+0115                 values = values{1}; <span class="comment">%this is essential for accessing the cells correctly as values pairs</span>
+0116                 <span class="keyword">if</span> values(1) == &quot;HRV_DEVICE_NAME&quot;
+0117                     HRVDeviceName = values(2);
+0118                 <span class="keyword">elseif</span> values(1)== &quot;HRV_SAMPLING_FREQUENCY&quot;
+0119                     HRVDeviceSamplingRate = str2double(values(2));
+0120                 <span class="keyword">else</span>
+0121                     <span class="comment">%do nothing</span>
+0122                 <span class="keyword">end</span>
+0123             <span class="keyword">end</span>
+0124             <span class="comment">%create a device Object and make it a special HRV standard device</span>
+0125             device=<a href="Device.html" class="code" title="">Device</a>();
+0126             HRVdevice=device.createStandardDevice(HRVDeviceName,HRVDeviceSamplingRate);
+0127         <span class="keyword">end</span>
+0128     <span class="keyword">end</span>
+0129 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

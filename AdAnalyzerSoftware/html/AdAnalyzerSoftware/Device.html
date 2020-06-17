@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Device</title>
+  <meta name="keywords" content="Device">
+  <meta name="description" content="Representation of a complete device">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyzerSoftware -->
+<h1>Device
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Representation of a complete device</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Representation of a complete device 
+   Contains:
+           a device name, 
+           a sampling rate 
+           device specific features such as electrode positions(e.g. only for EEG)
+   hence, two different constructors are necessary.
+
+ Author: Gernot Heisenberg</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Device.html" class="code" title="">Device</a>	Representation of a complete device</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="Device.html" class="code" title="">Device</a>	Representation of a complete device</li><li><a href="DeviceFactory.html" class="code" title="">DeviceFactory</a>	DeviceFactory class creating _Devices_ objects (see device class in device.m)</li><li><a href="Plotter.html" class="code" title="">Plotter</a>	Performs different plots</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function EEGdevice = createEEGDevice(self, name,samplingRate,electrodePositions,electrodeState)</a></li><li><a href="#_sub2" class="code">function Standarddevice = createStandardDevice(self,name,samplingRate)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% Representation of a complete device</span>
+0002 <span class="comment">%   Contains:</span>
+0003 <span class="comment">%           a device name,</span>
+0004 <span class="comment">%           a sampling rate</span>
+0005 <span class="comment">%           device specific features such as electrode positions(e.g. only for EEG)</span>
+0006 <span class="comment">%   hence, two different constructors are necessary.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Author: Gernot Heisenberg</span>
+0009 <span class="comment">%</span>
+0010 
+0011 classdef <a href="Device.html" class="code" title="">Device</a>
+0012 
+0013     properties
+0014         name = &quot;EMPTY&quot;;
+0015         samplingRate = 0;
+0016         <span class="comment">% electrodePositions is a cell containing the strings for each electrode position</span>
+0017         <span class="comment">% access them via electrodePositions(n)</span>
+0018         electrodePositions = {};
+0019         electrodeState = {};
+0020     <span class="keyword">end</span>
+0021     
+0022     methods
+0023         <span class="comment">%% Constructor: Creates new EEG device object and sets properties _Name_, _SamplingRate_, _ElectrodePositions_</span>
+0024         <a name="_sub0" href="#_subfunctions" class="code">function EEGdevice = createEEGDevice(self, name,samplingRate,electrodePositions,electrodeState)</a>
+0025             EEGdevice.name = name; 
+0026             EEGdevice.samplingRate = samplingRate;
+0027             EEGdevice.electrodePositions = electrodePositions;
+0028             EEGdevice.electrodeState = electrodeState;
+0029         <span class="keyword">end</span> 
+0030         
+0031         <span class="comment">%% Constructor: Creates new standard device object (EDA or HRV ) and sets properties _Name_, _SamplingRate_</span>
+0032         <a name="_sub1" href="#_subfunctions" class="code">function Standarddevice = createStandardDevice(self,name,samplingRate)</a>
+0033             Standarddevice.name = name; 
+0034             Standarddevice.samplingRate = samplingRate;
+0035         <span class="keyword">end</span>
+0036         
+0037     <span class="keyword">end</span>
+0038 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

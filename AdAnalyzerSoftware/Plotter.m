@@ -308,7 +308,7 @@ classdef Plotter
                         for t = 1:vidObj.FrameRate
                             %insert video frames
                             videochart = subplot(2,2,[1 2]);
-                            imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*(numofprint-1)))); %10 -> 30
+                            imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*k)));
                             
                             %save as image
                             fName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
@@ -450,12 +450,12 @@ classdef Plotter
                 y = SubplotLeft(2)/sizey; %convert from pixels to normazied unit
                 %timestamp line
                 timeLine = annotation('line',[x,x],[0.6,y]);
-                drawnow %force figure update
+                pause(0.1) %force figure update
                 timeLine.LineWidth = 1;
                 %timestamp text
                 str = strcat(num2str(rangeALL(index+1)-rangeALL(1)),' ms');
                 timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                drawnow %force figure update
+                pause(0.1) %force figure update
                 %move text for half its size, because start getting printed on X position
                 timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
                 
@@ -474,7 +474,7 @@ classdef Plotter
                     y = SubplotLeft(2)/sizey; %convert to normazied unit
                     %line
                     tickLines = annotation('line',[x,x],[0.6,y]);
-                    drawnow %force figure update
+                    pause(0.1) %force figure update
                     tickLines.Color = 'b'; %blue
                     tickLines.LineStyle = '--'; %dotted
                     tickLines.LineWidth = 0.25; 
@@ -484,7 +484,7 @@ classdef Plotter
                     if length(rangeALL) > linesPos
                     str = strcat(num2str(rangeALL(linesPos)-rangeALL(1)),' ms');
                     addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
-                    drawnow %force figure update
+                    pause(0.1) %force figure update
                     addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
                     end
                 end
@@ -503,7 +503,7 @@ classdef Plotter
                 %get x for middle of this interval
                 x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
                 StimulusDefinition = annotation('textbox',[x,0.575,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                drawnow
+                pause(0.1)
                 %move text for half its size
                 StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
             end
@@ -514,7 +514,7 @@ classdef Plotter
             x1 = SubplotLeft(1)/sizex;
             x2 = (SubplotRight(1)+SubplotRight(3))/sizex;
             timeLine = annotation('line',[x1,x2],[0.6,0.6]);
-            drawnow %force figure update
+            pause(0.1) %force figure update
             timeLine.LineWidth = 1;
             
             %first timestamp line
@@ -522,18 +522,18 @@ classdef Plotter
             x = SubplotTopo(1)/sizex;
             y = SubplotTopo(2)/sizey;
             timeLine = annotation('line',[x,x],[0.6,y]);
-            drawnow %force figure update
+            pause(0.1) %force figure update
             timeLine.LineWidth = 1;
             %first timestamp text
             timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String','0 ms','EdgeColor','none');
-            drawnow
+            pause(0.1)
             timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
             
             %Subplot title
             str = 'Per Electrode Brain Activity over all Stimulus Intervals';
             x = (SubplotRight(1)+SubplotRight(3)-100)/2/sizex;
             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-            drawnow %force figure update
+            pause(0.1) %force figure update
    
             %save as pdf
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; %get right width of image
