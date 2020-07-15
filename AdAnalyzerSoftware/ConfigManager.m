@@ -14,6 +14,13 @@ classdef ConfigManager
         function [conf ,eegDevice, edaDevice, hrvDevice] = load(self)
             conf = Config();
             [file, path]=uigetfile('.\config\*.txt','Select conf file');
+            if file == 0
+                % user pressed cancel
+                eegDevice = 0;
+                edaDevice = 0;
+                hrvDevice = 0;
+                return
+            end
             try
                 if file~=0
                     fid = fopen(fullfile(path, file),'r');
@@ -125,6 +132,12 @@ classdef ConfigManager
                         end
                          if strcmp(splitLine{1},'numSubjects')
                             conf.numSubjects=str2double(splitLine{2}); 
+                         end
+                        if strcmp(splitLine{1},'BrainRange')
+                            conf.BrainRange=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'UserFrameRate')
+                            conf.UserFrameRate=str2double(splitLine{2}); 
                         end
                     end
                     % parse the device files and create those
