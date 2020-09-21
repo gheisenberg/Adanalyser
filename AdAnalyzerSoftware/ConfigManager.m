@@ -11,14 +11,18 @@ classdef ConfigManager
     
     methods
         %% Loads saved config files and creates _Config_ object from loaded data
-        function [conf ,eegDevice, edaDevice, hrvDevice] = load(self)
+        function [conf ,eegDevice, edaDevice, hrvDevice] = load(self,conf)
+            %Save old config, incase the user cancels input
+            oldConf = conf;
             conf = Config();
             [file, path]=uigetfile('.\config\*.txt','Select conf file');
             if file == 0
                 % user pressed cancel
-                eegDevice = 0;
-                edaDevice = 0;
-                hrvDevice = 0;
+                % get old config and return it
+                eegDevice = self.deviceFactory.createEEGDevice(oldConf);
+                edaDevice = self.deviceFactory.createEDADevice(oldConf);
+                hrvDevice = self.deviceFactory.createHRVDevice(oldConf);
+                conf = oldConf;
                 return
             end
             try
