@@ -171,7 +171,7 @@ classdef Plotter
             fig = figure('Visible','off');
             axes('Position',[0.0 0.0 1 1],'Visible','off');
             fig.PaperPositionMode='auto';
-            text(0.0,0.85,stats,'FontName','FixedWidth','FontSize',6); %Changed font size to 6 (from 8) for displaying the whole text
+            stats = text(0.0,0.75,stats,'FontName','FixedWidth','FontSize',6); %Changed font size to 6 (from 8) for displaying the whole text
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
@@ -180,15 +180,26 @@ classdef Plotter
         %   index: index as String
         %   fName: File name as String
         function writeValid(self,index, fName)
+            numberOfPages = ceil(length(index)/50);
             fig = figure('Visible','off');
             axes('Position',[0.1 0.1 1 1],'Visible','off');
             fig.PaperPositionMode='auto';
             %set it full size for pdf page
             set(fig,'Units','centimeters');
             fig.Position = [0,0,20.635, 29.35];
-            descrp = text(0.1,0.9,index,'FontName','FixedWidth','FontSize',8);
-            descrp.VerticalAlignment = 'top';
-            print(fName,'-dpdf',fig,'-r0','-fillpage');
+            if numberOfPages == 1
+                descrp = text(0.1,0.9,index,'FontName','FixedWidth','FontSize',8);
+                descrp.VerticalAlignment = 'top';
+                print(fName,'-dpdf',fig,'-r0','-fillpage');
+            else
+                for i = 1:numberOfPages
+                    indexPage = index(50*i-1:50*i-1);
+                    descrp = text(0.1,0.9,indexPage,'FontName','FixedWidth','FontSize',8);
+                    descrp.VerticalAlignment = 'top';
+                    fNamePage = fName(1:length(fName)-4) + '_' + num2str(i) + '.pdf';
+                    print(fNamePage,'-dpdf',fig,'-r0','-fillpage');
+                end
+            end
             close(fig);
         end
         
@@ -243,7 +254,7 @@ classdef Plotter
 
                     %prepare data for print
                     SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
+                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 300
                         if pos(end) == EEG.pnts+1
                             pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
                         end
@@ -266,10 +277,10 @@ classdef Plotter
                         %Beta1(14-24 Hz)
                         beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
                         %Task-Engagement
-                            if alpha(j) > 0 && theta(j) > 0
+                            if alpha(j) > 0 && theta(j) > 0 %Theta = 0 bei 900ms, geht in else - else war falsch programmiert
                             task(j,m) = beta1(j)/(alpha(j)+theta(j));
                             else
-                            task(j,m) = 0;
+                            task(j,m) = 0; %zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
                             end
                         end
                     end
@@ -607,14 +618,16 @@ classdef Plotter
         %  config: Config 
         %  StimuIntName: String
         %  hrvData: HRV values for Subject as double[] 
-        function plotHRVRecurrence(self,subjectName,config,StimuIntName,hrvData)
+        function plotHRVRecurrence(self,subjectName,config,StimuIntName,hrvData,StimuIntDefs)
+            [~,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDefs);
+            plotLenght = length(hrvData);
             N = length(hrvData);
             S = zeros(N, N);
-            time = zeros(N,1);
+            time = 1:N; %zeros(N,1);
             % Calculate time in seconds for x axis
-            for i=1:N
-                time(i) = round(sum(hrvData(1:i))/1000);
-            end
+            %for i=1:N
+            %    time(i) = round(sum(hrvData(1:i))/1000);
+            %end
             for i = 1:N
                 S(:,i) = abs( repmat( hrvData(i), N, 1 ) - hrvData(:) );
             end
@@ -633,6 +646,10 @@ classdef Plotter
             freez = cbfreeze(h);
             cblabel('Time [ms]');
             set(freez, 'Position', [0.75 0.585 0.05 0.34]);
+            %get length of Axis
+            ax = gca;
+            %plot marker
+            self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r');
             title(['Distance map of ' StimuIntName ' phase space trajectory for subject' subjectName]);
             
             subplot(2,1,2);
@@ -646,8 +663,9 @@ classdef Plotter
             xlabel('Time [s]');
             ylabel('Time [s]');
             set(gca,'YDir','normal')
+            self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuIntName ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_' StimuIntName ' _recurrence.pdf'];
+            fName = [config.OutputDirectory '/' subjectName '_' StimuIntName '_recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
@@ -656,14 +674,15 @@ classdef Plotter
         %  config: Config 
         %  StimuIntName: String
         %  edaData: EDA values for Subject as double[] 
-        function plotEDARecurrence(self,subjectName,config,StimuIntName,edaData)
+        function plotEDARecurrence(self,subjectName,config,StimuInt,edaData,edaDevice)
+            SamplingRate=edaDevice.samplingRate;
             N = length(edaData);
             S = zeros(N, N);
-            time = zeros(N,1);
-            % Calculate time in seconds for x axis
-            for i=1:N
-                time(i) = round(sum(edaData(1:i))/5);
-            end
+            time = 1:length(edaData)/SamplingRate;
+            %Calculate time in seconds for x axis %Obsolet
+%             for i=1:N
+%                 time(i) = round(sum(edaData(1:i))/5);
+%             end
             for i = 1:N
                 S(:,i) = abs( repmat( edaData(i), N, 1 ) - edaData(:) );
             end
@@ -682,7 +701,10 @@ classdef Plotter
             freez = cbfreeze(h);
             cblabel('Skin Conductance [µS]');
             set(freez, 'Position', [0.75 0.585 0.05 0.34]);
-            title(['Distance map of ' StimuIntName ' phase space trajectory for subject' subjectName]);    
+            %plot marker
+            ax = gca;
+            self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
+            title(['Distance map of ' StimuInt.stimuIntDescrp ' phase space trajectory for subject' subjectName]);    
             subplot(2,1,2);
             maxDiff = max(max(S) - min(S))*0.001;
             if (config.RecurrenceThreshold ~= 0)
@@ -694,8 +716,11 @@ classdef Plotter
             xlabel('Time [s]');
             ylabel('Time [s]');
             set(gca,'YDir','normal')
-            title([StimuIntName ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_' StimuIntName ' _recurrence.pdf'];
+            %plot marker
+            ax = gca;
+            self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
+            title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
+            fName = [config.OutputDirectory '/' subjectName '_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
@@ -739,7 +764,7 @@ classdef Plotter
                 for j=1:n
                    maxPerSecond = max(absolutValuesPerSecond(:,j));
                    maximumPos = absolutValuesPerSecond(:,j) == maxPerSecond;
-                   valuesToPlot(maximumPos,j) = maxPerSecond/sum(absolutValuesPerSecond(:,j))*100;
+                   valuesToPlot(maximumPos,j) = maxPerSecond/sum(absolutValuesPerSecond(:,j))*100; %Nomierung ist falsch Gernot Tim
                    %offset = maxPerSecond*90/100; % if a value exists which is 10% smaller then max, show this value in plot
                    %secondValuePos = absolutValuesPerSecond(:,j) >= offset;
                    %if (secondValuePos~=maximumPos)
@@ -776,21 +801,21 @@ classdef Plotter
         %  StimuIntDef: StimulusInterval Definition
         function plotHRV(self,hrvValues,outputDir,subjName,StimuIntDef)
             fig = figure('Visible','off');
-            time = zeros(length(hrvValues),1);
+            N = length(hrvValues);
+            time = 1:N; %zeros(length(hrvValues),1);
             % Calculate time in seconds for x axis
-            for i=1:length(hrvValues)
-                time(i) = round(sum(hrvValues(1:i))/1000);
-            end
+            %for i=1:length(hrvValues)
+            %    time(i) = round(sum(hrvValues(1:i))/1000);
+            %end
             plot(hrvValues,'k');
             grid;
-            xTime = time(1:20:end);
             yMin = min(hrvValues);
             yMax = max(hrvValues);
             [StimuIntStartPoints,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
-            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[yMin, yMax],1);
             self.plotIntervals(intervals,[yMin, yMax],1,[],'r');
-            axis([1 max(xTime) yMin yMax]);
-            set(gca,'XTick',xTime,'XTickLabel',xTime);
+            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[yMin, yMax],1);
+            axis([1 max(time) yMin yMax]);
+            %set(gca,'XTick',xTime,'XTickLabel',xTime);
             ylabel('RR intervals [ms]');
             xlabel('time [s]');
             m = sprintf('%.2f',mean(hrvValues));
@@ -933,29 +958,30 @@ classdef Plotter
             yMin = min(allValues);
             yMax = max(allValues);
             yL = [yMin yMax];
+            subC = 1;
             % choose x axis interval on base of StimulusInterval length
-            for i=1:length(StimuIntIndex)
+            for i = StimuIntIndex
                 StimuIntClass = StimuIntDefs{1,i}(1);
-                StimuIntNum = StimuIntIndex(i);
-                StimuIntLength = StimuIntDefs{StimuIntNum}.Stimulength;
+                StimuIntLength = StimuIntDefs{i}.Stimulength;
                 labels = [];
                 if StimuIntLength > 30
                     xName = 0:5:StimuIntLength;
-                    labels = StimuIntDefs{StimuIntNum}.intervals;
+                    labels = StimuIntDefs{i}.intervals;
                 else
                     xName = 0:StimuIntLength;
                 end
                 xTime = xName .* 5;
-                subplot(6,1,i);
-                plot(edaValues{StimuIntNum},'k');
-                self.plotIntervals(StimuIntDefs{StimuIntNum}.intervals,yL,max(xTime)/max(xName),labels,'r');
+                subplot(6,1,subC);
+                subC = subC + 1;
+                plot(edaValues{i},'k');
+                self.plotIntervals(StimuIntDefs{i}.intervals,yL,max(xTime)/max(xName),labels,'r');
                 grid;
                 ylabel([StimuIntClass.stimuIntDescrp ' [µS]']);
-                l = length(edaValues{StimuIntNum});
+                l = length(edaValues{i});
                 axis([1,l, yL]);
                 set(gca,'XTick',xTime,'XTickLabel',xName);
                 if (i==1)
-                    title(['EDA values for the StimulusInterval ' mat2str(StimuIntIndex) ' of subject ' subjectName]);
+                    title(['Overview of all EDA values from all related StimulusInterval of subject ' subjectName]);
                 end
             end
             xlabel('Time [s]');
@@ -987,8 +1013,8 @@ classdef Plotter
             axis([1 length(edaValues) minscale maxscale]);
             set(gca,'XTick',xTime,'XTickLabel',xName);
             xlabel('Time [s]');
-            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[minscale, maxscale],max(xTime)/max(xName));
             self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],'r');
+            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[minscale, maxscale],max(xTime)/max(xName));
             ylabel('Skin Conductance [µS]');
             if (detrended)
                 t = 'EDA values (detrended)';
@@ -1272,9 +1298,11 @@ classdef Plotter
             completeVidLength =0;
             for i=1:length(StimuIntDef)
                 completeVidLength = completeVidLength + StimuIntDef{i}.Stimulength;
-                StimuIntLabels{i} = ['StimuInt' num2str(i)];
+                StimuIntLabels{i} = StimuIntDef{1, i}.stimuIntDescrp;%['StimuInt' num2str(i)]; Tim
                 if i==1
-                    StimuIntStartPoints(i) = 0;
+                    StimuIntStartPoints(i) = 0.2;
+                elseif i == 2
+                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength;
                 else
                     StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength + StimuIntStartPoints(i-1);
                 end
@@ -1302,8 +1330,9 @@ classdef Plotter
             for i=1:length(startPoints)
                 xPosition = startPoints(i);
                 xPosition = double(xPosition*scaleFac);
-                line([xPosition xPosition],yPos,'Color','g');
-                text([xPosition xPosition],[yPos(2) yPos(2)], labels(i), 'VerticalAlignment','bottom','HorizontalAlignment','center','FontSize',7);
+                line([xPosition xPosition],yPos,'Color','b','LineStyle','--');
+                t = text([xPosition xPosition],[yPos(2) yPos(2)], labels(i), 'VerticalAlignment','top','HorizontalAlignment','right','FontSize',9);
+                set(t,'Rotation',90); % tilt
             end
         end
         

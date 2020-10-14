@@ -46,9 +46,12 @@ classdef DataFactory
                 stimuIntDescrp = cell2mat(AdIndex{1,3});
                 IndexLength = length(AdIndex);
                 if IndexLength >= 4
-                intervals = zeros(IndexLength-3,1);
+                    intervals = zeros(IndexLength-3,1);
                     for j = 1:IndexLength-3
-                    intervals(j,1) = cell2mat(AdIndex(j+3));
+                        intervals(j,1) = cell2mat(AdIndex(j+3));
+                    end
+                    if max(intervals) > Stimulength
+                        fprintf('Intervals in "%s" doesn´t match stimulus length.\n\n',stimuIntDescrp)
                     end
                 else
                     intervals = [];

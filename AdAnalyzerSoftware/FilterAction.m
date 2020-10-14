@@ -55,8 +55,8 @@ classdef FilterAction < handle
                         %unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
                         filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
                     end
-                    % rate quality
-                    subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex);
+                    % rate quality of each StimuInt %Tim
+                    subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex,j);
                     %calculate eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
                     subject.edaPerVid = edaValuesPerStim;
@@ -111,14 +111,11 @@ classdef FilterAction < handle
             end
         end
         
-        %% Calculates valid StimulusInterval per subject regarding the relevant StimulusInterval types
-        %   Stores number of valid StimulusInterval for each subject and StimulusInterval type in _qualityIndex_
-        %   Calculates total number of valid StimulusInterval See: _totalValidStimuInt_
-        %   Sets isValid flag for each Subject
-        function subjects = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold) 
-            numStimuInts = length(stimuIntDefs);
-            if sum(any(quality < qualityThreshold)) == numStimuInts
-                subjects.validElectrodes
+        %% Stores invalid Electrodes in subject
+        %   Sets isValid flag for each Electrode based on used qualityThreshold
+        function subjects = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold,electrode) 
+            if any(quality < qualityThreshold)
+                    subjects.invalidElectrodes{end+1} = subjects.Electrodes{electrode};
             end
         end
         

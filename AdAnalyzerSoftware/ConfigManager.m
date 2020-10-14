@@ -277,6 +277,5 @@ classdef ConfigManager
             end
         end
         
-        
     end
 end

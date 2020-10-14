@@ -4,7 +4,7 @@
 %           edaValues, 
 %           hrvValues,
 %           eegValuesForElectrodes,
-%           validElectrodes,
+%           Electrodes,
 %           isValid,
 %           edaPerVid,
 %   hence, two different constructors are necessary 
@@ -24,7 +24,8 @@ classdef Subject
         hrvValues={}
         % parsed eeg values and status of position
         eegValuesForElectrodes ={}
-        validElectrodes = []
+        Electrodes = []
+        invalidElectrodes = []
         %Values set during FilterAction
         isValid = 1
         edaPerVid= {}

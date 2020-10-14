@@ -78,9 +78,21 @@ classdef AnalyseAction < handle
                    %Save subject in string
                    validStr(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
                    j = j+1;
+                   if  ~isempty(sub.invalidElectrodes)
+                       validStr(i+3) = strcat(validStr(i+3),'  |  Invalid electrodes  |',{' '});
+                       for j = 1:length(sub.invalidElectrodes)
+                       validStr(i+3) = strcat(validStr(i+3),{' '},sub.invalidElectrodes(j)); 
+                       end
+                   end
                else 
                    validStr(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
                    isValid = isValid + 0;
+                   if  ~isempty(sub.invalidElectodes)
+                       validStr(i+3) = strcat(validStr(i+3),'  |  Invalid electrodes  |',{' '});
+                       for j = 1:length(sub.invalidElectrodes)
+                       validStr(i+3) = strcat(validStr(i+3),{' '},sub.invalidElectrodes(j)); 
+                       end   
+                   end
                end
             end
             %Add string with summary of the subject table
@@ -166,7 +178,7 @@ classdef AnalyseAction < handle
             load Standard-10-20-Cap81.mat;
 
             %Data preparation
-            Usedelectrodes = subject.validElectrodes;
+            Usedelectrodes = subject.Electrodes;
             numValues = subject.eegValuesForElectrodes; 
             numElec = length(numValues);
             for i = 1:numElec              
@@ -222,7 +234,7 @@ classdef AnalyseAction < handle
             
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
-                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA for StimulusInterval(s) ' mat2str(edaStimuInt)],[edaStatsString newline newline delayString newline ampString]);
+                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA_Values_for_all_StimulusInterval(s)'],[edaStatsString newline newline delayString newline ampString]);
             end
             % Plot HRV figure
             if (config.HRV_DEVICE_USED)
@@ -230,29 +242,33 @@ classdef AnalyseAction < handle
             end
             % Plot HRV Recurrence
             if (config.RecurrenceFig)
-                self.plotter.plotHRVRecurrence(subject.name,config,'HRV',subject.hrvValues);
+                self.plotter.plotHRVRecurrence(subject.name,config,'HRV',subject.hrvValues,StimuIntDefs);
             end
-            %plot frequencies for baseline tvProgramm and tvCommercial with baseline magnitude
-            %Funktion für genau diesen Fall, Besprechen wie vorgehen Tim
+            %plot frequencies for baseline Stimulus Intervals with baseline magnitude
             if (config.FrequencyFig)
+                for i = 1:length(StimuIntDefs)
+                    StimuIntTypes(i) = StimuIntDefs{1, i}.stimuIntType;
+                end
+                %get frequencie for baseline
+                BaselineInd = find(StimuIntTypes == 2); %Type 2 = EEG Baseline
                 [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{3,:};
-                [~,tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s] = self.frequencies4Hz{4,:};
-                [~,tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s] = self.frequencies4Hz{5,:};
-                resolution = 4;
-                intervals = StimuIntDefs{4}.intervals;
-                StimuIntDescrp = StimuIntDefs{4}.stimuIntDescrp;
-                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{4})/eegDevice.samplingRate,...
-                    [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
-                    tvProgrammTheta_s,tvProgrammAlpha_s,tvProgrammBeta1_s,tvProgrammBeta2_s,tvProgrammTEI_s,baselineTheta_s,...
-                    baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
-                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for' StimuIntDescrp ' of subject ' subject.name]);
-                intervals = StimuIntDefs{5}.intervals;
-                StimuIntDescrp = StimuIntDefs{5}.stimuIntDescrp;
-                self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{5})/eegDevice.samplingRate,...
-                    [config.OutputDirectory '/' subject.name  '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
-                    tvCommercialTheta_s,tvCommercialAlpha_s,tvCommercialBeta1_s,tvCommercialBeta2_s,tvCommercialTEI_s,...
-                    baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
-                    ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
+                
+                %get all indices for Stimulus >= 4
+                StimuliInd = find(StimuIntTypes >= 4);
+                
+                %plot frequencies for all Stimuli
+                for i = StimuliInd    
+                    [~,StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s] = self.frequencies4Hz{i,:};
+                    resolution = i;
+                    intervals = StimuIntDefs{i}.intervals;
+                    StimuIntDescrp = StimuIntDefs{i}.stimuIntDescrp;
+
+                    self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{i})/eegDevice.samplingRate,...
+                        [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
+                        StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s,baselineTheta_s,...
+                        baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
+                        ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
+                end
             end
             %transient = self.frequencyEstimation(edaComplete);
             %self.plotter.plotMomentaryFrequency(transient,config,subject,stimuIntDef)
@@ -303,12 +319,9 @@ classdef AnalyseAction < handle
             end
             % Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL
             if (config.RecurrenceFig)
-                if (contains(StimuIntDef.stimuIntDescrp,'TV Commercial')) 	%Tim Value Hardcoded 
-                    self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef.stimuIntDescrp,edaPerVid{StimuIntNumber});
+                if StimuIntDef.stimuIntType >= 4
+                    self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef,edaPerVid{StimuIntNumber},edaDevice);
                 end
-                if (contains(StimuIntDef.stimuIntDescrp,'TV Programm'))
-                    self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef.stimuIntDescrp,edaPerVid{StimuIntNumber}); %Tim
-                end 
             end
         end
               

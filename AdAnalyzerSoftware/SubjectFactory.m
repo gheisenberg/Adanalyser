@@ -133,7 +133,7 @@ classdef SubjectFactory
                 eegDevice.electrodePositions = removeEmptyPositions(~cellfun('isempty',removeEmptyPositions));
                 eegDevice.electrodeState = removeEmptyState(~cellfun('isempty',removeEmptyState));
                 subject.eegValuesForElectrodes = removeEmpty(~cellfun('isempty',removeEmpty));
-                subject.validElectrodes = eegDevice.electrodePositions;
+                subject.Electrodes = eegDevice.electrodePositions;
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
                 edaFileIndex = ~cellfun(@isempty,matches);
@@ -145,7 +145,7 @@ classdef SubjectFactory
                 % create the subject
                 subject.name = subjectName;
                 subject.edaValues = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
-                subject.hrvValues = self.parseHRVFile(hrvFileForSubject,hrvDevice);
+                subject.hrvValues = self.parseHRVFile(hrvFileForSubject,StimuIntLength,hrvDevice);
                 %Check for validation, else dont save subject
                 subjects{i}=subject; 
                 % update waitbar
@@ -186,14 +186,13 @@ classdef SubjectFactory
         end
         
         %% Parses HRV file to double array
-        function hrvValues = parseHRVFile(self,hrvFile,hrvDevice)
+        function hrvValues = parseHRVFile(self,hrvFile,StimuIntLength,hrvDevice)
+            hrvValuesPerSec = hrvDevice.samplingRate;
             fileID = fopen(hrvFile);
             fileContents = textscan(fileID,'%f %f','Delimiter',',');
             fclose(fileID);
             hrvValues = fileContents(:,2);
-            hrvValues = hrvValues{1};
-            %maybe we have to implement the HRV data values the same way as the EDA values
-            % see below !!! Now we assume that hrvDevice.samplingRate = 1 
+            hrvValues = hrvValues{1}(1:hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5); %Add 5 values as dummy
         end
         
         
