@@ -1,4 +1,4 @@
-% Factory class creating Subjects objects
+%% Factory class creating Subjects objects
 %   Reads subject related files and creates appropriate data representation -> See: Subject
 %   Also checks for in/valid of the provided data and if all nessesary
 %   files are provided
@@ -26,20 +26,20 @@ classdef SubjectFactory
                 % get subject name and electrode name from eeg file name
                 numberOfEDA = length(edaFilePaths);
                 numberofHRV = length(hrvFilePaths);
-                %Check if number of EDA Files -> correct = get subject
-                %names
+                % Check if number of EDA Files -> correct = get subject
+                % names
                 if numberOfSubjects <= numberOfEDA && numberOfEDA >= numberofHRV          
                     edaFileForSubject = edaFilePaths{i};
                     [~,name,~] = fileparts(edaFileForSubject);
                     splitFileName =  textscan(name,'%s','Delimiter','_');
                     subjectName = splitFileName{1}{2};
-                    %Check if subject also containes a HRV file -> Invalid
-                    %if not
+                    % Check if subject also containes a HRV file -> Invalid
+                    % if not
                     if 0 == contains(hrvFilePaths,subjectName)
                         fprintf(['Subject ' subjectName ' is missing the HRV File!\n\n'])
                         fprintf('This subject will neither be filtered nor analyzed!\n\n')
                         subject.isValid = 0;
-                        %go for next loop iteration
+                        % go for next loop iteration
                         continue
                     end
                     if numberOfSubjects < numberOfEDA || numberOfSubjects < numberofHRV
@@ -54,13 +54,13 @@ classdef SubjectFactory
                             fprintf([num2str(total) ' files will be filtered and analyzed in ascending order!\n\n'])
                             end
                     end
-                %if EDA is incorrect check for HRV
+                % if EDA is incorrect check for HRV
                 elseif numberOfSubjects <= numberofHRV                 
                     hrvFileForSubject = hrvFilePaths{i};
                     [~,name,~] = fileparts(hrvFileForSubject);
                     splitFileName =  textscan(name,'%s','Delimiter','_');
                     subjectName = splitFileName{1}{2};
-                    %get incorrect Subject for EDA
+                    % get incorrect Subject for EDA
                     if 0 == contains(edaFilePaths,subjectName)
                         fprintf(['Subject ' subjectName ' is missing the EDA File!\n'])
                         fprintf('This subject will neither be filtered nor analyzed!\n\n')
@@ -86,7 +86,7 @@ classdef SubjectFactory
                 NumElectrodesVector = size(usedElectrodes);
                 NumElectrodes = NumElectrodesVector(1);
                 NumMatches = length(Subjectmatches);
-                %Check for EEG Files
+                % Check for EEG Files
                 if NumMatches ~= NumElectrodes
                     missing = NumElectrodes - NumMatches;
                     fprintf(['Subject ' subjectName ' is missing ' num2str(missing) ' EEG File/s!\n'])
@@ -98,7 +98,7 @@ classdef SubjectFactory
                     subjectlist = eegFilePaths(Subjectmatches(1):Subjectmatches(end));
                     electrodelist = strfind(subjectlist,usedElectrodes{k});
                     eegFileIndicies = find(~cellfun(@isempty,electrodelist));
-                    %Check State of Electrode
+                    % Check State of Electrode
                     if ElectrodesStates{k} == 1
                         if eegFileIndicies > 0
                             eegFileForSubject = subjectlist{eegFileIndicies}; 
@@ -113,23 +113,23 @@ classdef SubjectFactory
                             MissingElectrode = usedElectrodes(k);
                             Electrode = MissingElectrode{1};
                             SubjectNumber = num2str(i);
-                            if config.EEG_DEVICE_USED == 1 %Tim Besprechen, wo schon gestoppt wird generell
+                            if config.EEG_DEVICE_USED == 1
                             fprintf('Data missing for subject %s for EEG electrode "%s".\n',SubjectNumber,Electrode)
                             fprintf('This subject will neither be filtered nor analyzed!\n\n')
                             subject.isValid = 0;
                             end
                         end
                     else
-                        %Empty unused Electrodes from Device
+                        % Empty unused Electrodes from Device
                         eegDevice.electrodePositions{k} = [];
                         eegDevice.electrodeState{k} = [];
                     end
                 end
-                %Get empty rows
+                % Get empty rows
                 removeEmptyPositions = eegDevice.electrodePositions;
                 removeEmptyState = eegDevice.electrodeState;
                 removeEmpty = subject.eegValuesForElectrodes;
-                %delete empty rows
+                % delete empty rows
                 eegDevice.electrodePositions = removeEmptyPositions(~cellfun('isempty',removeEmptyPositions));
                 eegDevice.electrodeState = removeEmptyState(~cellfun('isempty',removeEmptyState));
                 subject.eegValuesForElectrodes = removeEmpty(~cellfun('isempty',removeEmpty));
@@ -146,9 +146,9 @@ classdef SubjectFactory
                 subject.name = subjectName;
                 subject.edaValues = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
                 subject.hrvValues = self.parseHRVFile(hrvFileForSubject,StimuIntLength,hrvDevice);
-                %Check for validation, else dont save subject
+                % Check for validation, else dont save subject
                 subjects{i}=subject; 
-                % update waitbar
+                %  update waitbar
                 waitbar(i /numberOfSubjects);
             end
             subjects = subjects(~cellfun('isempty',subjects));
@@ -158,14 +158,15 @@ classdef SubjectFactory
     methods(Access=private)
  
         
-        %% Parses EEG file to int array
+        %% Parses EEG file to array
         function [electrodeEEGdata,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
             invalid = [];
+            % get eeg files and split them
             [~,name,~] = fileparts(eegFile);
-            splitFileName = textscan(name,'%s','Delimiter','_');
+            splitFileName = textscan(name,'% s','Delimiter','_');
             electrodeName = splitFileName{1}{3};
             fileID = fopen(eegFile);
-            fileContents = textscan(fileID,'%d','Headerlines',1);
+            fileContents = textscan(fileID,'% d','Headerlines',1);
             fclose(fileID);
             eegRawValues =  fileContents{1};
             electrodeEEGdata = ElectrodeEEGData();
@@ -174,6 +175,7 @@ classdef SubjectFactory
             EEGSamplingRate = eegDevice.samplingRate;
             start = eegOffset*EEGSamplingRate;
             ende = start+(StimuIntLength*EEGSamplingRate);
+            % check for correct length of raw values
             if length(eegRawValues) < ende
                 invalid = electrodeName;
             else
@@ -192,7 +194,9 @@ classdef SubjectFactory
             fileContents = textscan(fileID,'%f %f','Delimiter',',');
             fclose(fileID);
             hrvValues = fileContents(:,2);
-            hrvValues = hrvValues{1}(1:hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5); %Add 5 values as dummy
+            % cut off all HRV values after Stimulus Interval Length
+            % 5*sampling rate
+            hrvValues = hrvValues{1}(1:hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5); % Add 5 values as dummy
         end
         
         
@@ -203,6 +207,7 @@ classdef SubjectFactory
             fileContents = textscan(fileID,'%f %f','HeaderLines',1,'Delimiter',',');
             fclose(fileID);
             edaValues = fileContents(:,2);
+            % cut off all EDA values after Stimlus Interval Length
             edaValues = edaValues{1}(1:edaValuesPerSec*StimuIntLength);
         end
         

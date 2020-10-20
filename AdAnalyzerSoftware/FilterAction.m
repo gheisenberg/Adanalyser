@@ -17,47 +17,55 @@ classdef FilterAction < handle
         %   2. calculates values outside allowed interval for filtered and unfiltered eeg values
         %   3. calculates eeg and eda values per StimulusInterval
         %   4. rates qualiyt
-        %   5. plots eeg quality figures using _Plotter_
+        %   5. plots eeg quality figures using _Plotter_ %currecntly
+        %   disabled
         function data = filter(self,data,config,eegDevice,edaDevice,hrvDevice)
             message = ['Filtering data for ', num2str(length(data.subjects)), ' subject(s)'];
             h = waitbar(0,message);
+            %prepare loop
             numStimuInt = length(data.stimuIntDefs);
             numSubjects = length(data.subjects);            
             edaValsPerSec = edaDevice.samplingRate;
             eegValsPerSec = eegDevice.samplingRate;            
             unfilteredQuality = zeros(numSubjects,numStimuInt);
             filteredQuality = zeros(numSubjects,numStimuInt);
+            %loop for each subject
             for i=1:numSubjects
                 subject = data.subjects{i}; 
-                if subject.isValid == 1 %Filter invalid subjects
-                numElectrodes = length(subject.eegValuesForElectrodes);               
+                if subject.isValid == 1 % Filter invalid subjects
+                numElectrodes = length(subject.eegValuesForElectrodes);
+                %loop for each electrode position
                 for j=1:numElectrodes
                     eegValues = subject.eegValuesForElectrodes{j};
                     rawMatrix = eegValues.eegMatrix;
                     [seconds,eegValsPerSec] = size(rawMatrix);
                     rawList = self.buildRawList(seconds,eegValsPerSec,rawMatrix);
+                    % eegfiltfft is a eeglab function for (high|low|band) - 
+                    % pass filter data using inverse fft - for more
+                    % information please look at eegfiltfft.m
                     filteredList = eegfiltfft(rawList,eegValsPerSec,1,49);
+                    %calculate the percent outside and 
                     percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
                     percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
                     if (config.EEG_DEVICE_USED)
                         self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject,eegValues.electrode,config);
                     end
-                    %calculate eeg values per StimulusInterval
+                    % calculate eeg values per Stimulus Interval
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
-                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); %Tim 
+                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); 
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
                     eegValues.eegValues = filteredList';
                     subject.eegValuesForElectrodes{j} = eegValues;
-                    %Rate Quality for EEG Electrode
+                    % Rate Quality for EEG Electrode
                     for v=1:numStimuInt
                         unfilteredEEGVid = eegValuesPerStim{v};
                         filteredEEGVid = filteredEEGValuesPerVid{v};
-                        %unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
+                        % unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
                         filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
                     end
-                    % rate quality of each StimuInt %Tim
+                    % rate quality of each Stimulus Interval
                     subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex,j);
-                    %calculate eda values per StimulusInterval
+                    % calculate eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
                     subject.edaPerVid = edaValuesPerStim;
                 end
@@ -81,10 +89,10 @@ classdef FilterAction < handle
         
         %% Substracts mean for each column from eegMatrix column values
         function rawList = buildRawList(self,seconds,eegValsPerSec,rawMatrix)
-            for j=1:seconds
-                column=rawMatrix(j,:);
+            for i = 1:seconds
+                column=rawMatrix(i,:);
                 m=mean(column);
-                rawMatrix(j,:) = column-m;
+                rawMatrix(i,:) = column-m;
             end
             totalEEGValues = double(seconds*eegValsPerSec);
             rawList = reshape(rawMatrix',1,totalEEGValues);
@@ -102,11 +110,11 @@ classdef FilterAction < handle
         function splittedValues = getValuesPerStimuInt(self,StimuIntStart,valuesPerSec,stimuIntDefs,values)
             numStimuInt = length(stimuIntDefs);
             splittedValues = cell(1,numStimuInt);
-            for v=1:numStimuInt
-                curVid = stimuIntDefs{v};
-                eegStimuIntLength = double(curVid.Stimulength*valuesPerSec);
+            for i = 1:numStimuInt
+                Stimulus = stimuIntDefs{i};
+                eegStimuIntLength = double(Stimulus.Stimulength*valuesPerSec);
                 eegStimuIntEnd = StimuIntStart+eegStimuIntLength-1;
-                splittedValues{v} = values(StimuIntStart:eegStimuIntEnd);
+                splittedValues{i} = values(StimuIntStart:eegStimuIntEnd);
                 StimuIntStart = StimuIntStart+eegStimuIntLength;
             end
         end

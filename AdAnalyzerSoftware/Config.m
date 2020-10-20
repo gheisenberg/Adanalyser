@@ -9,7 +9,7 @@
 classdef Config
     
     properties
-        % File paths
+        % Variables for file paths
         EDAFiles = cell(0)
         EEGFiles = cell(0)
         HRVFiles = cell(0)
@@ -18,7 +18,7 @@ classdef Config
 		EEG_DEVICE=''
 		EDA_DEVICE=''
 		HRV_DEVICE=''
-        % Output flags
+        % Variables for output flags
         EEG_DEVICE_USED = 0
         FrequencyFig = 0
         EDA_DEVICE_USED = 0
@@ -31,19 +31,19 @@ classdef Config
         Statistics = 0 
         topoplot = 1
         brainactivity = 1
-        % Quality Settings
+        % Variables forQuality Settings
         LowerThreshold = -100
         UpperThreshold = 100
         QualityIndex = 10
-        % Recurrence Treshhold
+        % Variables for Recurrence Treshhold
         RecurrenceThreshold = 0
         EEGCutoffValue = 10
-        %Topology Plot
+        % Variables for Topology Plot
         videoName = ''
         UserFrameRate = 30
         TopoRange = 2000
         BrainRange = 2000
-        %Subject
+        % Variables for number of subject
         numSubjects = 0
         
     end
@@ -90,6 +90,7 @@ classdef Config
         end
     end
    methods(Access=private)
+       %converts cell to array to be able to save them later on
        function str = cellArrayToString(self,cellArray)
             cellArray(cellfun('isempty',cellArray)) = [];
             cellArrayTxt = sprintf('%s,',cellArray{:});

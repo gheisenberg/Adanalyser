@@ -26,6 +26,8 @@ classdef Plotter
             output_text= strcat(fatbraid,"---> GUI SETTINGS"+newline);
             output_text= strcat(output_text,fatbraid);
             
+            % hardcoded structure of the settings sheet
+            % each section gets seperated by a fat/thinbraid
             output_text= strcat(output_text,thinbraid);
             output_text= strcat(output_text,"Subject Settings"+newline);
             output_text= strcat(output_text,thinbraid);
@@ -90,7 +92,7 @@ classdef Plotter
             
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            %set it full size for pdf page
+            % set it full size for pdf page
             set(fig,'Units','centimeters');
             fig.Position = [0,0,20.635, 29.35];
             descrp = text(0.1,0.9,output_text{1},'FontName','FixedWidth','FontSize',8);
@@ -111,36 +113,48 @@ classdef Plotter
             output_text= strcat(output_text,"Stimulus length | Stimulus Type | Stimulus Description |         Stimulus Interval" + newline);
             output_text= strcat(output_text,thinbraid);
             
-            %create textboxes
+            % create textboxes
             for i = 1:length(StimuInt)
+                % Creates blanks to create a certain structure in the 
+                % AdIndex file - see AdIndex.pdf
                 
-                %Stimulus length
+                % Stimulus length
                 CharStimuLength = blanks(15);
                 CharStimuLength([9:15]) = 'seconds';
-                counter = length(num2str(StimuInt{1, i}.Stimulength));
-                if counter == 1
+                % Maintain the length of the stimulus and place it in the 
+                % respective place
+                % 1 = 1 digit number, 2 digit number or 3 digit number
+                lengthOfStimlus = length(num2str(StimuInt{1, i}.Stimulength));
+                if lengthOfStimlus == 1 
                     CharStimuLength(7) = num2str(StimuInt{1, i}.Stimulength);
-                elseif counter == 2
+                elseif lengthOfStimlus == 2
                     CharStimuLength(6:7) = num2str(StimuInt{1, i}.Stimulength);
                 else
                     CharStimuLength(5:7) = num2str(StimuInt{1, i}.Stimulength);
                 end
                 
-                %Stimulus type
-                %create blank char array
+                % Stimulus type
+                % create blank char array
+                % type allways have to be a one digit number
                 CharStimuType = blanks(13);
                 CharStimuType([8:11]) = 'Type';
                 CharStimuType(13) = num2str(StimuInt{1, i}.stimuIntType);
                 
-                %Stimulus Description
+                % Stimulus Description
+                % the chars have to be place accordingly to their length,
+                % therefor a 20 char vector gets created, substracted the
+                % individual length of the Stimlus Interval and set on the
+                % respective place
                 CharStimuDesc = blanks(20);
                 CharStartDesc = 20-length(StimuInt{1, i}.stimuIntDescrp)+1;
                 CharStimuDesc([CharStartDesc:end]) = StimuInt{1, i}.stimuIntDescrp;
                 
-                %Stimulus Intervals
+                % Stimulus Intervals
                 CharStimuInt = blanks(26);            
                 hold = num2str(StimuInt{1, i}.intervals);
                 IntChar = '';
+                % loop through all interval chars and seperate them with a
+                % ' '
                 for i = 1:length(hold)
                 IntChar = append(IntChar,hold(i,:));
                 IntChar = append(IntChar,' ');
@@ -148,14 +162,15 @@ classdef Plotter
                 CharStartInt = 26-length(IntChar)+1;
                 CharStimuInt([CharStartInt:end]) = IntChar;
                 
-                %Save text
+                % Save text
                 output_text= strcat(output_text,[CharStimuLength ' | ' CharStimuType ' | ' CharStimuDesc ' | ' CharStimuInt]);
                 output_text= strcat(output_text," " + newline);
             end                
-         
+            
+            %plots data to pdf
             fig = figure('Visible','off');
             axes('Position',[0 0.1 1 1],'Visible','off');
-            %set it full size for pdf page
+            % set it full size for pdf page
             set(fig,'Units','centimeters');
             fig.Position = [0,0,20.635, 29.35];
             descrp = text(0.1,0.9,output_text{1},'FontName','FixedWidth','FontSize',8);
@@ -171,7 +186,7 @@ classdef Plotter
             fig = figure('Visible','off');
             axes('Position',[0.0 0.0 1 1],'Visible','off');
             fig.PaperPositionMode='auto';
-            stats = text(0.0,0.75,stats,'FontName','FixedWidth','FontSize',6); %Changed font size to 6 (from 8) for displaying the whole text
+            stats = text(0.0,0.75,stats,'FontName','FixedWidth','FontSize',6); % Changed font size to 6 (from 8) for displaying the whole text
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
@@ -184,9 +199,10 @@ classdef Plotter
             fig = figure('Visible','off');
             axes('Position',[0.1 0.1 1 1],'Visible','off');
             fig.PaperPositionMode='auto';
-            %set it full size for pdf page
+            % set it full size for pdf page
             set(fig,'Units','centimeters');
             fig.Position = [0,0,20.635, 29.35];
+            % for loop to create different pages if more than 50 subjects
             if numberOfPages == 1
                 descrp = text(0.1,0.9,index,'FontName','FixedWidth','FontSize',8);
                 descrp.VerticalAlignment = 'top';
@@ -227,13 +243,13 @@ classdef Plotter
         %  electrodes: contains all used electrodes as String
         %  vidFrameReSize: Contains struct with each video frame     
         function printTopo(self,config,subject,EEG,StimuDef,electrodes,vidFrameReSize)            
-            %Variables needed for loop
+            % Variables needed for loop
             numStimuInts = length(StimuDef);
             interval = config.TopoRange;
             subjectName = subject.name;
             TopoStart = 0;
             
-            %loop for each StimuInt
+            % loop for each Stimulus Interval
             for i = 1:numStimuInts
                 StimuInt = StimuDef{i};
 
@@ -241,94 +257,99 @@ classdef Plotter
                 vName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
-                vidObj.FrameRate = config.UserFrameRate; %get framerate from video
+                vidObj.FrameRate = config.UserFrameRate; % get framerate from video
 
-                %prepare print range
+                % prepare print range
                 TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
                 range = TopoStart:interval:TopoEnd;
                 range = double(range);
-                TopoStart = TopoEnd; %defined for the next loop
+                TopoStart = TopoEnd; % defined for the next loop
 
-                %only print Type > 4 = Video/Images/Audio Stimulus
+                % only print Type > 4 = Video/Images/Audio Stimulus
                 if StimuInt.stimuIntType >= 4
 
-                    %prepare data for print
+                    % prepare data for print
                     SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
                     pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 300
                         if pos(end) == EEG.pnts+1
-                            pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
+                            pos(end) = pos(end)-1; % Cut 1 so index of pnts and pos is ==
                         end
                     nanpos = find(isnan(pos));
                     pos(nanpos) = 1;
                     
-                    %prepare task variable
+                    % prepare task variable
                     numPos = length(pos)-1;
                     numValues = subject.eegValuesForElectrodes; 
                     numElec = length(numValues);
                     task = zeros(numElec,numPos);
 
-                    %get TEI
+                    % get TEI
                     for m = 1:numPos
                         for j = 1:numElec
-                        %Theta(5-7 Hz)
+                        % eegfiltfft is a eeglab function for (high|low|band) - 
+                        % pass filter data using inverse fft - for more
+                        % information please look at eegfiltfft.m
+                        
+                        % Theta(5-7 Hz)
                         theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
-                        %Alpha(8-13 Hz)
+                        % Alpha(8-13 Hz)
                         alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
-                        %Beta1(14-24 Hz)
+                        % Beta1(14-24 Hz)
                         beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
-                        %Task-Engagement
-                            if alpha(j) > 0 && theta(j) > 0 %Theta = 0 bei 900ms, geht in else - else war falsch programmiert
+                        % Task-Engagement
+                            if alpha(j) > 0 && theta(j) > 0 % Theta = 0 bei 900ms, geht in else - else war falsch programmiert
                             task(j,m) = beta1(j)/(alpha(j)+theta(j));
                             else
-                            task(j,m) = 0; %zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
+                            task(j,m) = 0; % zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
                             end
                         end
                     end
                     
-                    %loop preperation
+                    % loop preperation
                     numofprint = length(range)-1;
                     open(vidObj);
                     
                     for k = 1:numofprint
-                        %print preparation
+                        % print preparation
                         mainfig = figure('Visible','on');
                         set(mainfig,'PaperUnits','inches','PaperPosition',[0 0 12 7.5])
                         hold on
 
-                        %Print of 2D Topo
+                        % Print of 2D Topo
                         subplot(2,2,3);
                         title({['AVG TEI between ' num2str(range(k)-range(1)) '-' num2str(range(k+1)-range(1)) 'ms'];...
                                ['in test range from ' num2str(range(k)) '-' num2str(range(k+1)) 'ms'               ]});
+                        % topoplot is a function of the eeglab libary
                         topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
                         cb = colorbar;
                         cb.Limits = [0,1];
 
-                        %print of histogram
+                        % print of histogram
                         barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
                         barschart = subplot(2,2,4);
                         barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
                         imshow(barsimg);
 
-                        %Subplot title
+                        % Subplot title
                         sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
 
-                        % Folgende Befehle beschleunigen das Plotten
-                        % innerhalb der Schleife %englisch
+                        % set render to opengl
                         set(gcf,'renderer','opengl') 
                         drawnow nocallbacks
+                        %create video in plot
                         for t = 1:vidObj.FrameRate
-                            %insert video frames
+                            % insert video frames
                             videochart = subplot(2,2,[1 2]);
                             imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*k)));
                             
-                            %save as image
+                            % save as image
                             fName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
                             print(fName,'-dpng','-r300',mainfig);
                             
-                            %create video
+                            % create video
                             writeVideo(vidObj, imread(fName));
                         end
-                        %close figure
+                        % close figure
                         close
                     end     
                 end
@@ -337,6 +358,9 @@ classdef Plotter
         
         %% Overview of all Simulus in one chart 
         %  Print of 2D Topology map over a certain timeframe
+        %  The plots are strung together over the entire time frame of the 
+        %  experiment and divided into their stimlus intervals
+        
         %  config: contains all configs as String
         %  subject: contains all Subjects 
         %  EEG: contains EEG Structur for topoplot function
@@ -347,69 +371,73 @@ classdef Plotter
             numStimuInts = length(StimuDef);
             interval = config.BrainRange;
             TopoStart = 0;
-            rangeALL = 0;
+            rangeAll = 0;
             StimulusIntervals = 0;
             StimuIntDefinitions = [];
             
-            %main figure
-            mainfig = figure('Visible','on');
+            % main figure
+            mainfig = figure('Visible','off');
             set(mainfig,'Units','pixels');
             
-            %prepare vector to draw lines
+            % prepare vector to draw lines
             for i = 1:numStimuInts
                 StimuInt = StimuDef{i};   
                 if StimuInt.stimuIntType > 2
-                    %Initialisation for first loop
+                    % Initialisation for first loop
                     if TopoStart == 0
-                        rangeALL = double(StimuInt.Stimulength*1000);
+                        rangeAll = double(StimuInt.Stimulength*1000);
                         TopoStart = double(StimuInt.Stimulength*1000);
                     end
-                    %prepare print range
+                    % prepare print range
+                    % creates vector range from start to end in a certain
+                    % interval
                     TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
                     range = TopoStart:interval:TopoEnd;
                     range = double(range);
                     if range(end) ~= TopoEnd
                         range(end+1) = TopoEnd;
                     end
-                    TopoStart = TopoEnd; %defined for the next loop
-
-                    rangeALL = [rangeALL range(1,2:end)];
+                    TopoStart = TopoEnd; % defined for the next loop
+                    
+                    % save the ranges between each head for all stimlus
+                    % intervals
+                    rangeAll = [rangeAll range(1,2:end)];
                     if StimulusIntervals == 0
-                        StimulusIntervals = size(rangeALL);
+                        StimulusIntervals = size(rangeAll);
                         StimulusIntervals(2) = StimulusIntervals(2)-1;
                     else
-                        StimulusIntervals = [StimulusIntervals, StimulusIntervals(end)+1,length(rangeALL)-1];
+                        StimulusIntervals = [StimulusIntervals, StimulusIntervals(end)+1,length(rangeAll)-1];
                     end
                     
                     StimuIntDefinitions = [StimuIntDefinitions, convertCharsToStrings(StimuInt.stimuIntDescrp)];
                 end
             end
 
-            %prepare data for print
+            % prepare data for print
             SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-            pos = round((rangeALL/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
+            pos = round((rangeAll/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
             if pos(end) == EEG.pnts+1
-                pos(end) = pos(end)-1; %Cut 1 so index of pnts and pos is ==
+                pos(end) = pos(end)-1; % Cut 1 so index of pnts and pos is ==
             end
             nanpos = find(isnan(pos));
             pos(nanpos) = 1;
 
-            %prepare task variable
+            % prepare task variable
             numPrints = length(pos)-1;
             numValues = subject.eegValuesForElectrodes; 
             numElec = length(numValues);
             task = zeros(numElec,numPrints);
 
-            %get TEI
+            % get TEI
             for m = 1:numPrints
                 for j = 1:numElec
-                    %Theta(5-7 Hz)
+                    % Theta(5-7 Hz)
                     theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
-                    %Alpha(8-13 Hz)
+                    % Alpha(8-13 Hz)
                     alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
-                    %Beta1(14-24 Hz)
+                    % Beta1(14-24 Hz)
                     beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
-                    %Task-Engagement
+                    % Task-Engagement
                     if alpha(j) > 0 && theta(j) > 0
                         task(j,m) = beta1(j)/(alpha(j)+theta(j));
                     else
@@ -419,91 +447,94 @@ classdef Plotter
             end
 
             
-            %print preparation
-            sizey = 300; %height of image
-            Pos = cell(1,numPrints); %vector for position
-            topoX = 100; %X position of first head in print
+            % print preparation
+            sizey = 300; % height of image
+            Pos = cell(1,numPrints); % vector for position
+            topoX = 100; % X position of first head in print
             mainfig.Position = [mainfig.Position(1), mainfig.Position(2), numPrints*150 , sizey]; 
             
             for j = 1:numPrints
-                %Print of 2D Topo
+                % Print of 2D Topo
                 topo = subplot(1,numPrints,j);
                 topo.Units = 'pixels';
-                topo.Position = [topoX, 40, 90, 90]; %set position
+                topo.Position = [topoX, 40, 90, 90]; % set position
+                % topoplot is a function of the eeglab libary
                 topoplot(task(:,j),EEG.chanlocs,'electrodes','on');
-                topoX = topoX + 110; %move X position for next head
+                topoX = topoX + 110; % move X position for next head
 
-                %get Positions of topo plots
+                % get Positions of topo plots
                 Pos{j} = topo.Position;
             end
             
-            %set sizeX to mainfig position length
+            % set sizeX to mainfig position length
+            % will be needed to position the topoplots accordingly
             sizex = mainfig.Position(3);
             
-            %loop for legend
+            % loop for legend in topoplot
             counter = 1;
             for m = 1:(length(StimulusIntervals)/2)
-                %get index for Pos vector
-                lowindex = StimulusIntervals(counter);
+                % get index for Postions vector
+                lowindex = StimulusIntervals(counter); % last topoplot
                 counter = counter + 1;
-                index = StimulusIntervals(counter);
+                index = StimulusIntervals(counter); % latest topoplot
                 counter = counter + 1;
                 if length(Pos) > index
-                    %get position of left/right
+                    % get position of figures left/right
                     SubplotLeft = Pos{index};
                     SubplotRight = Pos{index+1};
-                    %get X coordinate between both heads
-                    x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;%convert from pixels to normazied unit
+                    % get X coordinate between both heads
+                    x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;% convert from pixels to normazied unit
                 else
                     SubplotLeft = Pos{index};
                     x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
                 end
-                y = SubplotLeft(2)/sizey; %convert from pixels to normazied unit
-                %timestamp line
+                y = SubplotLeft(2)/sizey; % convert from pixels to normazied unit
+                % timestamp line for each interval
                 timeLine = annotation('line',[x,x],[0.6,y]);
-                pause(0.5) %force figure update
+                pause(0.5) % force figure update
                 timeLine.LineWidth = 1;
-                %timestamp text
-                str = strcat(num2str(rangeALL(index+1)-rangeALL(1)),' ms');
+                % timestamp text
+                str = strcat(num2str(rangeAll(index+1)-rangeAll(1)),' ms');
                 timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                pause(0.5) %force figure update
-                %move text for half its size, because start getting printed on X position
+                pause(0.5) % force figure update
+                % move text for half its size, because start getting printed on X position
                 timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
                 
-                %dotted lines for clarity 
+                % dotted lines for clarity between each head of the same
+                % interval
                 numOfLines = (index - lowindex);
                 linesPos = lowindex;
                 for k = 1:numOfLines
                     if length(Pos) > linesPos
                         SubplotLeft = Pos{linesPos};
                         SubplotRight = Pos{linesPos+1};
-                        x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;%convert to normazied unit
+                        x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;% convert to normazied unit
                     else
                         SubplotLeft = Pos{linesPos};
                         x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
                     end
-                    y = SubplotLeft(2)/sizey; %convert to normazied unit
-                    %line
+                    y = SubplotLeft(2)/sizey; % convert to normazied unit
+                    % line
                     tickLines = annotation('line',[x,x],[0.6,y]);
-                    pause(0.5) %force figure update
-                    tickLines.Color = 'b'; %blue
-                    tickLines.LineStyle = '--'; %dotted
+                    pause(0.5) % force figure update
+                    tickLines.Color = 'b'; % blue
+                    tickLines.LineStyle = '--'; % dotted
                     tickLines.LineWidth = 0.25; 
                     linesPos = linesPos + 1;
                     
-                    %timestamp text
-                    if length(rangeALL) > linesPos
-                    str = strcat(num2str(rangeALL(linesPos)-rangeALL(1)),' ms');
+                    % timestamp text
+                    if length(rangeAll) > linesPos
+                    str = strcat(num2str(rangeAll(linesPos)-rangeAll(1)),' ms');
                     addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
-                    pause(0.5) %force figure update
+                    pause(0.5) % force figure update
                     addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
                     end
                 end
                 
-                %Stimulus definiton text
-                %get Stimulus
+                % Stimulus definiton text
+                % get Stimulus
                 str = StimuIntDefinitions(m);
-                %get position of first and last head of Interval
+                % get position of first and last head of Interval
                 if length(Pos) > index
                     SubplotLeft = Pos{lowindex};
                     SubplotRight = Pos{index};
@@ -511,51 +542,51 @@ classdef Plotter
                     SubplotLeft = Pos{lowindex};
                     SubplotRight = Pos{index-1};
                 end
-                %get x for middle of this interval
+                % get x for middle of this interval
                 x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
                 StimulusDefinition = annotation('textbox',[x,0.575,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
                 pause(0.5)
-                %move text for half its size
+                % move text for half its size
                 StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
             end
             
-            %upper horizontal timeline
+            % upper horizontal timeline
             SubplotLeft = Pos{1};
             SubplotRight = Pos{end};
             x1 = SubplotLeft(1)/sizex;
             x2 = (SubplotRight(1)+SubplotRight(3))/sizex;
             timeLine = annotation('line',[x1,x2],[0.6,0.6]);
-            pause(0.5) %force figure update
+            pause(0.5) % force figure update
             timeLine.LineWidth = 1;
             
-            %first timestamp line
+            % first timestamp line
             SubplotTopo = Pos{1};
             x = SubplotTopo(1)/sizex;
             y = SubplotTopo(2)/sizey;
             timeLine = annotation('line',[x,x],[0.6,y]);
-            pause(0.5) %force figure update
+            pause(0.5) % force figure update
             timeLine.LineWidth = 1;
-            %first timestamp text
+            % first timestamp text
             timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String','0 ms','EdgeColor','none');
             pause(0.5)
             timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
             
-            %Subplot title
+            % Subplot title
             str = 'Per Electrode Brain Activity over all Stimulus Intervals';
             x = (SubplotRight(1)+SubplotRight(3)-SubplotLeft(1))/2/sizex;
             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-            pause(0.5) %force figure update
+            pause(0.5) % force figure update
    
-            %save as pdf
-            newWidth = SubplotRight(1)+ SubplotRight(3) + 100; %get right width of image
+            % save as pdf
+            newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
             fName = [config.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
             set(gcf,'color','w');
-            F = getframe(mainfig); %get frame of figure
-            ImageSize = size(F.cdata); %get length of figure
-            F.cdata(:,newWidth:ImageSize(2),:) = []; %delete empty pixel
+            F = getframe(mainfig); % get frame of figure
+            ImageSize = size(F.cdata); % get length of figure
+            F.cdata(:,newWidth:ImageSize(2),:) = []; % delete empty pixel
             imwrite(F.cdata, fName, 'png');
             
-            %close figure
+            % close figure
             close
         end
         
@@ -566,33 +597,33 @@ classdef Plotter
         % srate: Frequency of the device used
         function barsimg = plotElectrodeBars(self,electrodes,startpos,endpos,data,srate)
             
-            %prepare plot
+            % prepare plot
             numelec = length(electrodes);
             barsfig = figure('visible','off','DefaultAxesFontSize',12);
             set(barsfig,'color','w');
             set(barsfig,'Position', [1, 1, 1200, 1200]);
             data = data(:,startpos:endpos);
             
-            %get frequency bands
+            % get frequency bands
             for i = 1:numelec
-                %Delta (1-4 Hz)
+                % Delta (1-4 Hz)
                 delta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,1,4)).^2));
-                %Theta(5-7 Hz)
+                % Theta(5-7 Hz)
                 theta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,5,7)).^2));
-                %Alpha(8-13 Hz)
+                % Alpha(8-13 Hz)
                 alpha(i) = mean(sqrt((eegfiltfft(data(i,:),srate,8,13)).^2));
-                %Beta1(14-24 Hz)
+                % Beta1(14-24 Hz)
                 beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
-                %Beta2(25-40 Hz)
+                % Beta2(25-40 Hz)
                 beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
             end
             allfreq = [delta theta alpha beta1 beta2];
-            ymax = max(max(allfreq)); %y max for graph
+            ymax = max(max(allfreq)); % y max for graph
             
-            %Print
+            % Print
             for i = 1:numelec
                 hold on
-                %create subplot for each electrode
+                % create subplot for each electrode
                 subplot(3,3,i);
                 names = categorical({'delta','theta','alpha','beta1','beta2'});
                 names = reordercats(names,{'delta','theta','alpha','beta1','beta2'});
@@ -600,7 +631,7 @@ classdef Plotter
                 h = bar(names,bars,'FaceColor','flat');
                 ylim([0 ymax]);
                 title(electrodes(i),'FontSize', 24)
-                %recolor bars
+                % recolor bars
                 h.CData(1,:) = [1 0 0];
                 h.CData(2,:) = [0.8500 0.3250 0.0980];
                 h.CData(3,:) = [0.9290 0.6940 0.1250];
@@ -608,7 +639,7 @@ classdef Plotter
                 h.CData(5,:) = [0.3010 0.7450 0.9330];
             end
             
-            %save as img
+            % save as img
             barsFrame = getframe(barsfig);
             barsimg = barsFrame.cdata;
         end
@@ -619,15 +650,18 @@ classdef Plotter
         %  StimuIntName: String
         %  hrvData: HRV values for Subject as double[] 
         function plotHRVRecurrence(self,subjectName,config,StimuIntName,hrvData,StimuIntDefs)
+            % get the timestamps for each interval over the hole timeframe
+            % see function for further explanation
             [~,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDefs);
             plotLenght = length(hrvData);
             N = length(hrvData);
             S = zeros(N, N);
-            time = 1:N; %zeros(N,1);
-            % Calculate time in seconds for x axis
-            %for i=1:N
-            %    time(i) = round(sum(hrvData(1:i))/1000);
-            %end
+            time = 1:N; % zeros(N,1);
+            %  Calculate time in seconds for x axis
+            % for i=1:N
+            %     time(i) = round(sum(hrvData(1:i))/1000);
+            % end
+            % create Recurrence plot
             for i = 1:N
                 S(:,i) = abs( repmat( hrvData(i), N, 1 ) - hrvData(:) );
             end
@@ -646,12 +680,13 @@ classdef Plotter
             freez = cbfreeze(h);
             cblabel('Time [ms]');
             set(freez, 'Position', [0.75 0.585 0.05 0.34]);
-            %get length of Axis
+            % get length of Axis
             ax = gca;
-            %plot marker
+            % plot marker for the intervals
             self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r');
             title(['Distance map of ' StimuIntName ' phase space trajectory for subject' subjectName]);
             
+            % plot distance map based on Recurrence plot
             subplot(2,1,2);
             maxDiff = max(max(S) - min(S))*0.001;
             if (config.RecurrenceThreshold ~= 0)
@@ -679,7 +714,7 @@ classdef Plotter
             N = length(edaData);
             S = zeros(N, N);
             time = 1:length(edaData)/SamplingRate;
-            %Calculate time in seconds for x axis %Obsolet
+            % Calculate time in seconds for x axis % Obsolet
 %             for i=1:N
 %                 time(i) = round(sum(edaData(1:i))/5);
 %             end
@@ -701,7 +736,7 @@ classdef Plotter
             freez = cbfreeze(h);
             cblabel('Skin Conductance [µS]');
             set(freez, 'Position', [0.75 0.585 0.05 0.34]);
-            %plot marker
+            % plot marker
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
             title(['Distance map of ' StimuInt.stimuIntDescrp ' phase space trajectory for subject' subjectName]);    
@@ -716,7 +751,7 @@ classdef Plotter
             xlabel('Time [s]');
             ylabel('Time [s]');
             set(gca,'YDir','normal')
-            %plot marker
+            % plot marker
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
@@ -724,7 +759,7 @@ classdef Plotter
             print(fName,'-dpdf',fig);
         end
         
-        %% Plots behavioral characteristics
+        %% Plots behavioral characteristics % Tim - Code nochmal überschauen
         %  subjectName: String 
         %  StimuIntNum: Number of the StimulusInterval
         %  outputDir: Path to output directory as String
@@ -756,7 +791,7 @@ classdef Plotter
                    ende = ende +EEGSamplingRate*stepWith; 
                 end
             end
-            %Normalize percental 
+            % Normalize percental 
             valuesToPlot = zeros(m,n);
             % Add TEI values
             valuesToPlot(m,:) = absolutValuesPerSecond(m,:);
@@ -764,7 +799,7 @@ classdef Plotter
                 for j=1:n
                    maxPerSecond = max(absolutValuesPerSecond(:,j));
                    maximumPos = absolutValuesPerSecond(:,j) == maxPerSecond;
-                   valuesToPlot(maximumPos,j) = maxPerSecond/sum(absolutValuesPerSecond(:,j))*100; %Nomierung ist falsch Gernot Tim
+                   valuesToPlot(maximumPos,j) = maxPerSecond/sum(absolutValuesPerSecond(:,j))*100; % Nomierung ist falsch Gernot Tim
                    %offset = maxPerSecond*90/100; % if a value exists which is 10% smaller then max, show this value in plot
                    %secondValuePos = absolutValuesPerSecond(:,j) >= offset;
                    %if (secondValuePos~=maximumPos)
@@ -802,20 +837,18 @@ classdef Plotter
         function plotHRV(self,hrvValues,outputDir,subjName,StimuIntDef)
             fig = figure('Visible','off');
             N = length(hrvValues);
-            time = 1:N; %zeros(length(hrvValues),1);
-            % Calculate time in seconds for x axis
-            %for i=1:length(hrvValues)
-            %    time(i) = round(sum(hrvValues(1:i))/1000);
-            %end
+            time = 1:N;
+            % plot values
             plot(hrvValues,'k');
             grid;
             yMin = min(hrvValues);
             yMax = max(hrvValues);
-            [StimuIntStartPoints,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
+            % get values for intervals over hole time frame with starting
+            % points, to plot marker on each Stimulus 
+            [StimuIntStartPoints,StimuIntTyps,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
             self.plotIntervals(intervals,[yMin, yMax],1,[],'r');
-            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[yMin, yMax],1);
+            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntTyps,[yMin, yMax],1);
             axis([1 max(time) yMin yMax]);
-            %set(gca,'XTick',xTime,'XTickLabel',xTime);
             ylabel('RR intervals [ms]');
             xlabel('time [s]');
             m = sprintf('%.2f',mean(hrvValues));
@@ -831,13 +864,14 @@ classdef Plotter
         end   
         
         %% RawEEG figure plot
+        %   get rawEEG data and plot it
         %   rawValues: Raw eeg values as double[]
         %   filteredValues: Filteres eeg values as double[]
         %   quality: Two double values. First is percent outside for
         %   rawValues. Second is percent outside for filtered values
         %   subject: Data of Subject
         %   config: Config  
-        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subject,electrode,config,data)
+        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subject,electrode,config)
             numRawValues = length(rawValues);
             numFilteredValues = length(filteredValues);
             fig = figure('visible', 'off');
@@ -873,6 +907,402 @@ classdef Plotter
             print([config.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
             close(fig);
         end 
+     
+        %% Plots EDA figures for given Stimulus Intervals
+        %   StimuIntIndex: StimulusInterval indicies of StimulusIntervals to plot as doubel[]
+        %   edaValues: eda values of subject as Cell of double[]
+        %   StimuIntDefs: Cell<StimuIntDefinition>
+        %   subjectName: the name of the subject as String
+        %   fPath: file path as String 
+        %   stats: eda statistics for subject as String 
+        function plotSubStimuIntEDA(self,StimuIntIndex,edaValues,StimuIntDefs,subjectName,fPath,stats)
+            fig = figure('Visible','off');
+            allValues=  edaValues(StimuIntIndex);
+            allValues = vertcat(allValues{:});
+            yMin = min(allValues);
+            yMax = max(allValues);
+            yL = [yMin yMax];
+            subplotCounter = 1;
+            % choose x axis interval on base of StimulusInterval length
+            for i = StimuIntIndex
+                StimuIntType = StimuIntDefs{1,i}(1);
+                StimuIntLength = StimuIntDefs{i}.Stimulength;
+                labels = [];
+                % get x Axis for long and short Stimulus Intervals
+                if StimuIntLength > 30
+                    xAxis = 0:5:StimuIntLength;
+                    labels = StimuIntDefs{i}.intervals;
+                else
+                    xAxis = 0:StimuIntLength;
+                end
+                xTime = xAxis .* 5;
+                subplot(6,1,subplotCounter);
+                subplotCounter = subplotCounter + 1;
+                plot(edaValues{i},'k');
+                % plot marker on EDA plot
+                self.plotIntervals(StimuIntDefs{i}.intervals,yL,max(xTime)/max(xAxis),labels,'r');
+                grid;
+                ylabel([StimuIntType.stimuIntDescrp ' [µS]']);
+                l = length(edaValues{i});
+                axis([1,l, yL]);
+                set(gca,'XTick',xTime,'XTickLabel',xAxis);
+                if (i==1)
+                    title(['Overview of all EDA values from all related StimulusInterval of subject ' subjectName]);
+                end
+            end
+            xlabel('Time [s]');
+            axes('Position',[.08 .10 0.8 1],'Visible','off'); % Tim Position Hardcoded bei mehr Stimus kommt es zu Problemen! 
+            text(0,0,stats,'FontName','FixedWidth','FontSize',8);
+            set(fig, 'PaperType', 'A4');
+            set(fig, 'PaperOrientation', 'portrait');
+            set(fig, 'PaperUnits', 'centimeters');
+            set(fig, 'PaperPositionMode', 'auto');
+            set(fig, 'PaperPosition', [0.2 0.2 20 29 ]);
+            print(fPath,'-dpdf',fig);
+            close(fig);
+        end
+        
+        %% Plots complete EDA figure to given file name
+        %   StimuIntDef: Cell<StimuIntDefinition>
+        %   fPath: Output file path
+        %   edaValues: EDA values as double[]
+        %   detrended: boolean 
+        function plotEDA(self,StimuIntDef,fPath,edaValues,detrended)
+            % get scale and interval, starting points and Stimulus Interval
+            % typs
+            maxscale = max(edaValues);
+            minscale = min(edaValues);
+            [StimuIntStartPoints,StimuIntTyps,intervals,completeVidLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
+            xAxis = 0:10:completeVidLength;
+            xTime = xAxis .* 5;
+            fig = figure('Visible','off');
+            plot(edaValues,'k');
+            grid;
+            axis([1 length(edaValues) minscale maxscale]);
+            set(gca,'XTick',xTime,'XTickLabel',xAxis);
+            xlabel('Time [s]');
+            self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xAxis),[],'r');
+            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntTyps,[minscale, maxscale],max(xTime)/max(xAxis));
+            ylabel('Skin Conductance [µS]');
+            % check for detrended data
+            if (detrended)
+                t = 'EDA values (detrended)';
+            else
+                t = 'EDA values';
+            end
+            title({t,''});
+            set(fig, 'PaperType', 'A4');
+            set(fig, 'PaperOrientation', 'landscape');
+            set(fig, 'PaperUnits', 'centimeters');
+            set(fig, 'PaperPositionMode', 'auto');
+            set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
+            print(fPath,'-dpdf',fig);
+            close(fig);
+        end
+        
+        %% Plots eeg frequency bands for StimulusInterval and each frequency band
+        %   StimuIntLength: Length of the StimulusInterval in seconds as double
+        %   fPath: Output file path as String
+        %   theta_s: Theta values as double[]
+        %   alpha_s: Alpha values as double[]
+        %   beta1_s: Beta1 values as double[]
+        %   beta2_s: Beta2 values as double[]
+        %   task_s: TEI values as double[]
+        %   resolution: values per second as double 
+        %   intervals: intervals of interest as int[]
+        %   edaSubStimuIntList: EDA values of StimulusInterval as double[]
+        function plotFrequencys(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaSubStimuIntList)
+            intervals = StimuIntDef.intervals;
+            fig = figure('Visible','off');
+            maxscale = max([max(theta_s) max(alpha_s) max(beta1_s) max(beta2_s) ]);
+            labels = [];
+            % get x Axis for long and short Stimulus Intervals and xAxis 
+            % labels for interval if necessary 
+            if StimuIntLength > 30
+                xAxis = 0:5:StimuIntLength;
+                labels = intervals;
+            else
+                xAxis = 0:StimuIntLength;
+            end
+            xtime = xAxis .* resolution;
+            edaXTime = xAxis .* 5;
+            
+            % create each subplot for the each frequency band and plot them
+            % in different colors
+            subplot(6,1,1);
+            plot(theta_s,'Color',[0/255 191/255 255/255]);
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
+            grid;
+            ylabel('Theta [µV]');
+            axis([1 length(theta_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
+            % set path and titel once for the pdf
+            [~,subjName,~] = fileparts(fPath);
+            t = title({['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_',' ')],''});
+            tP = get(t,'Position');
+            set(t,'Position',[tP(1) tP(2)+0.3 tP(3)]);
+            set(t,'FontSize',12);
+            
+            subplot(6,1,2);
+            plot(alpha_s,'Color',[0/255 128/255 0/255]);
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
+            grid;
+            ylabel('Alpha [µV]');
+            axis([1 length(alpha_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
+            
+            subplot(6,1,3);
+            plot(beta1_s,'Color',[255/255 128/255 0/255]);
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
+            grid;
+            ylabel('Beta1 [µV]');
+            axis([1 length(beta1_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
+            
+            subplot(6,1,4);
+            plot(beta2_s,'Color',[255/255 69/255 0/255]);
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
+            grid;
+            ylabel('Beta2 [µV]');
+            axis([1 length(beta2_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
+            
+            subplot(6,1,5);
+            plot(task_s,'k');
+            self.plotIntervals(intervals,[0, max(task_s)],max(xtime)/max(xAxis),labels,'r');
+            grid;
+            ylabel('TEI');
+            axis([1 length(task_s) 0 max(task_s)]);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
+            
+            subplot(6,1,6);
+            plot(edaSubStimuIntList,'k');
+            yL = [min(edaSubStimuIntList) max(edaSubStimuIntList)];
+            self.plotIntervals(intervals,yL,max(edaXTime)/max(xAxis),labels,'r');
+            grid;
+            ylabel('EDA [µS]');
+            l = length(edaSubStimuIntList);
+            axis([1,l, yL]);
+            set(gca,'XTick',edaXTime,'XTickLabel',xAxis);
+
+            set(fig, 'PaperType', 'A4');
+            set(fig, 'PaperOrientation', 'portrait');
+            set(fig, 'PaperUnits', 'centimeters');
+            set(fig, 'PaperPositionMode', 'auto');
+            set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
+            print(['-f',int2str(fig.Number)],'-dpdf',[fPath,'.pdf']);
+            close(fig);
+        end
+               
+        %% Plots eeg frequency bands for StimulusInterval and each frequency band
+        %   StimuIntLength: Length in seconds as double
+        %   fPath: Path to output file as String 
+        %   theta_s: Theta values as double[]
+        %   alpha_s: Alpha values as double[]
+        %   beta1_s: Beta1 values as double[]
+        %   beta2_s: Beta2 values as double[]
+        %   task_s: TEI values as double[]
+        %   baselineTheta: Baseline values for theta as double[]
+        %   baselineAlpha: Baseline values for alpha as double[]
+        %   baselineBeta1: Baseline values for beta1 as double[]
+        %   baselineBeta2: Baseline values for beta2 as double[]
+        %   baselineTEI: Baseline values for TEI as double[]
+        %   resolution: values per second as double 
+        %   intervals: intervals of interest as int[]
+        %   t_title: Diagramm title as String 
+        function plotFrequencysWithBaselineMagnitude(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)
+            fig = figure('Visible','off');
+            % Scaling factor to extend the y axis for the legend
+            scaleFactor = 1.7;
+			maxscale = scaleFactor*(max([max(alpha_s) max(beta1_s) max(beta2_s) max(theta_s)])); % Add 50% (1.5) to the maxscale for providing more space for the legend
+            numDataPoints = StimuIntLength*resolution;
+            labels = [];
+            % get x Axis for long and short Stimulus Intervals and xAxis 
+            % labels for interval if necessary 
+            if StimuIntLength > 30
+                xname = 0:5:StimuIntLength;
+                labels = intervals;
+            else
+                xname = 0:StimuIntLength;
+            end
+            xtime = xname .* resolution;
+            
+			% subplots for each frequency band with own color
+			subplot(6,1,1)
+            hold on
+            plot(theta_s,'Color',[65/255 105/255 225/255]);
+            m = mean(baselineTheta);
+            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
+            % print marker on plot for each Stimulus Interval
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            grid;
+            hold off
+            massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
+            
+            if(isempty(intervals))
+                legend(massAndTime,'theta baseline mean');
+            else
+                h=legend(massAndTime,'theta baseline mean','Stimulus');
+            end
+            ylabel('Theta [µV]');
+            axis([0 length(theta_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xname);
+            
+            % title for the hole plot
+			title(t_title);
+			
+			subplot(6,1,2);
+            hold on;
+            plot(alpha_s,'Color',[0/255 128/255 0/255]);
+            m = mean(baselineAlpha);
+            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            hold off;
+            massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
+            if(isempty(intervals))
+                legend(massAndTime,'alpha baseline mean');
+            else
+                h= legend(massAndTime,'alpha baseline mean','Stimulus');
+            end
+            grid;
+            ylabel('Alpha [µV]');
+            axis([0 length(alpha_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xname);
+                        
+            subplot(6,1,3);
+            hold on;
+            plot(beta1_s,'Color',[255/255 128/255 0/255]);
+            m = mean(baselineBeta1);
+            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
+            hold off;
+            if(isempty(intervals))
+                legend(massAndTime,'beta1 baseline mean');
+            else
+                h= legend(massAndTime,'beta1 baseline mean','Stimulus');
+            end
+            grid;
+            ylabel('Beta1 [µV]');
+            axis([0 length(beta1_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xname);
+            
+            subplot(6,1,4);
+            hold on;
+            plot(beta2_s,'Color',[255/255 69/255 0/255]);
+            m = mean(baselineBeta2);
+            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
+            massAndTime = self.calculateMassAndTime(beta2_s,numDataPoints,mean(baselineBeta2));
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            hold off;
+            if(isempty(intervals))
+                legend(massAndTime,'beta2 baseline mean');
+            else
+                h=legend(massAndTime,'beta2 baseline mean','Stimulus');
+            end
+            grid;
+            ylabel('Beta2 [µV]');
+            axis([0 length(beta2_s) 0 maxscale]);
+            set(gca,'XTick',xtime,'XTickLabel',xname);
+			
+			subplot(6,1,5);
+            hold on;
+            plot(task_s,'k');
+            m = mean(baselineTEI);
+            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
+            % the max scale for task band is different and has to be
+            % calculated separately 
+            maxscaleTask = scaleFactor*max(task_s);
+            massAndTime = self.calculateMassAndTime(task_s,numDataPoints,mean(baselineTEI));
+            self.plotIntervals(intervals,[0, maxscaleTask],max(xtime)/max(xname),labels,'r');
+            hold off;
+            if(isempty(intervals))
+                legend(massAndTime,'TEI baseline mean');
+            else
+                legend(massAndTime,'TEI baseline mean','Stimulus');
+            end
+            grid;
+            ylabel('TEI');
+            axis([0 length(task_s) 0 maxscaleTask]);
+            set(gca,'XTick',xtime,'XTickLabel',xname);
+            			
+            set(fig, 'PaperType', 'A4');
+            set(fig, 'PaperOrientation', 'portrait');
+            set(fig, 'PaperUnits', 'centimeters');
+            set(fig, 'PaperPositionMode', 'auto');
+            set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
+            print(['-f',int2str(fig.Number)],'-dpdf',fPath);
+			close(fig);
+        end
+    end
+    
+    methods(Access=private)   
+        
+        %% Helper method to calculate mass and time 
+        function massAndTime = calculateMassAndTime(self,values,numDataPoints, mean)
+            valuesOverMean = find(values > mean);
+            overCount = length(valuesOverMean);
+            overMass = sum(values(valuesOverMean));
+            mass = int8(overMass/sum(values)*100);
+            time = int8(overCount/numDataPoints*100);
+            massAndTime = [num2str(time) '% time | ' num2str(mass) '% weighted mass is over baseline'];
+        end
+        
+        %% Helper method to calculate intervals and StimulusInterval start points
+        %  Import the Stimulus Interval Definition Cell Array and extract 
+        % the individual intervals to convert them into an interval vector 
+        % over the whole timeframe of the data
+        function [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = calculateStimuIntStartPointsAndIntervals(self,StimuIntDef)
+            StimuIntStartPoints = [];
+            StimuIntLabels={};
+            intervals = [];
+            completeVidLength =0;
+            for i=1:length(StimuIntDef)
+                completeVidLength = completeVidLength + StimuIntDef{i}.Stimulength;
+                StimuIntLabels{i} = StimuIntDef{1, i}.stimuIntDescrp;
+                % Starting value needs to be != 0, because of calculations
+                % later on -> changed from 0 -> 0.2
+                if i==1
+                    StimuIntStartPoints(i) = 0.2;
+                % the second value must be used separately, 
+                % because of the exchange of 0 -> 0.2
+                elseif i == 2
+                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength;
+                % then the values can simply be added up
+                else
+                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength + StimuIntStartPoints(i-1);
+                end
+                currentIntervals = StimuIntDef{i}.intervals;
+                currentIntervals= currentIntervals + StimuIntStartPoints(i);
+                intervals = horzcat(intervals,currentIntervals');
+            end
+        end
+        
+        %% Helper method to plot intervals of interest
+        function plotIntervals(self,intervals,yPos,scaleFac,labels,color)
+            labels = labels';
+            for i=1:length(intervals)
+                xPosition = intervals(i);
+                xPosition = xPosition*double(scaleFac);
+                line([double(xPosition) double(xPosition)],yPos,'Color',color);
+                % only used if the graph does not contain all distances
+                if ~isempty(labels)
+                    text([double(xPosition) double(xPosition)],[yPos(2) yPos(2)], num2str(labels(i)), 'VerticalAlignment','bottom','HorizontalAlignment','center','FontSize',8);
+                end
+            end
+        end
+        
+        %% Helper method to plot the StimulusInterval start points
+        function plotStimuIntStartPoints(self,startPoints,labels,yPos,scaleFac)
+            for i=1:length(startPoints)
+                xPosition = startPoints(i);
+                xPosition = double(xPosition*scaleFac);
+                line([xPosition xPosition],yPos,'Color','b','LineStyle','--');
+                t = text([xPosition xPosition],[yPos(2) yPos(2)], labels(i), 'VerticalAlignment','top','HorizontalAlignment','right','FontSize',9);
+                set(t,'Rotation',90);
+            end
+        end
         
         %% Plots quality index figures for subjects and StimulusIntervals
         %   unfilteredQuality: Percentage of unfiltered eeg values outside interval for each subject
@@ -944,397 +1374,6 @@ classdef Plotter
 %             close(h);
 %         end
 
-        %% Plots EDA figures for given StimulusIntervals to given file name
-        %   StimuIntIndex: StimulusInterval indicies of StimulusIntervals to plot as doubel[]
-        %   edaValues: eda values of subject as Cell of double[]
-        %   StimuIntDefs: Cell<StimuIntDefinition>
-        %   subjectName: the name of the subject as String
-        %   fPath: file path as String 
-        %   stats: eda statistics for subject as String 
-        function plotSubStimuIntEDA(self,StimuIntIndex,edaValues,StimuIntDefs,subjectName,fPath,stats)
-            fig = figure('Visible','off');
-            allValues=  edaValues(StimuIntIndex);
-            allValues = vertcat(allValues{:});
-            yMin = min(allValues);
-            yMax = max(allValues);
-            yL = [yMin yMax];
-            subC = 1;
-            % choose x axis interval on base of StimulusInterval length
-            for i = StimuIntIndex
-                StimuIntClass = StimuIntDefs{1,i}(1);
-                StimuIntLength = StimuIntDefs{i}.Stimulength;
-                labels = [];
-                if StimuIntLength > 30
-                    xName = 0:5:StimuIntLength;
-                    labels = StimuIntDefs{i}.intervals;
-                else
-                    xName = 0:StimuIntLength;
-                end
-                xTime = xName .* 5;
-                subplot(6,1,subC);
-                subC = subC + 1;
-                plot(edaValues{i},'k');
-                self.plotIntervals(StimuIntDefs{i}.intervals,yL,max(xTime)/max(xName),labels,'r');
-                grid;
-                ylabel([StimuIntClass.stimuIntDescrp ' [µS]']);
-                l = length(edaValues{i});
-                axis([1,l, yL]);
-                set(gca,'XTick',xTime,'XTickLabel',xName);
-                if (i==1)
-                    title(['Overview of all EDA values from all related StimulusInterval of subject ' subjectName]);
-                end
-            end
-            xlabel('Time [s]');
-            axes('Position',[.08 .10 0.8 1],'Visible','off'); %Tim Position Hardcoded bei mehr Stimus kommt es zu Problemen! 
-            text(0,0,stats,'FontName','FixedWidth','FontSize',8);
-            set(fig, 'PaperType', 'A4');
-            set(fig, 'PaperOrientation', 'portrait');
-            set(fig, 'PaperUnits', 'centimeters');
-            set(fig, 'PaperPositionMode', 'auto');
-            set(fig, 'PaperPosition', [0.2 0.2 20 29 ]);
-            print(fPath,'-dpdf',fig);
-            close(fig);
-        end
-        
-        %% Plots complete EDA figure to given file name
-        %   StimuIntDef: Cell<StimuIntDefinition>
-        %   fPath: Output file path
-        %   edaValues: EDA values as double[]
-        %   detrended: boolean 
-        function plotEDA(self,StimuIntDef,fPath,edaValues,detrended)
-            maxscale = max(edaValues);
-            minscale=min(edaValues);
-            [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
-            xName = 0:10:completeVidLength;
-            xTime = xName .* 5;
-            fig = figure('Visible','off');
-            plot(edaValues,'k');
-            grid;
-            axis([1 length(edaValues) minscale maxscale]);
-            set(gca,'XTick',xTime,'XTickLabel',xName);
-            xlabel('Time [s]');
-            self.plotIntervals(intervals,[minscale, maxscale],max(xTime)/max(xName),[],'r');
-            self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntLabels,[minscale, maxscale],max(xTime)/max(xName));
-            ylabel('Skin Conductance [µS]');
-            if (detrended)
-                t = 'EDA values (detrended)';
-            else
-                t = 'EDA values';
-            end
-            title({t,''});
-            set(fig, 'PaperType', 'A4');
-            set(fig, 'PaperOrientation', 'landscape');
-            set(fig, 'PaperUnits', 'centimeters');
-            set(fig, 'PaperPositionMode', 'auto');
-            set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            print(fPath,'-dpdf',fig);
-            close(fig);
-        end
-        
-        %% Plots eeg frequency bands for StimulusInterval
-        %   StimuIntLength: Length of the StimulusInterval in seconds as double
-        %   fPath: Output file path as String
-        %   theta_s: Theta values as double[]
-        %   alpha_s: Alpha values as double[]
-        %   beta1_s: Beta1 values as double[]
-        %   beta2_s: Beta2 values as double[]
-        %   task_s: TEI values as double[]
-        %   resolution: values per second as double 
-        %   intervals: intervals of interest as int[]
-        %   edaSubStimuIntList: EDA values of StimulusInterval as double[]
-        function plotFrequencys(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaSubStimuIntList)
-            intervals = StimuIntDef.intervals;
-            stimuIntDescrp = StimuIntDef.stimuIntDescrp;
-            fig = figure('Visible','off');
-            maxscale = max([max(theta_s) max(alpha_s) max(beta1_s) max(beta2_s) ]);
-            labels = [];
-            if StimuIntLength > 30
-                xname = 0:5:StimuIntLength;
-                labels = intervals;
-            else
-                xname = 0:StimuIntLength;
-            end
-            xtime = xname .* resolution;
-            edaXTime = xname .* 5;
-            %---------------------
-            % subplot(6,1,1)
-            % plot(delta_s,'Color',[65/255 105/255 225/255]);
-            % grid;
-            %  ylabel('Delta');
-            % axis([1 length(delta_s) 0 maxscale]);
-            %  set(gca,'XTick',xtime,'XTickLabel',xname);
-			
-            subplot(6,1,1);
-            plot(theta_s,'Color',[0/255 191/255 255/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            grid;
-            ylabel('Theta [µV]');
-            axis([1 length(theta_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            [~,subjName,~] = fileparts(fPath);
-            t = title({['Frequency bands, task engagement and EDA for subject: ' strrep(subjName,'_freq_bands_',' ')],''});
-            tP = get(t,'Position');
-            set(t,'Position',[tP(1) tP(2)+0.3 tP(3)]);
-            set(t,'FontSize',12);
-            
-            subplot(6,1,2);
-            plot(alpha_s,'Color',[0/255 128/255 0/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            grid;
-            ylabel('Alpha [µV]');
-            axis([1 length(alpha_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            
-            subplot(6,1,3);
-            plot(beta1_s,'Color',[255/255 128/255 0/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            grid;
-            ylabel('Beta1 [µV]');
-            axis([1 length(beta1_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            
-            subplot(6,1,4);
-            plot(beta2_s,'Color',[255/255 69/255 0/255]);
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            grid;
-            ylabel('Beta2 [µV]');
-            axis([1 length(beta2_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            
-            subplot(6,1,5);
-            plot(task_s,'k');
-            self.plotIntervals(intervals,[0, max(task_s)],max(xtime)/max(xname),labels,'r');
-            grid;
-            ylabel('TEI');
-            axis([1 length(task_s) 0 max(task_s)]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            
-            subplot(6,1,6);
-            plot(edaSubStimuIntList,'k');
-            yL = [min(edaSubStimuIntList) max(edaSubStimuIntList)];
-            self.plotIntervals(intervals,yL,max(edaXTime)/max(xname),labels,'r');
-            grid;
-            ylabel('EDA [µS]');
-            l = length(edaSubStimuIntList);
-            axis([1,l, yL]);
-            set(gca,'XTick',edaXTime,'XTickLabel',xname);
-            %             subplot(7,1,7);
-            %             t=0:1/5:StimuIntLength;
-            %             t = t(1:end-1);
-            %             dydt = diff(edaSubStimuIntList)./diff(t);
-            %             dydt(end+1) = dydt(end);
-            %             plot(dydt,'k');
-            %             yL = [min(dydt) max(dydt)];
-            %             self.plotIntervals(intervals,yL,max(edaXTime)/max(xname),labels,'r');
-            %             crossings = find(diff(dydt>0)~=0)+1;
-            %             self.plotIntervals(t(cossings),yL,max(edaXTime)/max(xname),[],'b');
-            %             line([1 l],[0,0],'Color','b','LineStyle','--');
-            %             grid;
-            %             xlabel('Time [s]');
-            %             ylabel('d(EDA)/dt [µS/s]');
-            %             l = length(dydt);
-            %             axis([1,l, yL]);
-            %             set(gca,'XTick',edaXTime,'XTickLabel',xname);
-            set(fig, 'PaperType', 'A4');
-            set(fig, 'PaperOrientation', 'portrait');
-            set(fig, 'PaperUnits', 'centimeters');
-            set(fig, 'PaperPositionMode', 'auto');
-            set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
-            print(['-f',int2str(fig.Number)],'-dpdf',[fPath,'.pdf']);
-            close(fig);
-        end
-               
-        %% Plots eeg frequency bands for StimulusInterval
-        %   StimuIntLength: Length in seconds as double
-        %   fPath: Path to output file as String 
-        %   theta_s: Theta values as double[]
-        %   alpha_s: Alpha values as double[]
-        %   beta1_s: Beta1 values as double[]
-        %   beta2_s: Beta2 values as double[]
-        %   task_s: TEI values as double[]
-        %   baselineTheta: Baseline values for theta as double[]
-        %   baselineAlpha: Baseline values for alpha as double[]
-        %   baselineBeta1: Baseline values for beta1 as double[]
-        %   baselineBeta2: Baseline values for beta2 as double[]
-        %   baselineTEI: Baseline values for TEI as double[]
-        %   resolution: values per second as double 
-        %   intervals: intervals of interest as int[]
-        %   t_title: Diagramm title as String 
-        function plotFrequencysWithBaselineMagnitude(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)
-            fig = figure('Visible','off');
-			maxscale = 1.2*(max([max(alpha_s) max(beta1_s) max(beta2_s) max(theta_s)])); %Add 20% to the maxscale for providing more space for the legend
-            numDataPoints = StimuIntLength*resolution;
-            labels = [];
-            if StimuIntLength > 30
-                xname = 0:5:StimuIntLength;
-                labels = intervals;
-            else
-                xname = 0:StimuIntLength;
-            end
-            xtime = xname .* resolution;
-            
-			%subplots
-			subplot(6,1,1)
-            hold on
-            plot(theta_s,'Color',[65/255 105/255 225/255]);
-            m = mean(baselineTheta);
-            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            grid;
-            hold off
-            massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
-            
-            if(isempty(intervals))
-                legend(massAndTime,'theta baseline mean');
-            else
-                h=legend(massAndTime,'theta baseline mean','Stimulus');
-            end
-            ylabel('Theta [µV]');
-            axis([0 length(theta_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            
-			title(t_title);
-			
-			subplot(6,1,2);
-            hold on;
-            plot(alpha_s,'Color',[0/255 128/255 0/255]);
-            m = mean(baselineAlpha);
-            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            hold off;
-            massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
-            if(isempty(intervals))
-                legend(massAndTime,'alpha baseline mean');
-            else
-                h= legend(massAndTime,'alpha baseline mean','Stimulus');
-            end
-            grid;
-            ylabel('Alpha [µV]');
-            axis([0 length(alpha_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-                        
-            subplot(6,1,3);
-            hold on;
-            plot(beta1_s,'Color',[255/255 128/255 0/255]);
-            m = mean(baselineBeta1);
-            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
-            hold off;
-            if(isempty(intervals))
-                legend(massAndTime,'beta1 baseline mean');
-            else
-                h= legend(massAndTime,'beta1 baseline mean','Stimulus');
-            end
-            grid;
-            ylabel('Beta1 [µV]');
-            axis([0 length(beta1_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            
-            subplot(6,1,4);
-            hold on;
-            plot(beta2_s,'Color',[255/255 69/255 0/255]);
-            m = mean(baselineBeta2);
-            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            massAndTime = self.calculateMassAndTime(beta2_s,numDataPoints,mean(baselineBeta2));
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
-            hold off;
-            if(isempty(intervals))
-                legend(massAndTime,'beta2 baseline mean');
-            else
-                h=legend(massAndTime,'beta2 baseline mean','Stimulus');
-            end
-            grid;
-            ylabel('Beta2 [µV]');
-            axis([0 length(beta2_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-			
-			subplot(6,1,5);
-            hold on;
-            plot(task_s,'k');
-            m = mean(baselineTEI);
-            line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            massAndTime = self.calculateMassAndTime(task_s,numDataPoints,mean(baselineTEI));
-            self.plotIntervals(intervals,[0, (1.2*max(task_s))],max(xtime)/max(xname),labels,'r');
-            hold off;
-            if(isempty(intervals))
-                legend(massAndTime,'TEI baseline mean');
-            else
-                legend(massAndTime,'TEI baseline mean','Stimulus');
-            end
-            grid;
-            ylabel('TEI');
-            axis([0 length(task_s) 0 (1.2*max(task_s))]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
-            			
-            set(fig, 'PaperType', 'A4');
-            set(fig, 'PaperOrientation', 'portrait');
-            set(fig, 'PaperUnits', 'centimeters');
-            set(fig, 'PaperPositionMode', 'auto');
-            set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
-            print(['-f',int2str(fig.Number)],'-dpdf',fPath);
-			close(fig);
-        end
-    end
-    
-    methods(Access=private)   
-        
-        %% Helper method to calculate mass and time 
-        function massAndTime = calculateMassAndTime(self,values,numDataPoints, mean)
-            valuesOverMean = find(values > mean);
-            overCount = length(valuesOverMean);
-            overMass = sum(values(valuesOverMean));
-            mass = int8(overMass/sum(values)*100);
-            time = int8(overCount/numDataPoints*100);
-            massAndTime = [num2str(time) '% time | ' num2str(mass) '% weighted mass is over baseline'];
-        end
-        
-        %% Helper method to calculate intervals and StimulusInterval start points
-        function [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = calculateStimuIntStartPointsAndIntervals(self,StimuIntDef)
-            StimuIntStartPoints = [];
-            StimuIntLabels={};
-            intervals = [];
-            completeVidLength =0;
-            for i=1:length(StimuIntDef)
-                completeVidLength = completeVidLength + StimuIntDef{i}.Stimulength;
-                StimuIntLabels{i} = StimuIntDef{1, i}.stimuIntDescrp;%['StimuInt' num2str(i)]; Tim
-                if i==1
-                    StimuIntStartPoints(i) = 0.2;
-                elseif i == 2
-                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength;
-                else
-                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength + StimuIntStartPoints(i-1);
-                end
-                curIntervals = StimuIntDef{i}.intervals;
-                curIntervals= curIntervals + StimuIntStartPoints(i);
-                intervals = horzcat(intervals,curIntervals');
-            end
-        end
-        
-        %% Helper method to plot intervals of interest
-        function plotIntervals(self,intervals,yPos,scaleFac,labels,color)
-            labels = labels';
-            for i=1:length(intervals)
-                xPosition = intervals(i);
-                xPosition = xPosition*double(scaleFac);
-                line([double(xPosition) double(xPosition)],yPos,'Color',color);
-                if ~isempty(labels)
-                    text([double(xPosition) double(xPosition)],[yPos(2) yPos(2)], num2str(labels(i)), 'VerticalAlignment','bottom','HorizontalAlignment','center','FontSize',8);
-                end
-            end
-        end
-        
-        %% Helper method to plot the StimulusInterval start points
-        function plotStimuIntStartPoints(self,startPoints,labels,yPos,scaleFac)
-            for i=1:length(startPoints)
-                xPosition = startPoints(i);
-                xPosition = double(xPosition*scaleFac);
-                line([xPosition xPosition],yPos,'Color','b','LineStyle','--');
-                t = text([xPosition xPosition],[yPos(2) yPos(2)], labels(i), 'VerticalAlignment','top','HorizontalAlignment','right','FontSize',9);
-                set(t,'Rotation',90); % tilt
-            end
-        end
         
     end
 end

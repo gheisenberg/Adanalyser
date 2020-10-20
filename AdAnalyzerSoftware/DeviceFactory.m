@@ -46,25 +46,31 @@ classdef DeviceFactory
 		function EEGdevice=parseEEGDeviceDefinitions(self,EEGDeviceConfigFile)
 			EEGDeviceName="NULL";
             EEGDeviceSamplingRate=0;
-            EEGDeviceElectrodePos={};% electrodePositions is a cell containing the strings for each electrode position
-            EEGDeviceElectrodeUse = {}; %will save the state of the electordes
+            EEGDeviceElectrodePos={}; % electrodePositions is a cell containing the strings for each electrode position
+            EEGDeviceElectrodeUse = {}; % will save the state of the electordes
             
             fileID = fopen(EEGDeviceConfigFile);
 			ConfigFileContents = textscan(fileID,'%s','Delimiter','\n');
 			fclose(fileID);
 			ConfigFileContents = ConfigFileContents{1};
 			[numEEGDeviceDefs,~] = size(ConfigFileContents);
+            % for loop over all devices
 			for i = 1:numEEGDeviceDefs
 				eegDeviceDef = ConfigFileContents{i};
+                % seperate the strings in the device file into different
+                % cell arrays
 				values = textscan(eegDeviceDef,'%s','Delimiter','=');
-                values = values{1}; %this is essential for accessing the cells correctly as values pairs
+                values = values{1}; % this is essential for accessing the cells correctly as values pairs
+                % check if the current line contains the following string
+                % and save the cell with the information
+                % e.g. values(1)=EEG_DEVICE_NAME; value(2)="ABM"
                 if values(1) == "EEG_DEVICE_NAME"
                     EEGDeviceName = values(2);
                 elseif values(1)== "EEG_SAMPLING_FREQUENCY"
                     EEGDeviceSamplingRate = str2double(values(2));
                 elseif values(1) == "EEG_ELECTRODES_POSITIONS"
                     %split the Electrode positions by the comma delimiter
-                    %and make it a cell
+                    %and saves it as a cell
                     EEGDeviceElectrodePos = split(values(2),",");
                     sizeElect = size(EEGDeviceElectrodePos);
                     EEGDeviceElectrodeUse = cell(sizeElect);
@@ -79,6 +85,7 @@ classdef DeviceFactory
         end
         
 		% parse EDA Device File
+        % see parseEEGDeviceDefinitions
 		function EDAdevice=parseEDADeviceDefinitions(self,EDADeviceConfigFile)
 			fileID = fopen(EDADeviceConfigFile);
 			ConfigFileContents = textscan(fileID,'%s','Delimiter','\n');
@@ -102,7 +109,8 @@ classdef DeviceFactory
             EDAdevice=device.createStandardDevice(EDADeviceName,EDADeviceSamplingRate);
         end
         
-        % parse HRV Device File
+        % parse HRV Device File        
+        % see parseEEGDeviceDefinitions
 		function HRVdevice=parseHRVDeviceDefinitions(self,HRVDeviceConfigFile)
 			fileID = fopen(HRVDeviceConfigFile);
 			ConfigFileContents = textscan(fileID,'%s','Delimiter','\n');

@@ -29,20 +29,20 @@ classdef AnalyseAction < handle
             message = ['Analysing data for ' num2str(validSubjects) ' valid subject(s)'];
             wBar = waitbar(0,message);
             
-            %Tabel with in/valid Status of Subjects
+            % Tabel with in/valid Status of Subjects
             self.subjectValid(subjects,config);
                         
-            %plot the a file as pdf containing all the GUI and all DEVICE settings
+            % plot the a file as pdf containing all the GUI and all DEVICE settings
             self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']); 
             
-            %plot the a file as pdf containing all the ADIndex settings
+            % plot the a file as pdf containing all the ADIndex settings
             self.plotter.writeAdIndex(StimuIntDefs,[config.OutputDirectory,'/AdIndex.pdf']);
             
             for i=1:length(subjects)
                 self.frequencies = cell(6,6);
                 self.frequencies4Hz = cell(6,6);
                 subject = subjects{i};
-                if subject.isValid == 1 %Filter invalid subjects
+                if subject.isValid == 1 % Filter invalid subjects
                     self.analyseSubject(subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
                 end
                 waitbar(i/validSubjects);
@@ -64,40 +64,43 @@ classdef AnalyseAction < handle
         
         %% Print in/valid subject table        
         function subjectValid(self,subject,config)
-            Sublength = length(subject);
-            validStr = cell(length(subject)+3,1); %+3 for Header
-            validStr(1) = {'Overview of subjects and their EEG status'};
+            numSubjects = length(subject);
+            validString = cell(length(subject)+3,1); % +3 for Header
+            validString(1) = {'Overview of subjects and their EEG status'};
             
             j = 1;
             isValid = 0;
-            %loop to check if subject is in/valid
-            for i=1:Sublength 
+            % loop to check if subject is in/valid
+            for i=1:numSubjects 
                sub = subject{i};
                if sub.isValid == 1
                    isValid = isValid+1;
-                   %Save subject in string
-                   validStr(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
+                   % save subject as valid
+                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
                    j = j+1;
+                   % check for invalid electrodes and save them behind the
+                   % subject
                    if  ~isempty(sub.invalidElectrodes)
-                       validStr(i+3) = strcat(validStr(i+3),'  |  Invalid electrodes  |',{' '});
+                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
                        for j = 1:length(sub.invalidElectrodes)
-                       validStr(i+3) = strcat(validStr(i+3),{' '},sub.invalidElectrodes(j)); 
+                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
                        end
                    end
                else 
-                   validStr(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
+                   % save subject as invalid
+                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
                    isValid = isValid + 0;
                    if  ~isempty(sub.invalidElectodes)
-                       validStr(i+3) = strcat(validStr(i+3),'  |  Invalid electrodes  |',{' '});
+                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
                        for j = 1:length(sub.invalidElectrodes)
-                       validStr(i+3) = strcat(validStr(i+3),{' '},sub.invalidElectrodes(j)); 
+                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
                        end   
                    end
                end
             end
-            %Add string with summary of the subject table
-            validStr(2) = {[num2str(num2str(isValid)) ' of ' num2str(Sublength) ' subjects are valid']};
-            self.plotter.writeValid(validStr,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
+            % Add string with summary of the subject table
+            validString(2) = {[num2str(num2str(isValid)) ' of ' num2str(numSubjects) ' subjects are valid']};
+            self.plotter.writeValid(validString,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
             
             if isValid == 0
                 fprintf('\n\nNo valid subject found!\n\n');
@@ -115,14 +118,16 @@ classdef AnalyseAction < handle
             edaComplete = subject.edaValues;
             numStimuInt = length(edaPerStim);
             
-            % Plot eda
+            % Plot eda values
             if (config.EDA_DEVICE_USED)
                 self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
             end
+            
             % Plot eda detrended
             if (config.DetrendedEDAFig)
                 self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
             end
+            
             % Plot EEG 
             numElectrodes = length(subject.eegValuesForElectrodes); 
             statsMat = cell(4+numElectrodes,9);
@@ -137,6 +142,7 @@ classdef AnalyseAction < handle
             sdMean =0;
             devPMean = 0; 
             devMMean =0; 
+            % create data for each electrode and save in stats matrix
             for i=1:numElectrodes
                 electrodeData = subject.eegValuesForElectrodes{i}; 
                 filteredEEGPerVid = electrodeData.filteredEEGPerVid;
@@ -156,10 +162,14 @@ classdef AnalyseAction < handle
                 StimuIntStatsMat = self.analyseStimuInt(subject,StimuIntNumber,filteredEEGPerVid,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
-            % EDA statistics 
-            orientingResponse = self.getStimuIntIndex(1,StimuIntDefs);
-            [amplitudes,delays] = self.calculateDelaysEDA(edaPerStim{orientingResponse},StimuIntDefs{orientingResponse}.intervals,edaDevice);%2
+            
+            % EDA statistics
+            % get index of Stimulus Type 1 - see StimuIntDefinition.m
+            orientingResponseIndex = self.getStimuIntIndex(1,StimuIntDefs);
+            [amplitudes,delays] = self.calculateDelaysEDA(edaPerStim{orientingResponseIndex},StimuIntDefs{orientingResponseIndex}.intervals,edaDevice);
+            % get index of Stimlus Type 0, 1, 4, 5 and 6 - see StimuIntDefinition.m
             edaStimuInt = self.getStimuIntIndex([0,1,4,5,6],StimuIntDefs);
+            % create EDA stats matrix
             edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
             edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | ');
@@ -167,102 +177,114 @@ classdef AnalyseAction < handle
             ampString =  self.stringStatistics.aplitudesToString(edaStatsMat(end,:));
             statsMat = vertcat(statsMat,edaStatsMat);
             statString =  self.stringStatistics.matrixToString(statsMat(1:end-2,:),' | ');
+            
             % Plot statistics
             if (config.Statistics)
+                % save statistics as pdf and CSV
                 self.plotter.writeCSV([config.OutputDirectory '/' subject.name '_statistics.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
                 self.plotter.writeStatistics([statString newline newline delayString newline ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
             end
             
-            %Preparing EEG Data for print
-            %Import of Standard 10-20 System chanlocs for electrodes
-            load Standard-10-20-Cap81.mat;
+            % create data for EEG Topology plots, if necessary 
+            if config.topoplot == 1 || config.brainactivity == 1
+                % Preparing EEG Data for print
+                % Import of Standard 10-20 System channel locs for electrodes
+                load Standard-10-20-Cap81.mat;
 
-            %Data preparation
-            Usedelectrodes = subject.Electrodes;
-            numValues = subject.eegValuesForElectrodes; 
-            numElec = length(numValues);
-            for i = 1:numElec              
-                eegValues(:,i) =  subject.eegValuesForElectrodes{1, i}.eegValues;              
+                % Data preparation
+                Usedelectrodes = subject.Electrodes;
+                numValues = subject.eegValuesForElectrodes; 
+                numElectrodes = length(numValues);
+                for i = 1:numElectrodes              
+                    eegValues(:,i) =  subject.eegValuesForElectrodes{1, i}.eegValues;              
+                end
+                PlotDataOverTime = eegValues';
+
+                % needed variables for chanloc preparation
+                chanloc = Chanloc; % get Chanloc included in Standard-10-20-Cap81.mat
+                electrodes = Usedelectrodes'; % transfrom vector
+                numUsedElectrodes = length(electrodes);
+                lengthStandardChanloc = length(Chanloc);
+                deleteRow = zeros(1,lengthStandardChanloc);
+                SumDeleteRow = zeros(1,lengthStandardChanloc);
+
+                % delete all unused electrode chanlocs
+                for i = 1:numUsedElectrodes
+                    deleteRow = ismember({chanloc.labels}, electrodes{i});
+                    SumDeleteRow = SumDeleteRow + deleteRow;
+                end
+                SumDeleteRow = ~SumDeleteRow;
+                % delete the unused rows
+                chanloc(SumDeleteRow) = [];
+
+                % Create EEG Structur which is used in Topology plot of
+                % EEGLab libary
+                EEG.data = PlotDataOverTime;        % data array (chans x frames x epochs)
+                EEG.setname = subject.name;         % Set name = Number of subject
+                EEG.chanlocs = chanloc;             % name of file containing names and positions of the channels on the scalp
+                EEG.nbchan = length(EEG.chanlocs);  % number of channels in each epoch
+                EEG.pnts = length(EEG.data);        % number of frames (time points) per epoch (trial)
+                EEG.trials = 1;                     % number of epochs (trials) in the dataset (Allways 1 for now)
+                EEG.srate = eegDevice.samplingRate; % sampling rate (in Hz)
+                EEG.xmin = 0;                       % epoch start time (in seconds)
+                EEG.xmax = (EEG.pnts-1)/EEG.srate;  % epoch end time (in seconds)
             end
-            PlotOverTimeData = eegValues';
-
-            %needed variables for chanloc preparation
-            chanloc = Chanloc; %Chanloc included in Standard-10-20-Cap81.mat
-            electrodes = Usedelectrodes';
-            lengthElectrodes = length(electrodes);
-            lengthStandardChanloc = length(Chanloc);
-            deleteRow = zeros(1,lengthStandardChanloc);
-            SumDeleteRow = zeros(1,lengthStandardChanloc);
-
-            %delete all unused electrode chanlocs
-            for i = 1:lengthElectrodes
-                deleteRow = ismember({chanloc.labels}, electrodes{i});
-                SumDeleteRow = SumDeleteRow + deleteRow;
-            end
-            SumDeleteRow = ~SumDeleteRow;
-            chanloc(SumDeleteRow) = [];
-
-            %Create EEG Struct
-            EEG.data = PlotOverTimeData;        %data array (chans x frames x epochs)
-            EEG.setname = subject.name;         %Set name = Number of subject
-            EEG.chanlocs = chanloc;             %name of file containing names and positions of the channels on the scalp
-            EEG.nbchan = length(EEG.chanlocs);  %number of channels in each epoch
-            EEG.pnts = length(EEG.data);        %number of frames (time points) per epoch (trial)
-            EEG.trials = 1;                     %number of epochs (trials) in the dataset (Allways 1 for now)
-            EEG.srate = eegDevice.samplingRate; %sampling rate (in Hz)
-            EEG.xmin = 0;                       %epoch start time (in seconds)
-            EEG.xmax = (EEG.pnts-1)/EEG.srate;  %epoch end time (in seconds)
             
-            
-            %prepare video for print
-            fileDirectory = config.videoName; %get directory
-            vid = VideoReader(fileDirectory); %import video
-            numOfFrames = round(vid.FrameRate*vid.Duration); %calculate number of frames
-            vidFrame = read(vid,[1 numOfFrames]);
-            %resize video according to UserFrameRate
-            vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
             
             % Plot 2D Topology Map
-            if config.topoplot == 1
-            self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes,vidFrameReSize);
+            if config.topoplot == 1 
+                % prepare video for print
+                fileDirectory = config.videoName; % get directory
+                vid = VideoReader(fileDirectory); % import video
+                numOfFrames = round(vid.FrameRate*vid.Duration); % calculate number of frames
+                vidFrame = read(vid,[1 numOfFrames]);
+                % resize video according to UserFrameRate
+                vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
+                self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes,vidFrameReSize);
             end
             
             % Plot Brain Activity Plot
             if config.brainactivity == 1
-            self.plotter.stimulusOverviewChart(config,subject,EEG,StimuIntDefs);
+                self.plotter.stimulusOverviewChart(config,subject,EEG,StimuIntDefs);
             end
             
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
                 self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA_Values_for_all_StimulusInterval(s)'],[edaStatsString newline newline delayString newline ampString]);
             end
+            
             % Plot HRV figure
             if (config.HRV_DEVICE_USED)
                 self.plotter.plotHRV(subject.hrvValues,config.OutputDirectory,subject.name,StimuIntDefs);
             end
+            
             % Plot HRV Recurrence
             if (config.RecurrenceFig)
                 self.plotter.plotHRVRecurrence(subject.name,config,'HRV',subject.hrvValues,StimuIntDefs);
             end
-            %plot frequencies for baseline Stimulus Intervals with baseline magnitude
+            
+            % plot frequencies for baseline Stimulus Intervals with baseline magnitude
             if (config.FrequencyFig)
+                % get Stimulus Interval Types
                 for i = 1:length(StimuIntDefs)
                     StimuIntTypes(i) = StimuIntDefs{1, i}.stimuIntType;
                 end
-                %get frequencie for baseline
-                BaselineInd = find(StimuIntTypes == 2); %Type 2 = EEG Baseline
-                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{3,:};
                 
-                %get all indices for Stimulus >= 4
-                StimuliInd = find(StimuIntTypes >= 4);
+                % get frequencie for baseline
+                BaselineIndex = find(StimuIntTypes == 2); % Type 2 = EEG Baseline
+                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{BaselineIndex,:};
                 
-                %plot frequencies for all Stimuli
-                for i = StimuliInd    
+                % get all indices for Stimulus >= 4
+                % see StimuIntDefinition.m
+                StimulIndex = find(StimuIntTypes >= 4);
+                
+                % plot frequencies for all Stimuli
+                for i = StimulIndex    
                     [~,StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s] = self.frequencies4Hz{i,:};
                     resolution = i;
                     intervals = StimuIntDefs{i}.intervals;
                     StimuIntDescrp = StimuIntDefs{i}.stimuIntDescrp;
-
+                    
                     self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{i})/eegDevice.samplingRate,...
                         [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                         StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s,baselineTheta_s,...
@@ -270,27 +292,28 @@ classdef AnalyseAction < handle
                         ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
                 end
             end
-            %transient = self.frequencyEstimation(edaComplete);
-            %self.plotter.plotMomentaryFrequency(transient,config,subject,stimuIntDef)
+            % transient = self.frequencyEstimation(edaComplete); obsolet
+            % self.plotter.plotMomentaryFrequency(transient,config,subject,stimuIntDef)
             
         end
         
-        %Calcualtes the mean Value of the EEG for each Stimulus/Subject
+        % Calcualtes the mean Value of the EEG for each Stimulus/Subject
         function meanEEGPerStim = calculateMeanEEGValuesForStimuInt(self,subject)
             numElectrodes = length(subject.eegValuesForElectrodes);
             eegForElectrode = subject.eegValuesForElectrodes{1};
             numStimuInt = length(eegForElectrode.filteredEEGPerVid);
             meanEEGPerStim = cell(1,numStimuInt);
-            for StimuIntNumber=1:numStimuInt
-                meanEEGPerStim{StimuIntNumber} = eegForElectrode.filteredEEGPerVid{StimuIntNumber};
-                for i=2:numElectrodes
-                    valuesForElectrode = subject.eegValuesForElectrodes{i}.filteredEEGPerVid{StimuIntNumber}; 
-                    previousValues = meanEEGPerStim{StimuIntNumber}; 
-                    meanEEGPerStim{StimuIntNumber} = previousValues+valuesForElectrode;
+            % cycle through Simulus Intervals and electrodes
+            for i = 1:numStimuInt
+                meanEEGPerStim{i} = eegForElectrode.filteredEEGPerVid{i};
+                for j = 2:numElectrodes
+                    valuesForElectrode = subject.eegValuesForElectrodes{j}.filteredEEGPerVid{i}; 
+                    previousValues = meanEEGPerStim{i}; 
+                    meanEEGPerStim{i} = previousValues+valuesForElectrode;
                 end
-                numValues = length(meanEEGPerStim{StimuIntNumber});
-                for i=1:numValues
-                    meanEEGPerStim{StimuIntNumber}(i) = meanEEGPerStim{StimuIntNumber}(i)/numElectrodes;
+                numValues = length(meanEEGPerStim{i});
+                for j = 1:numValues
+                    meanEEGPerStim{i}(j) = meanEEGPerStim{i}(j)/numElectrodes;
                 end
             end
         end
@@ -304,22 +327,29 @@ classdef AnalyseAction < handle
             StimuIntStatsMat(1,1) = {['EEG statistics for ' StimuIntDef.stimuIntDescrp]};
             [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerStim{StimuIntNumber},eegDevice);
             self.frequencies(StimuIntNumber,:) = {delta,theta,alpha,beta1,beta2,task};
+            
             % Calculate eeg statistics for each StimulusInterval and each frequency
             eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerStim{StimuIntNumber},delta,theta,alpha,beta1,beta2,task);
             StimuIntStatsMat = vertcat(StimuIntStatsMat,eegFreqStatsMat);
+            
             % Reduce signal resolution to 4Hz
             [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task,eegDevice);
             self.frequencies4Hz(StimuIntNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
+            
+            % plot Behavioral Characteristics 
             if(config.BehaveFig)
                 self.plotter.plotBehavioralCharacteristics(subject.name,StimuIntNumber,config.OutputDirectory,self.frequencies(StimuIntNumber,:),StimuIntDef,eegDevice)
             end
+            
+            %plot Frequency figure
             if (config.FrequencyFig)
                 resolution = 4;
                 self.plotter.plotFrequencys(StimuIntLength,[config.OutputDirectory '\' subject.name '_freq_bands_' StimuIntDef.stimuIntDescrp],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaPerVid{StimuIntNumber});
             end
-            % Plot Recurrence for EDA_TVSPOT and EDA_COMMERCIAL
+            
+            % Plot Recurrence
             if (config.RecurrenceFig)
-                if StimuIntDef.stimuIntType >= 4
+                if StimuIntDef.stimuIntType >= 4 % Types -> see StimuIntDefinition.m
                     self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef,edaPerVid{StimuIntNumber},edaDevice);
                 end
             end
@@ -357,13 +387,14 @@ classdef AnalyseAction < handle
         %% Calculates statistics for eda values including delays (Delta_t) and amplitudes
         function statsMat = calculateEDAStatistics(self,StimuInt,edaValues,delays,amplitudes,StimuIntDefs)
             edaValuesForStimuInt = edaValues(StimuInt);
-            numEdaStimuInts = length(edaValuesForStimuInt);
-            statsMat = cell(numEdaStimuInts+4,9);
+            numEDAStimuInts = length(edaValuesForStimuInt);
+            % create EDA cell array
+            statsMat = cell(numEDAStimuInts+4,9);
             statsMat(1,2:5) ={'mean[µS]','sd[µS]','dev-[µS]','dev+[µS]'} ;
             completeEDA = cell2mat(edaValues');
             [m,sd,devP,devM] = self.calculateStatistics(completeEDA);
             statsMat(2,1:5) = {'EDA complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
-            for i=1:numEdaStimuInts
+            for i=1:numEDAStimuInts
                 StimuIntClass = StimuIntDefs{i};
                 [m,sd,devP,devM] = self.calculateStatistics(edaValuesForStimuInt{i});
                 statsMat(i+2,1:5) = {StimuIntClass.stimuIntDescrp,num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
@@ -404,7 +435,7 @@ classdef AnalyseAction < handle
             edaPerSec = edaDevice.samplingRate;
             intervals(end+1)=numEDAValues/edaPerSec;
             start = uint32(intervals(1)*1);
-            ende = uint32((intervals(2)+5)*1); %end offset (project in next interval)
+            ende = uint32((intervals(2)+5)*1); % end offset (project in next interval)
             offset = 1; % start offset (start 5 datapoints later from interval start)
             valuesBetweenIntervals = edaValuesDetrend(start+offset:ende);
             m = mean (smooth(valuesBetweenIntervals));
@@ -412,7 +443,7 @@ classdef AnalyseAction < handle
             values = zeros(1,length(intervals));
             [peak,index] = findpeaks(smooth(valuesBetweenIntervals),'MINPEAKDISTANCE',5,'MINPEAKHEIGHT',(m*120)/100);
             if length(index)>1
-                index = index(1); %find(peak == max(peak))
+                index = index(1); % find(peak == max(peak))
             end
             if length(index)~=1 || max(peak) < 0
                 delays(1) = 0;

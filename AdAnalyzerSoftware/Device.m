@@ -16,6 +16,8 @@ classdef Device
         % electrodePositions is a cell containing the strings for each electrode position
         % access them via electrodePositions(n) 
         electrodePositions = {};
+        % electrodeState represents if the eletrode of a device is turn on
+        % or off in the Eletrodes Dialog UI
         electrodeState = {};
 	end
 	

@@ -26,15 +26,20 @@ classdef ConfigManager
                 return
             end
             try
+                %Save strings in conf
                 if file~=0
                     fid = fopen(fullfile(path, file),'r');
                     while ~feof(fid)
+                        %cycle through all lines off cell array fid and cut
+                        %everything before "="
                         line = fgets(fid);
                         values = textscan(line,'%s','Delimiter','=');
                         splitLine = values{1};
                         if isscalar(splitLine)
                             splitLine{2}='';
                         end
+                        %compare current "line" and save in conf if
+                        %correct - repeat with all conf inputs
                         if strcmp(splitLine{1},'OutputDirectory')
                             conf.OutputDirectory=splitLine{2};
                         end
@@ -85,7 +90,6 @@ classdef ConfigManager
                         end
                         if strcmp(splitLine{1},'EDAFiles')
                             if ~isempty(findstr(',', splitLine{2}))
-                                %files = textscan(splitLine{2},'%s','Delimiter',',','BufSize', 200000);
                                 files = textscan(splitLine{2},'%s','Delimiter',',');
                                 conf.EDAFiles = files{1};
                             elseif ~isempty(splitLine{2})
@@ -96,7 +100,6 @@ classdef ConfigManager
                         end
                         if strcmp(splitLine{1},'EEGFiles')
                             if ~isempty(findstr(',', splitLine{2}))
-                                %files = textscan(splitLine{2},'%s','Delimiter',',','BufSize', 200000);
                                 files = textscan(splitLine{2},'%s','Delimiter',',');
                                 conf.EEGFiles = files{1};
                             elseif ~isempty(splitLine{2})
@@ -107,7 +110,6 @@ classdef ConfigManager
                         end
                         if strcmp(splitLine{1},'HRVFiles')
                             if ~isempty(findstr(',', splitLine{2}))
-                                %files = textscan(splitLine{2},'%s','Delimiter',',','BufSize', 200000);
                                 files = textscan(splitLine{2},'%s','Delimiter',',');
                                 conf.HRVFiles = files{1};
                             elseif ~isempty(splitLine{2})
@@ -151,6 +153,7 @@ classdef ConfigManager
                     fclose(fid);
                 end
             catch ex
+                %catch error and print it
                 dialogMessage = strcat([sprintf('%s\n','Error loading conf:'),ex.message]);
                 h = warndlg(dialogMessage,'Error loading conf','modal');
                 rethrow(ex);
@@ -225,6 +228,7 @@ classdef ConfigManager
                 msg = 'Invalid Settings';
                 isValid = true;
                 baseException = MException(msgID,msg);
+                %try error and display
                 try
                     assert(exist(conf.OutputDirectory,'dir')==7,'VALIDATE:outputdirectory','Output folder is not a valid folder.');
                 catch ex

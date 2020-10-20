@@ -120,5 +120,5 @@ function smoothdata = eegfiltfft(data, fs, lowcut, highcut, epochframes, filtord
             end
         end
     end
-    fprintf('\n');
+    %fprintf('\n');
 
