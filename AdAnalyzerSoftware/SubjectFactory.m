@@ -163,10 +163,10 @@ classdef SubjectFactory
             invalid = [];
             % get eeg files and split them
             [~,name,~] = fileparts(eegFile);
-            splitFileName = textscan(name,'% s','Delimiter','_');
+            splitFileName = textscan(name,'%s','Delimiter','_');
             electrodeName = splitFileName{1}{3};
             fileID = fopen(eegFile);
-            fileContents = textscan(fileID,'% d','Headerlines',1);
+            fileContents = textscan(fileID,'%d','Headerlines',1);
             fclose(fileID);
             eegRawValues =  fileContents{1};
             electrodeEEGdata = ElectrodeEEGData();

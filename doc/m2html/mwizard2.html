@@ -6,16 +6,17 @@
   <meta name="keywords" content="mwizard2">
   <meta name="description" content="MWIZARD - M2HTML Graphical User Interface">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
   <link type="text/css" rel="stylesheet" href="../m2html.css">
-  <script type="text/javascript">
-    if (top.frames.length == 0) { top.location = "../index.html"; };
-  </script>
 </head>
 <body>
 <a name="_top"></a>
-<!-- menu.html m2html -->
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">m2html</a> &gt; mwizard2.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for m2html&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
 <h1>mwizard2
 </h1>
 
@@ -41,7 +42,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>	TEMPLATE/GET Access data stored in a Template object</li><li><a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>	TEMPLATE/SET Edit data stored in a Template object</li><li><a href="m2html.html" class="code" title="function m2html(varargin)">m2html</a>	M2HTML - Documentation Generator for Matlab M-files and Toolboxes in HTML</li></ul>
+<li><a href="m2html.html" class="code" title="function m2html(varargin)">m2html</a>	M2HTML - Documentation Generator for Matlab M-files and Toolboxes in HTML</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -111,7 +112,7 @@ This function is called by:
 0057     <a href="#_sub12" class="code" title="subfunction refreshOptions(h)">refreshOptions</a>(h);
 0058 <span class="keyword">end</span>
 0059 
-0060 <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(h, <span class="string">'HandleVisibility'</span>, <span class="string">'callback'</span>);
+0060 set(h, <span class="string">'HandleVisibility'</span>, <span class="string">'callback'</span>);
 0061 
 0062 <span class="comment">%===============================================================================</span>
 0063 
@@ -124,7 +125,7 @@ This function is called by:
 0070            <span class="string">'Position'</span>,    [200 200 500 650],<span class="keyword">...</span>
 0071            <span class="string">'Tag'</span>,         mfilename);
 0072            
-0073 <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(h, <span class="string">'CloseRequestFcn'</span>, {@<a href="#_sub3" class="code" title="subfunction doClose(fig,evd,h)">doClose</a>,h});
+0073 set(h, <span class="string">'CloseRequestFcn'</span>, {@<a href="#_sub3" class="code" title="subfunction doClose(fig,evd,h)">doClose</a>,h});
 0074 
 0075 <span class="comment">%===============================================================================</span>
 0076 
@@ -134,7 +135,7 @@ This function is called by:
 0080                   <span class="string">'fg'</span>,    [0.8 0.8 0.8], <span class="keyword">...</span>
 0081                   <span class="string">'title'</span>, [0.8 0.8 0.9]);
 0082 
-0083 <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(h, <span class="string">'Color'</span>, wincolor.bg);
+0083 set(h, <span class="string">'Color'</span>, wincolor.bg);
 0084               
 0085 <span class="comment">%-------------------------------------------------------------------------------</span>
 0086 <span class="comment">%- Menu</span>
@@ -659,7 +660,7 @@ This function is called by:
 0605 l = line([100 0 0 100 100], [0 0 1 1 0], <span class="keyword">...</span>
 0606     <span class="string">'EraseMode'</span>,<span class="string">'none'</span>, <span class="keyword">...</span>
 0607     <span class="string">'Visible'</span>,<span class="string">'on'</span>,<span class="keyword">...</span>
-0608     <span class="string">'Color'</span>,<a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(gca,<span class="string">'XColor'</span>));
+0608     <span class="string">'Color'</span>,get(gca,<span class="string">'XColor'</span>));
 0609   
 0610 <span class="comment">% for i=10:5:100</span>
 0611 <span class="comment">%     set(p,'Xdata',[0 i i 0]); pause(0.02);</span>
@@ -811,36 +812,36 @@ This function is called by:
 0757     <a href="#_sub15" class="code" title="subfunction doInitMfiles(fig,evd,h)">doInitMfiles</a>(handles.mfiles,   0, h);
 0758     <a href="#_sub13" class="code" title="subfunction doInitHTMLDir(fig,evd,h)">doInitHTMLDir</a>(handles.htmldir, 0, h)
 0759     
-0760     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.recursive,       <span class="string">'Value'</span>,  opt.recursive);
-0761     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.graph,           <span class="string">'Value'</span>,  opt.graph); <span class="comment">%doInitGraphs(handles.graph,0,h);</span>
-0762     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.save,            <span class="string">'Value'</span>,  opt.save);
-0763     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.verbose,         <span class="string">'Value'</span>,  opt.verbose);
-0764     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.todo,            <span class="string">'Value'</span>,  opt.todo);
-0765     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.download,        <span class="string">'Value'</span>,  opt.download);
-0766     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.search,          <span class="string">'Value'</span>,  opt.search);
-0767     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.highlight,       <span class="string">'Value'</span>,  opt.syntaxHighlighting);
-0768     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.source,          <span class="string">'Value'</span>,  opt.source);
-0769     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.globalhypertext, <span class="string">'Value'</span>,  opt.globalHypertextLinks);
+0760     set(handles.recursive,       <span class="string">'Value'</span>,  opt.recursive);
+0761     set(handles.graph,           <span class="string">'Value'</span>,  opt.graph); <span class="comment">%doInitGraphs(handles.graph,0,h);</span>
+0762     set(handles.save,            <span class="string">'Value'</span>,  opt.save);
+0763     set(handles.verbose,         <span class="string">'Value'</span>,  opt.verbose);
+0764     set(handles.todo,            <span class="string">'Value'</span>,  opt.todo);
+0765     set(handles.download,        <span class="string">'Value'</span>,  opt.download);
+0766     set(handles.search,          <span class="string">'Value'</span>,  opt.search);
+0767     set(handles.highlight,       <span class="string">'Value'</span>,  opt.syntaxHighlighting);
+0768     set(handles.source,          <span class="string">'Value'</span>,  opt.source);
+0769     set(handles.globalhypertext, <span class="string">'Value'</span>,  opt.globalHypertextLinks);
 0770     
-0771     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.index,           <span class="string">'String'</span>, opt.indexFile);
-0772     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.extension,       <span class="string">'String'</span>, opt.extension(2:end)); <span class="comment">%remove the '.'</span>
-0773     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.tabs,            <span class="string">'String'</span>, num2str(opt.tabs));
+0771     set(handles.index,           <span class="string">'String'</span>, opt.indexFile);
+0772     set(handles.extension,       <span class="string">'String'</span>, opt.extension(2:end)); <span class="comment">%remove the '.'</span>
+0773     set(handles.tabs,            <span class="string">'String'</span>, num2str(opt.tabs));
 0774 <span class="comment">%     if ~strcmp(opt.rootdir, pwd)</span>
 0775 <span class="comment">%         warning('[M2HTML] You should ''cd %s'' before...',opt.rootdir);</span>
 0776 <span class="comment">%     end</span>
-0777     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.rootdir,         <span class="string">'String'</span>, opt.rootdir); <span class="comment">% need to 'cd' if different...</span>
-0778     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.column,          <span class="string">'String'</span>, num2str(4)); <span class="comment">%- not saved... default here</span>
+0777     set(handles.rootdir,         <span class="string">'String'</span>, opt.rootdir); <span class="comment">% need to 'cd' if different...</span>
+0778     set(handles.column,          <span class="string">'String'</span>, num2str(4)); <span class="comment">%- not saved... default here</span>
 0779     <span class="keyword">if</span> ischar(opt.load)
-0780         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.load,        <span class="string">'String'</span>, opt.load);
+0780         set(handles.load,        <span class="string">'String'</span>, opt.load);
 0781     <span class="keyword">else</span>
-0782         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.load,        <span class="string">'String'</span>, <span class="string">''</span>);
+0782         set(handles.load,        <span class="string">'String'</span>, <span class="string">''</span>);
 0783     <span class="keyword">end</span>
 0784     
-0785     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.textmisc,        <span class="string">'String'</span>, <span class="keyword">...</span>
+0785     set(handles.textmisc,        <span class="string">'String'</span>, <span class="keyword">...</span>
 0786         <span class="string">'Click on the wheel in the toolbar to launch M2HTML...'</span>); <span class="comment">%- not saved... default here</span>
-0787     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.waitbarmisc,     <span class="string">'EraseMode'</span>,<span class="string">'normal'</span>);
-0788     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.waitbarmisc,     <span class="string">'Xdata'</span>,[0 0 0 0]);
-0789     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.waitbarmisc,     <span class="string">'EraseMode'</span>,<span class="string">'none'</span>);
+0787     set(handles.waitbarmisc,     <span class="string">'EraseMode'</span>,<span class="string">'normal'</span>);
+0788     set(handles.waitbarmisc,     <span class="string">'Xdata'</span>,[0 0 0 0]);
+0789     set(handles.waitbarmisc,     <span class="string">'EraseMode'</span>,<span class="string">'none'</span>);
 0790 
 0791 
 0792 <span class="comment">%-------------------------------------------------------------------------------</span>
@@ -853,7 +854,7 @@ This function is called by:
 0799     <span class="keyword">if</span> isempty(path)
 0800         opt.htmlDir = fullfile(opt.rootdir, opt.htmlDir);
 0801     <span class="keyword">end</span>
-0802     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,opt.htmlDir);
+0802     set(fig,<span class="string">'String'</span>,opt.htmlDir);
 0803     setappdata(h,<span class="string">'options'</span>,opt);
 0804 
 0805 <a name="_sub14" href="#_subfunctions" class="code">function doInitTpl(fig,evd,h)</a>
@@ -864,14 +865,14 @@ This function is called by:
 0810     d = {d{~ismember(d,{<span class="string">'.'</span> <span class="string">'..'</span>})}};
 0811     <span class="keyword">if</span> ~isempty(d)
 0812         tpl = sprintf(<span class="string">'%s|'</span>,d{:});
-0813         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,tpl(1:end-1));
+0813         set(fig,<span class="string">'String'</span>,tpl(1:end-1));
 0814         i = strmatch(opt.template,d,<span class="string">'exact'</span>);
 0815         <span class="keyword">if</span> ~isempty(i)
-0816             <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'Value'</span>,i(1));
+0816             set(fig,<span class="string">'Value'</span>,i(1));
 0817         <span class="keyword">else</span>
 0818             <span class="comment">%- where is the default template ?</span>
 0819             warning(<span class="string">'[M2HTML] Default template ''%s'' not found.'</span>,opt.template);
-0820             <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'Value'</span>,1);
+0820             set(fig,<span class="string">'Value'</span>,1);
 0821             opt.template = d{1};
 0822             setappdata(h,<span class="string">'options'</span>,opt);
 0823             warning(<span class="string">'[M2HTML] Using template ''%s'' instead.'</span>,opt.template);
@@ -884,21 +885,21 @@ This function is called by:
 0830     opt = getappdata(h,<span class="string">'options'</span>);
 0831     <span class="keyword">if</span> ~isempty(opt.mFiles{1})
 0832         s = sprintf(<span class="string">'''%s'', '</span>,opt.mFiles{:}); s = s(1:end-2);
-0833         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
+0833         set(fig,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
 0834         <span class="keyword">return</span>;
 0835     <span class="keyword">end</span>
 0836     d = dir(opt.rootdir); d = {d([d.isdir]).name};
 0837     d = {d{~ismember(d,{<span class="string">'.'</span> <span class="string">'..'</span>})}};
 0838     <span class="keyword">if</span> length(d) == 0
 0839         warning(<span class="string">'[M2HTML] No subsequent directory found. Check your cwd.'</span>);
-0840         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,<span class="string">''</span>); <span class="comment">%- maybe open a uigetdir ?</span>
+0840         set(fig,<span class="string">'String'</span>,<span class="string">''</span>); <span class="comment">%- maybe open a uigetdir ?</span>
 0841         opt.mFiles = {<span class="string">''</span>};
 0842     <span class="keyword">elseif</span> length(d) == 1
-0843         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,d{1});
+0843         set(fig,<span class="string">'String'</span>,d{1});
 0844         opt.mFiles = d;
 0845     <span class="keyword">else</span>
 0846         s = sprintf(<span class="string">'''%s'', '</span>,d{:}); s = s(1:end-2);
-0847         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
+0847         set(fig,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
 0848         opt.mFiles = d;
 0849     <span class="keyword">end</span>
 0850     setappdata(h,<span class="string">'options'</span>,opt);
@@ -909,12 +910,12 @@ This function is called by:
 0855     <span class="keyword">if</span> s
 0856         disp(<span class="string">'GraphViz not installed: Generation of dependency graphs desactivated.'</span>);
 0857         disp(<span class="string">'See http://www.graphviz.org/ to get ''dot'' tool.'</span>);
-0858         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'FontAngle'</span>,<span class="string">'Oblique'</span>,<span class="string">'Enable'</span>,<span class="string">'inactive'</span>);
-0859         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'Value'</span>,0);
+0858         set(fig,<span class="string">'FontAngle'</span>,<span class="string">'Oblique'</span>,<span class="string">'Enable'</span>,<span class="string">'inactive'</span>);
+0859         set(fig,<span class="string">'Value'</span>,0);
 0860         opt.graph = 0;
 0861         setappdata(h,<span class="string">'options'</span>,opt);
 0862     <span class="keyword">else</span>
-0863         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'Value'</span>,opt.graph);
+0863         set(fig,<span class="string">'Value'</span>,opt.graph);
 0864     <span class="keyword">end</span>
 0865 
 0866 
@@ -930,28 +931,28 @@ This function is called by:
 0876     d = uigetdir(pwd,<span class="string">'Select the Root directory'</span>);
 0877     <span class="keyword">if</span> ~d, <span class="keyword">return</span>; <span class="keyword">end</span>;
 0878     opt.rootdir = d;
-0879     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.rootdir,<span class="string">'String'</span>,d);
+0879     set(handles.rootdir,<span class="string">'String'</span>,d);
 0880     
 0881     <span class="comment">% set mfiles</span>
 0882     d = dir(opt.rootdir); d = {d([d.isdir]).name};
 0883     d = {d{~ismember(d,{<span class="string">'.'</span> <span class="string">'..'</span>})}};
 0884     <span class="keyword">if</span> length(d) == 0
 0885         warning(<span class="string">'[M2HTML] No subsequent directory found. Check your cwd.'</span>);
-0886         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.mfiles,<span class="string">'String'</span>,<span class="string">''</span>);
+0886         set(handles.mfiles,<span class="string">'String'</span>,<span class="string">''</span>);
 0887         opt.mFiles = {<span class="string">''</span>};
 0888     <span class="keyword">elseif</span> length(d) == 1
-0889         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.mfiles,<span class="string">'String'</span>,d{1});
+0889         set(handles.mfiles,<span class="string">'String'</span>,d{1});
 0890         opt.mFiles = d;
 0891     <span class="keyword">else</span>
 0892         s = sprintf(<span class="string">'''%s'', '</span>,d{:}); s = s(1:end-2);
-0893         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.mfiles,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
+0893         set(handles.mfiles,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
 0894         opt.mFiles = d;
 0895     <span class="keyword">end</span>
 0896     
 0897     <span class="comment">% set htmldir</span>
 0898     [path,name] = fileparts(opt.htmlDir);
 0899     opt.htmlDir = fullfile(opt.rootdir, name);
-0900     <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.htmldir,<span class="string">'String'</span>,opt.htmlDir);
+0900     set(handles.htmldir,<span class="string">'String'</span>,opt.htmlDir);
 0901     
 0902     setappdata(h,<span class="string">'options'</span>,opt);
 0903         
@@ -969,7 +970,7 @@ This function is called by:
 0915     <span class="keyword">if</span> v == 1
 0916         d = {d{i}};
 0917         s = sprintf(<span class="string">'''%s'', '</span>,d{:}); s = s(1:end-2);
-0918         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(handles.mfiles,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
+0918         set(handles.mfiles,<span class="string">'String'</span>,[<span class="string">'{'</span> s <span class="string">'}'</span>]);
 0919     <span class="keyword">end</span>
 0920     opt.mFiles = d;
 0921 
@@ -977,7 +978,7 @@ This function is called by:
 0923 
 0924 <a name="_sub19" href="#_subfunctions" class="code">function doSetRecursive(fig,evd,h)</a>
 0925     opt = getappdata(h,<span class="string">'options'</span>);
-0926     opt.recursive = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0926     opt.recursive = get(fig,<span class="string">'Value'</span>);
 0927     setappdata(h,<span class="string">'options'</span>,opt);
 0928 
 0929 <span class="comment">%-------------------------------------------------------------------------------</span>
@@ -986,17 +987,17 @@ This function is called by:
 0932 
 0933 <a name="_sub20" href="#_subfunctions" class="code">function doSetOutputDir(fig,evd,h)</a>
 0934     opt = getappdata(h,<span class="string">'options'</span>);
-0935     opt.htmlDir = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'String'</span>);
+0935     opt.htmlDir = get(fig,<span class="string">'String'</span>);
 0936     setappdata(h,<span class="string">'options'</span>,opt);
 0937 
 0938 <a name="_sub21" href="#_subfunctions" class="code">function doSetIndex(fig,evd,h)</a>
 0939     opt = getappdata(h,<span class="string">'options'</span>);
-0940     opt.indexFile = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'String'</span>);
+0940     opt.indexFile = get(fig,<span class="string">'String'</span>);
 0941     setappdata(h,<span class="string">'options'</span>,opt);
 0942     
 0943 <a name="_sub22" href="#_subfunctions" class="code">function doSetExtension(fig,evd,h)</a>
 0944     opt = getappdata(h,<span class="string">'options'</span>);
-0945     e = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'String'</span>);
+0945     e = get(fig,<span class="string">'String'</span>);
 0946     <span class="keyword">if</span> ~isempty(e) &amp; e(1) ~= <span class="string">'.'</span>
 0947         e = [<span class="string">'.'</span> e];
 0948     <span class="keyword">end</span>
@@ -1005,8 +1006,8 @@ This function is called by:
 0951     
 0952 <a name="_sub23" href="#_subfunctions" class="code">function doSetTemplate(fig,evd,h)</a>
 0953     opt = getappdata(h,<span class="string">'options'</span>);
-0954     s = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'String'</span>);
-0955     v = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0954     s = get(fig,<span class="string">'String'</span>);
+0955     v = get(fig,<span class="string">'Value'</span>);
 0956     opt.template = deblank(s(v,:));
 0957     setappdata(h,<span class="string">'options'</span>,opt);
 0958 
@@ -1016,47 +1017,47 @@ This function is called by:
 0962 
 0963 <a name="_sub24" href="#_subfunctions" class="code">function doSetSource(fig,evd,h)</a>
 0964     opt = getappdata(h,<span class="string">'options'</span>);
-0965     opt.source = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0965     opt.source = get(fig,<span class="string">'Value'</span>);
 0966     setappdata(h,<span class="string">'options'</span>,opt);
 0967 
 0968 <a name="_sub25" href="#_subfunctions" class="code">function doSetHighlight(fig,evd,h)</a>
 0969     opt = getappdata(h,<span class="string">'options'</span>);
-0970     opt.syntaxHighlighting = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0970     opt.syntaxHighlighting = get(fig,<span class="string">'Value'</span>);
 0971     setappdata(h,<span class="string">'options'</span>,opt);
 0972 
 0973 <a name="_sub26" href="#_subfunctions" class="code">function doSetGraph(fig,evd,h)</a>
 0974     opt = getappdata(h,<span class="string">'options'</span>);
-0975     opt.graph = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0975     opt.graph = get(fig,<span class="string">'Value'</span>);
 0976     setappdata(h,<span class="string">'options'</span>,opt);
 0977 
 0978 <a name="_sub27" href="#_subfunctions" class="code">function doSetSearch(fig,evd,h)</a>
 0979     opt = getappdata(h,<span class="string">'options'</span>);
-0980     opt.search = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0980     opt.search = get(fig,<span class="string">'Value'</span>);
 0981     setappdata(h,<span class="string">'options'</span>,opt);
 0982 
 0983 <a name="_sub28" href="#_subfunctions" class="code">function doSetGlobal(fig,evd,h)</a>
 0984     opt = getappdata(h,<span class="string">'options'</span>);
-0985     opt.globalHypertextLinks = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0985     opt.globalHypertextLinks = get(fig,<span class="string">'Value'</span>);
 0986     setappdata(h,<span class="string">'options'</span>,opt);
 0987 
 0988 <a name="_sub29" href="#_subfunctions" class="code">function doSetDownload(fig,evd,h)</a>
 0989     opt = getappdata(h,<span class="string">'options'</span>);
-0990     opt.download = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0990     opt.download = get(fig,<span class="string">'Value'</span>);
 0991     setappdata(h,<span class="string">'options'</span>,opt);
 0992 
 0993 <a name="_sub30" href="#_subfunctions" class="code">function doSetTodo(fig,evd,h)</a>
 0994     opt = getappdata(h,<span class="string">'options'</span>);
-0995     opt.todo = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+0995     opt.todo = get(fig,<span class="string">'Value'</span>);
 0996     setappdata(h,<span class="string">'options'</span>,opt);
 0997 
 0998 <a name="_sub31" href="#_subfunctions" class="code">function doSetVerbose(fig,evd,h)</a>
 0999     opt = getappdata(h,<span class="string">'options'</span>);
-1000     opt.verbose = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+1000     opt.verbose = get(fig,<span class="string">'Value'</span>);
 1001     setappdata(h,<span class="string">'options'</span>,opt);
 1002 
 1003 <a name="_sub32" href="#_subfunctions" class="code">function doSetSaveAsMat(fig,evd,h)</a>
 1004     opt = getappdata(h,<span class="string">'options'</span>);
-1005     opt.save = <a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'Value'</span>);
+1005     opt.save = get(fig,<span class="string">'Value'</span>);
 1006     setappdata(h,<span class="string">'options'</span>,opt);
 1007 
 1008 <a name="_sub33" href="#_subfunctions" class="code">function doSetLoadMat(fig,evd,h)</a>
@@ -1065,17 +1066,17 @@ This function is called by:
 1011         <span class="string">'Load a m2html MAT-file'</span>);
 1012     <span class="keyword">if</span> findex
 1013         opt.load = fullfile(pname,fname);
-1014         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,fullfile(pname,fname));
+1014         set(fig,<span class="string">'String'</span>,fullfile(pname,fname));
 1015     <span class="keyword">end</span>
 1016     setappdata(h,<span class="string">'options'</span>,opt);
 1017 
 1018 <a name="_sub34" href="#_subfunctions" class="code">function doSetTabs(fig,evd,h)</a>
 1019     opt = getappdata(h,<span class="string">'options'</span>);
-1020     t = str2num(<a href="../m2html/@template/get.html" class="code" title="function varargout = get(tpl,action,varargin)">get</a>(fig,<span class="string">'String'</span>));
+1020     t = str2num(get(fig,<span class="string">'String'</span>));
 1021     <span class="keyword">if</span> t &gt;= 0 &amp; length(t) == 1 
 1022         opt.tabs = t; 
 1023     <span class="keyword">else</span>
-1024         <a href="../m2html/@template/set.html" class="code" title="function tpl = set(tpl,action,varargin)">set</a>(fig,<span class="string">'String'</span>,num2str(opt.tabs));
+1024         set(fig,<span class="string">'String'</span>,num2str(opt.tabs));
 1025     <span class="keyword">end</span>
 1026     setappdata(h,<span class="string">'options'</span>,opt);
 1027 
@@ -1095,6 +1096,6 @@ This function is called by:
 1041         s = floor((l - 3) / 2);
 1042         text2 = [text(1:s) <span class="string">'...'</span> text(end-(l-s-3)+1:end)];
 1043     <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 03-Jun-2020 09:15:55 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Wed 21-Oct-2020 11:57:51 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

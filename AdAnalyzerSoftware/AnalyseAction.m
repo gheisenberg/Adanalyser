@@ -366,6 +366,7 @@ classdef AnalyseAction < handle
         end
         
         %% Calculates staticstics for the different eeg frequencies
+        %  creates and returns StatsMat cell array
         function statsMat = calculateEEGFrequencyStatistics(self,eeg,delta,theta,alpha,beta1,beta2,task)
             statsMat = cell(7,9);
             [m,sd,devP,devM] = self.calculateStatistics(eeg);
@@ -385,15 +386,18 @@ classdef AnalyseAction < handle
         end
         
         %% Calculates statistics for eda values including delays (Delta_t) and amplitudes
+        %  creates and returns StatsMat cell array % Tim Absprache zu Stats
         function statsMat = calculateEDAStatistics(self,StimuInt,edaValues,delays,amplitudes,StimuIntDefs)
             edaValuesForStimuInt = edaValues(StimuInt);
             numEDAStimuInts = length(edaValuesForStimuInt);
-            % create EDA cell array
+            % create EDA cell array for statistics and enter the data into
+            % the array
             statsMat = cell(numEDAStimuInts+4,9);
             statsMat(1,2:5) ={'mean[µS]','sd[µS]','dev-[µS]','dev+[µS]'} ;
             completeEDA = cell2mat(edaValues');
             [m,sd,devP,devM] = self.calculateStatistics(completeEDA);
             statsMat(2,1:5) = {'EDA complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+            % get Stimlus Type
             for i=1:numEDAStimuInts
                 StimuIntClass = StimuIntDefs{i};
                 [m,sd,devP,devM] = self.calculateStatistics(edaValuesForStimuInt{i});
@@ -428,12 +432,12 @@ classdef AnalyseAction < handle
             end
         end
         
-        %% Calculates eda delays for given intervals %Tim
+        %% Calculates eda delays for given intervals
         function [values,delays] = calculateDelaysEDA(self,edaValues,intervals,edaDevice)
             edaValuesDetrend = detrend(edaValues);
             numEDAValues = length(edaValuesDetrend);
             edaPerSec = edaDevice.samplingRate;
-            intervals(end+1)=numEDAValues/edaPerSec;
+            intervals(end+1)= numEDAValues/edaPerSec;
             start = uint32(intervals(1)*1);
             ende = uint32((intervals(2)+5)*1); % end offset (project in next interval)
             offset = 1; % start offset (start 5 datapoints later from interval start)
@@ -497,19 +501,21 @@ classdef AnalyseAction < handle
             end
         end
         
+        
+        %% Function which returns the indices of the stimlus interval of a given type
+        %  see StimuIntDefinition.m for more information about the Stimlus
+        %  types
         function indicies = getStimuIntIndex(self,SearchType,StimuIntDef)
             lengthStimu = length(StimuIntDef);
             indicies = zeros(1,lengthStimu);
 
             for i = 1:lengthStimu
                 StimuIntType = StimuIntDef{i}.stimuIntType;
-                
                 for j = 1:length(SearchType)
                     if StimuIntType == SearchType(j)
                         indicies(i)= i;    
                     end
-                end
-                
+                end 
             end
             indicies = indicies(indicies~=0);
         end

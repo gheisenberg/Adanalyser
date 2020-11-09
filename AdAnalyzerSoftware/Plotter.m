@@ -1141,9 +1141,9 @@ classdef Plotter
             massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
             
             if(isempty(intervals))
-                legend(massAndTime,'theta baseline mean');
+                legend(massAndTime,'theta baseline average');
             else
-                h=legend(massAndTime,'theta baseline mean','Stimulus');
+                h=legend(massAndTime,'theta baseline average','Stimulus');
             end
             ylabel('Theta [µV]');
             axis([0 length(theta_s) 0 maxscale]);
@@ -1161,9 +1161,9 @@ classdef Plotter
             hold off;
             massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
             if(isempty(intervals))
-                legend(massAndTime,'alpha baseline mean');
+                legend(massAndTime,'alpha baseline average');
             else
-                h= legend(massAndTime,'alpha baseline mean','Stimulus');
+                h= legend(massAndTime,'alpha baseline average','Stimulus');
             end
             grid;
             ylabel('Alpha [µV]');
@@ -1179,9 +1179,9 @@ classdef Plotter
             massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
             hold off;
             if(isempty(intervals))
-                legend(massAndTime,'beta1 baseline mean');
+                legend(massAndTime,'beta1 baseline average');
             else
-                h= legend(massAndTime,'beta1 baseline mean','Stimulus');
+                h= legend(massAndTime,'beta1 baseline average','Stimulus');
             end
             grid;
             ylabel('Beta1 [µV]');
@@ -1197,9 +1197,9 @@ classdef Plotter
             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
             hold off;
             if(isempty(intervals))
-                legend(massAndTime,'beta2 baseline mean');
+                legend(massAndTime,'beta2 baseline average');
             else
-                h=legend(massAndTime,'beta2 baseline mean','Stimulus');
+                h=legend(massAndTime,'beta2 baseline average','Stimulus');
             end
             grid;
             ylabel('Beta2 [µV]');
@@ -1218,9 +1218,9 @@ classdef Plotter
             self.plotIntervals(intervals,[0, maxscaleTask],max(xtime)/max(xname),labels,'r');
             hold off;
             if(isempty(intervals))
-                legend(massAndTime,'TEI baseline mean');
+                legend(massAndTime,'TEI baseline average');
             else
-                legend(massAndTime,'TEI baseline mean','Stimulus');
+                legend(massAndTime,'TEI baseline average','Stimulus');
             end
             grid;
             ylabel('TEI');
