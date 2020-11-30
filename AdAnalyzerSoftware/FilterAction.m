@@ -54,6 +54,8 @@ classdef FilterAction < handle
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
                     filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); 
                     eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
+                    % save EGG Values in vector to write out csv
+                    allEEGValues(j,:) = filteredList';
                     eegValues.eegValues = filteredList';
                     subject.eegValuesForElectrodes{j} = eegValues;
                     % Rate Quality for EEG Electrode
@@ -69,6 +71,23 @@ classdef FilterAction < handle
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
                     subject.edaPerVid = edaValuesPerStim;
                 end
+                % check for flag in config and prints out EEG Data 
+                if config.EEGData == 1
+                    fname = [config.OutputDirectory '/' subject.name '_Filtered_EEG_Values.csv'];
+                    ValuesWithLabel = [subject.Electrodes num2cell(allEEGValues)];
+                    writecell(ValuesWithLabel', fname);
+                end
+                
+                if config.EDAData == 1
+                fname = [config.OutputDirectory '/' subject.name '_EDA_Values.csv'];
+                writematrix(subject.edaValues,fname)
+                end
+                
+                if config.HRVData == 1
+                fname = [config.OutputDirectory '/' subject.name '_HRV_Values.csv'];
+                writematrix(subject.hrvValues,fname)
+                end
+                
                 data.subjects{i} = subject;
                 waitbar(i/numSubjects);
                 end       

@@ -230,6 +230,7 @@ classdef AnalyseAction < handle
                 EEG.xmax = (EEG.pnts-1)/EEG.srate;  % epoch end time (in seconds)
             end
             
+            self.plotter.powerSpecs(subject,EEG)
             
             % Plot 2D Topology Map
             if config.topoplot == 1 

@@ -45,7 +45,11 @@ classdef Config
         BrainRange = 2000
         % Variables for number of subject
         numSubjects = 0
-        
+        % Variables for export settings
+        EEGData = 0
+        EDAData = 0
+        HRVData = 0
+        signalSpec = 0
     end
     
     methods
@@ -85,7 +89,11 @@ classdef Config
                 'numSubjects=',num2str(config.numSubjects),newline,...
                 'topoplot=',num2str(config.topoplot),newline,...
                 'UserFrameRate=',num2str(config.UserFrameRate),newline,...
-                'brainactivity=',num2str(config.brainactivity)
+                'brainactivity=',num2str(config.brainactivity),newline,...
+                'ExportEEG=',num2str(config.EEGData),newline,...
+                'ExportEDA=',num2str(config.EDAData),newline,...
+                'ExportHRV=',num2str(config.HRVData),newline,...
+                'ExportSignalSpectra=',num2str(config.signalSpec)
                 ];
         end
     end

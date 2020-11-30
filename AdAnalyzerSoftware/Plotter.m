@@ -233,6 +233,34 @@ classdef Plotter
             fclose(fid);
         end
         
+        %% Export signal power spectren
+        function powerSpecs(self,subject,EEG)
+            % prepare data for print
+            SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
+                    
+            % prepare task variable
+            numValues = subject.eegValuesForElectrodes; 
+            numElec = length(numValues);
+                    
+            for j = 1:numElec
+            % eegfiltfft is a eeglab function for (high|low|band) - 
+            % pass filter data using inverse fft - for more
+            % information please look at eegfiltfft.m
+
+            % Theta(5-7 Hz)
+            theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,:,:),EEG.srate,5,7)).^2));
+            % Alpha(8-13 Hz)
+            alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,:,:),EEG.srate,8,13)).^2));
+            % Beta1(14-24 Hz)
+            beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,:,:),EEG.srate,14,24)).^2));
+            % Task-Engagement
+                if alpha(j) > 0 && theta(j) > 0 % Theta = 0 bei 900ms, geht in else - else war falsch programmiert
+                    task(j) = beta1(j)/(alpha(j)+theta(j));
+                else
+                    task(j) = 0; % zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
+                end
+            end
+        end
         
         %% Print 2D Topo of EEG Data
         %  Print of 2D Topology map over a certain timeframe
@@ -303,7 +331,12 @@ classdef Plotter
                             task(j,m) = 0; % zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
                             end
                         end
+                        % get all signalSpec Data
+                        Signals = [theta; alpha; beta1;task(:,m)'];
+                        subject.signalSpec = cat(2,subject.signalSpec,Signals);
                     end
+                    
+                    
                     
                     % loop preperation
                     numofprint = length(range)-1;
@@ -353,6 +386,10 @@ classdef Plotter
                         close
                     end     
                 end
+            end
+            if config.signalSpec == 1
+                fname = [config.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
+                writematrix(subject.signalSpec,fname)
             end
         end
         
