@@ -298,7 +298,7 @@ classdef Plotter
 
                     % prepare data for print
                     SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 300
+                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 364 - Testen
                         if pos(end) == EEG.pnts+1
                             pos(end) = pos(end)-1; % Cut 1 so index of pnts and pos is ==
                         end
@@ -324,7 +324,7 @@ classdef Plotter
                         alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
                         % Beta1(14-24 Hz)
                         beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
-                        % Task-Engagement
+                        % TEI Index
                             if alpha(j) > 0 && theta(j) > 0 % Theta = 0 bei 900ms, geht in else - else war falsch programmiert
                             task(j,m) = beta1(j)/(alpha(j)+theta(j));
                             else
@@ -792,7 +792,7 @@ classdef Plotter
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
+            fName = [config.OutputDirectory '/' subjectName '_EDA' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
