@@ -39,17 +39,18 @@ classdef Config
         RecurrenceThreshold = 0
         EEGCutoffValue = 10
         % Variables for Topology Plot
-        videoName = ''
+        videoString = ''
         UserFrameRate = 30
         TopoRange = 2000
         BrainRange = 2000
+        videoOutput = 1
         % Variables for number of subject
         numSubjects = 0
         % Variables for export settings
-        EEGData = 0
-        EDAData = 0
-        HRVData = 0
-        signalSpec = 0
+        EEGData = 1
+        EDAData = 1
+        HRVData = 1
+        signalSpec = 1
     end
     
     methods
@@ -65,7 +66,7 @@ classdef Config
                 'EEGFiles=',eegTxt,newline,...
                 'HRVFiles=',hrvTxt,newline,...
                 'StimuIntDef=',config.StimuIntDef,newline,...
-                'VideoName=',config.videoName,newline,...
+                'videoString=',config.videoString,newline,...
                 'EEG_DEVICE_USED=',num2str(config.EEG_DEVICE_USED),newline,...
                 'EDA_DEVICE_USED=',num2str(config.EDA_DEVICE_USED),newline,...
                 'HRV_DEVICE_USED=',num2str(config.HRV_DEVICE_USED),newline,...

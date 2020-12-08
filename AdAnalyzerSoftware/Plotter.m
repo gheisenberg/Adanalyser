@@ -232,36 +232,7 @@ classdef Plotter
             end
             fclose(fid);
         end
-        
-        %% Export signal power spectren
-        function powerSpecs(self,subject,EEG)
-            % prepare data for print
-            SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-                    
-            % prepare task variable
-            numValues = subject.eegValuesForElectrodes; 
-            numElec = length(numValues);
-                    
-            for j = 1:numElec
-            % eegfiltfft is a eeglab function for (high|low|band) - 
-            % pass filter data using inverse fft - for more
-            % information please look at eegfiltfft.m
 
-            % Theta(5-7 Hz)
-            theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,:,:),EEG.srate,5,7)).^2));
-            % Alpha(8-13 Hz)
-            alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,:,:),EEG.srate,8,13)).^2));
-            % Beta1(14-24 Hz)
-            beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,:,:),EEG.srate,14,24)).^2));
-            % Task-Engagement
-                if alpha(j) > 0 && theta(j) > 0 % Theta = 0 bei 900ms, geht in else - else war falsch programmiert
-                    task(j) = beta1(j)/(alpha(j)+theta(j));
-                else
-                    task(j) = 0; % zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
-                end
-            end
-        end
-        
         %% Print 2D Topo of EEG Data
         %  Print of 2D Topology map over a certain timeframe
         %  config: contains all configs as String
@@ -270,12 +241,13 @@ classdef Plotter
         %  StimuDef: Simulus Class, with length, type, definition
         %  electrodes: contains all used electrodes as String
         %  vidFrameReSize: Contains struct with each video frame     
-        function printTopo(self,config,subject,EEG,StimuDef,electrodes,vidFrameReSize)            
+        function printTopo(self,config,subject,EEG,StimuDef,electrodes)            
             % Variables needed for loop
             numStimuInts = length(StimuDef);
             interval = config.TopoRange;
             subjectName = subject.name;
             TopoStart = 0;
+            timestamps = [];
             
             % loop for each Stimulus Interval
             for i = 1:numStimuInts
@@ -286,16 +258,25 @@ classdef Plotter
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
-
+                
                 % prepare print range
                 TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
                 range = TopoStart:interval:TopoEnd;
                 range = double(range);
                 TopoStart = TopoEnd; % defined for the next loop
-
+                
                 % only print Type > 4 = Video/Images/Audio Stimulus
                 if StimuInt.stimuIntType >= 4
-
+                    
+                    % prepare video for print
+                    fileDirectory = [config.videoString StimuInt.stimuIntDescrp '.mp4']; % get directory
+                    %fileDirectory = regexprep(fileDirectory, ' ', '_');
+                    vid = VideoReader(fileDirectory); % import video
+                    numOfFrames = round(vid.FrameRate*vid.Duration); % calculate number of frames
+                    vidFrame = read(vid,[1 numOfFrames]);
+                    % resize video according to UserFrameRate
+                    vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
+                    
                     % prepare data for print
                     SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
                     pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 364 - Testen
@@ -304,6 +285,9 @@ classdef Plotter
                         end
                     nanpos = find(isnan(pos));
                     pos(nanpos) = 1;
+                    
+                    % create variable for .csv export with all timestamps
+                    timestamps = cat(1,timestamps,range(1:end-1)'/1000);
                     
                     % prepare task variable
                     numPos = length(pos)-1;
@@ -332,15 +316,17 @@ classdef Plotter
                             end
                         end
                         % get all signalSpec Data
-                        Signals = [theta; alpha; beta1;task(:,m)'];
-                        subject.signalSpec = cat(2,subject.signalSpec,Signals);
+                        Signals = [theta; alpha; beta1;task(:,m)']';
+                        subject.signalSpec = cat(1,subject.signalSpec,Signals);
                     end
                     
                     
                     
                     % loop preperation
                     numofprint = length(range)-1;
-                    open(vidObj);
+                    if config.videoOutput == 1
+                        open(vidObj);
+                    end
                     
                     for k = 1:numofprint
                         % print preparation
@@ -365,22 +351,34 @@ classdef Plotter
 
                         % Subplot title
                         sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
-
-                        % set render to opengl
-                        set(gcf,'renderer','opengl') 
-                        drawnow nocallbacks
-                        %create video in plot
-                        for t = 1:vidObj.FrameRate
-                            % insert video frames
-                            videochart = subplot(2,2,[1 2]);
-                            imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*k)));
+                        
+                        % print out first frame
+                        videochart = subplot(2,2,[1 2]);
+                        imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
+                        fName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
+                        print(fName,'-dpng','-r300',mainfig);
+                        
+                        if config.videoOutput == 1
+                            % set render to opengl
+                            set(mainfig,'units','pixels','position',[0 0 640 480]) 
+                            set(gcf,'renderer','opengl') 
+                            drawnow nocallbacks
                             
-                            % save as image
-                            fName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
-                            print(fName,'-dpng','-r300',mainfig);
+                            % add to test VM - delete comment
+                            % set(videoObj, 'LoggingMode', 'memory');
                             
-                            % create video
-                            writeVideo(vidObj, imread(fName));
+                            %create video in plot
+                            for t = 1:vidObj.FrameRate
+                                % insert video frames
+                                videochart = subplot(2,2,[1 2]);
+                                imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*k)));
+                                
+                                % get frame from figure
+                                currentFrame = getframe(mainfig);
+                                
+                                % create video
+                                writeVideo(vidObj, currentFrame);
+                            end
                         end
                         % close figure
                         close
@@ -388,8 +386,14 @@ classdef Plotter
                 end
             end
             if config.signalSpec == 1
-                fname = [config.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
-                writematrix(subject.signalSpec,fname)
+                header = ["Timestamps","Theta_5-7Hz","Alpha_8-13Hz","Beta1_14-24Hz","TEI_Index"];
+                for i = 1:numElec
+                    signalsPerElectrode = subject.signalSpec(i:9:end,:);
+                    signalsPerElectrode = cat(2,timestamps,signalsPerElectrode);
+                    signalsPerElectrode = cat(1,header,signalsPerElectrode);
+                    fname = [config.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values_' subject.Electrodes{i} '.csv'];
+                    writematrix(signalsPerElectrode,fname,'Delimiter','semi')
+                end
             end
         end
         

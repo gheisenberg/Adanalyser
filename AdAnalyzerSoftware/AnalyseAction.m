@@ -229,19 +229,10 @@ classdef AnalyseAction < handle
                 EEG.xmin = 0;                       % epoch start time (in seconds)
                 EEG.xmax = (EEG.pnts-1)/EEG.srate;  % epoch end time (in seconds)
             end
-            
-            self.plotter.powerSpecs(subject,EEG)
-            
+                        
             % Plot 2D Topology Map
             if config.topoplot == 1 
-                % prepare video for print
-                fileDirectory = config.videoName; % get directory
-                vid = VideoReader(fileDirectory); % import video
-                numOfFrames = round(vid.FrameRate*vid.Duration); % calculate number of frames
-                vidFrame = read(vid,[1 numOfFrames]);
-                % resize video according to UserFrameRate
-                vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
-                self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes,vidFrameReSize);
+                self.plotter.printTopo(config,subject,EEG,StimuIntDefs,electrodes);
             end
             
             % Plot Brain Activity Plot

@@ -6,7 +6,7 @@ EDAFiles=.\data\data_ABM\eda\vp_0001_2014-12-01_10-07-00_EDA.csv
 EEGFiles=.\data\data_ABM\electrodeEEG\vp_0001_C3_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_C4_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_Cz_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_F3_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_F4_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_Fz_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_P3_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_P4_2020-03-10_19-08-00_EEG.csv,.\data\data_ABM\electrodeEEG\vp_0001_POz_2020-03-10_19-08-00_EEG.csv
 HRVFiles=.\data\data_ABM\hrv\vp_0001_2014-12-01_10-07-00_RR.txt
 StimuIntDef=.\config\AdIndex\AdIndex_ABM.txt
-VideoName=.\data\Eyetracking_Video\PalaSTRONG.wmv
+videoString=.\data\Eyetracking_Video\
 ----------------------------
 DEVICES
 ----------------------------
@@ -37,3 +37,7 @@ numSubjects=1
 topoplot=1
 UserFrameRate=30
 brainactivity=1
+ExportEEG=1
+ExportEDA=1
+ExportHRV=1
+ExportSignalSpectra=1

@@ -73,19 +73,30 @@ classdef FilterAction < handle
                 end
                 % check for flag in config and prints out EEG Data 
                 if config.EEGData == 1
+                    % calculate time and add labels to timeseries
+                    time = 0:1/eegDevice.samplingRate:seconds;
+                    time = ["Timestamp",time(2:end)];
+                    output = [subject.Electrodes num2cell(allEEGValues)];
+                    % combine
+                    output = [time; output];
                     fname = [config.OutputDirectory '/' subject.name '_Filtered_EEG_Values.csv'];
-                    ValuesWithLabel = [subject.Electrodes num2cell(allEEGValues)];
-                    writecell(ValuesWithLabel', fname);
+                    writematrix(output', fname,'Delimiter','semi');
                 end
                 
                 if config.EDAData == 1
-                fname = [config.OutputDirectory '/' subject.name '_EDA_Values.csv'];
-                writematrix(subject.edaValues,fname)
+                    % calculate time and add to timeseries
+                    time = 0:1/edaDevice.samplingRate:seconds;
+                    output = cat(2,time(2:end)',subject.edaValues);
+                    fname = [config.OutputDirectory '/' subject.name '_EDA_Values.csv'];
+                    writematrix(output,fname,'Delimiter','semi')
                 end
                 
                 if config.HRVData == 1
-                fname = [config.OutputDirectory '/' subject.name '_HRV_Values.csv'];
-                writematrix(subject.hrvValues,fname)
+                    % calculate time and add to timeseries
+                    time = 1:1/hrvDevice.samplingRate:seconds+5; % add 5 seconds according to SubjectFactory.m
+                    output = cat(2,time',subject.hrvValues);
+                    fname = [config.OutputDirectory '/' subject.name '_HRV_Values.csv'];
+                    writematrix(output,fname,'Delimiter','semi')
                 end
                 
                 data.subjects{i} = subject;

@@ -46,8 +46,8 @@ classdef ConfigManager
                         if strcmp(splitLine{1},'StimuIntDef')
                             conf.StimuIntDef=splitLine{2};
                         end
-                        if strcmp(splitLine{1},'VideoName')
-                            conf.videoName=splitLine{2};
+                        if strcmp(splitLine{1},'videoString')
+                            conf.videoString=splitLine{2};
                         end
                         if strcmp(splitLine{1},'EEG_DEVICE_USED')
                             conf.EEG_DEVICE_USED=str2num(splitLine{2});
