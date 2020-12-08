@@ -195,26 +195,60 @@ classdef Plotter
         %   index: index as String
         %   fName: File name as String
         function writeValid(self,index, fName)
+            header = index(1:3);
+            index = index(4:end);
             numberOfPages = ceil(length(index)/50);
-            fig = figure('Visible','off');
-            axes('Position',[0.1 0.1 1 1],'Visible','off');
-            fig.PaperPositionMode='auto';
-            % set it full size for pdf page
-            set(fig,'Units','centimeters');
-            fig.Position = [0,0,20.635, 29.35];
-            % for loop to create different pages if more than 50 subjects
-            if numberOfPages == 1
-                descrp = text(0.1,0.9,index,'FontName','FixedWidth','FontSize',8);
-                descrp.VerticalAlignment = 'top';
-                print(fName,'-dpdf',fig,'-r0','-fillpage');
-            else
-                for i = 1:numberOfPages
-                    indexPage = index(50*i-1:50*i-1);
-                    descrp = text(0.1,0.9,indexPage,'FontName','FixedWidth','FontSize',8);
-                    descrp.VerticalAlignment = 'top';
-                    fNamePage = fName(1:length(fName)-4) + '_' + num2str(i) + '.pdf';
-                    print(fNamePage,'-dpdf',fig,'-r0','-fillpage');
+            
+%             % for loop to create different pages if more than 50 subjects
+%             if numberOfPages == 1
+%                 
+%                 % setup fig
+%                 fig = figure('Visible','off');
+%                 axes('Position',[0.1 0.1 1 1],'Visible','off');
+%                 fig.PaperPositionMode='auto';
+%                 % set it full size for pdf page
+%                 set(fig,'Units','centimeters');
+%                 fig.Position = [0,0,20.635, 29.35];
+%                 
+%                 % print fig and save as pdf
+%                 descrp = text(0.1,0.9,index,'FontName','FixedWidth','FontSize',8);
+%                 descrp.VerticalAlignment = 'top';
+%                 print(fName,'-dpdf',fig,'-r0','-fillpage');
+                
+            for i = 1:numberOfPages
+                % setup fig
+                fig = figure('Visible','off');
+                axes('Position',[0.1 0.1 1 1],'Visible','off');
+                fig.PaperPositionMode='auto';
+                % set it full size for pdf page
+                set(fig,'Units','centimeters');
+                fig.Position = [0,0,20.635, 29.35];
+                
+                % get index for subject < 50
+                if numberOfPages == 1
+                    indexPage = index(1:end);
+                
+                % subject > 50
+                % get first 50 subjects
+                elseif i == 1
+                    indexPage = index(1:50);
+                    
+                % subjects for the last page
+                elseif i == numberOfPages
+                    indexPage = index(50*(i-1):end);
+                    
+                % get all subjects in the middel
+                else
+                    indexPage = index(50*i-1:50*i);
+                    
                 end
+
+                % print fig and save as pdf
+                indexPage = cat(1,header,indexPage);
+                descrp = text(0.1,0.9,indexPage,'FontName','FixedWidth','FontSize',8);
+                descrp.VerticalAlignment = 'top';
+                fNamePage = [fName(1:length(fName)-4) '_' num2str(i) '.pdf'];
+                print(fNamePage,'-dpdf',fig,'-r0','-fillpage');
             end
             close(fig);
         end
@@ -260,7 +294,7 @@ classdef Plotter
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
                 
                 % prepare print range
-                TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
+                TopoEnd = StimuInt.Stimulength*256 + TopoStart; %1000 - Tim
                 range = TopoStart:interval:TopoEnd;
                 range = double(range);
                 TopoStart = TopoEnd; % defined for the next loop
@@ -279,7 +313,7 @@ classdef Plotter
                     
                     % prepare data for print
                     SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 364 - Testen
+                    pos = round((range/256-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 364 - Testen
                         if pos(end) == EEG.pnts+1
                             pos(end) = pos(end)-1; % Cut 1 so index of pnts and pos is ==
                         end
@@ -796,7 +830,7 @@ classdef Plotter
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_EDA' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
+            fName = [config.OutputDirectory '/' subjectName '_EDA_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         

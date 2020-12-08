@@ -38,7 +38,7 @@ classdef DeviceFactory
 	end
 	
 	methods(Access=private)
-        function DeviceDefs=parseNothing();
+        function DeviceDefs = parseNothing()
             %do Nothing
         end
         % parses Config files and gets the device definitions

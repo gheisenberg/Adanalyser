@@ -402,7 +402,7 @@ classdef AnalyseAction < handle
                 s= 'No valid peaks found for Delta_t';
                 statsMat{end-1,1}= s;
             elseif length(delaysNotNull)==1
-                statsMat{end-1,1} = ['Delta_t of StimulusInterval 2 based on interval ' strtrim(num2str(indicies))]; %Warum StimuInt 2? Tim - erst danach ändern
+                statsMat{end-1,1} = ['Delta_t of EDA Orientation Baseline based on interval ' strtrim(num2str(indicies))];
                 statsMat{end-1,2} = num2str(delaysNotNull);
             else
                 delayMean = mean(delaysNotNull);
@@ -410,7 +410,7 @@ classdef AnalyseAction < handle
                 minVarDelay = delayMean - min(delaysNotNull);
                 maxVarDelay = max(delaysNotNull) - delayMean;
                 statsMat(end-1,1:5) = {
-                    ['Delta_t StimulusInterval 2 for intervals ' strtrim(strrep(num2str(indicies),'  ',','))],...
+                    ['Delta_t EDA Orientation Baseline for intervals ' strtrim(strrep(num2str(indicies),'  ',','))],...
                     ['mean=' num2str(delayMean,'%6.2f') 's'],['var=' num2str(delayVar,'%6.2f') 's'],...
                     ['dev+=' num2str(minVarDelay,'%6.2f') 's'],['dev-=' num2str(maxVarDelay,'%6.2f') 's']
                     };

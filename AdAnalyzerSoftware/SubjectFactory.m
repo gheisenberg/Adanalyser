@@ -45,7 +45,7 @@ classdef SubjectFactory
                     if numberOfSubjects < numberOfEDA || numberOfSubjects < numberofHRV
                             if numberOfEDA == numberofHRV
                             total = numberOfEDA-numberOfSubjects;
-                            fprintf('The number of subjects doesn´t match the number of EDA and HRV Files!\n')
+                            fprintf('\n\nThe number of subjects doesn´t match the number of EDA and HRV Files!\n')
                             fprintf([num2str(total) ' files will be filtered and analyzed in ascending order!\n\n'])
                             end
                             if numberOfEDA > numberofHRV
@@ -87,7 +87,7 @@ classdef SubjectFactory
                 NumElectrodes = NumElectrodesVector(1);
                 NumMatches = length(Subjectmatches);
                 % Check for EEG Files
-                if NumMatches ~= NumElectrodes
+                if NumMatches < NumElectrodes
                     missing = NumElectrodes - NumMatches;
                     fprintf(['Subject ' subjectName ' is missing ' num2str(missing) ' EEG File/s!\n'])
                     fprintf('This subject will neither be filtered nor analyzed!\n\n')
