@@ -17,7 +17,15 @@ classdef PrepareAction
     
     methods
         %utilize the different factories
-        function data = prepare(self,conf,eegDevice,edaDevice,hrvDevice)
+        function [data,conf] = prepare(self,conf,eegDevice,edaDevice,hrvDevice)
+            
+            % reset output directory
+            olddirectory = conf.OutputDirectory;
+            index = strfind(olddirectory,'\');
+            if length(index) > 1
+                conf.OutputDirectory = conf.OutputDirectory(1:index(2)-1);
+            end
+            
             % validate first all paths and settings and if OK 
             % then create the corresponding data
             isValid = self.configManager.validate(conf);

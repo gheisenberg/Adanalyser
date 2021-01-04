@@ -19,10 +19,22 @@ classdef FilterAction < handle
         %   4. rates qualiyt
         %   5. plots eeg quality figures using _Plotter_ %currecntly
         %   disabled
-        function data = filter(self,data,config,eegDevice,edaDevice,hrvDevice)
+        function [data,config] = filter(self,data,config,eegDevice,edaDevice,hrvDevice)
             message = ['Filtering data for ', num2str(length(data.subjects)), ' subject(s)'];
             h = waitbar(0,message);
-            %prepare loop
+            
+            % create folder for data
+            stamp = datetime('now');
+            stamp = regexprep(datestr(stamp), ' ', '_');
+            stamp = regexprep(stamp, ':', '_');
+            parentfolder = config.OutputDirectory;
+            subfolder_name = char(stamp);
+            mkdir(fullfile(parentfolder, subfolder_name));
+            
+            % change directory to new folder
+            config.OutputDirectory = [parentfolder '\' subfolder_name];
+            
+            % prepare loop
             numStimuInt = length(data.stimuIntDefs);
             numSubjects = length(data.subjects);            
             edaValsPerSec = edaDevice.samplingRate;
@@ -75,7 +87,7 @@ classdef FilterAction < handle
                 if config.EEGData == 1
                     % calculate time and add labels to timeseries
                     time = 0:1/eegDevice.samplingRate:seconds;
-                    time = ["Timestamp",time(2:end)];
+                    time = ["Time [s]",time(2:end)];
                     output = [subject.Electrodes num2cell(allEEGValues)];
                     % combine
                     output = [time; output];
@@ -87,6 +99,8 @@ classdef FilterAction < handle
                     % calculate time and add to timeseries
                     time = 0:1/edaDevice.samplingRate:seconds;
                     output = cat(2,time(2:end)',subject.edaValues);
+                    title = ["Time [s]","EDA [MUs]"];
+                    output = [title;output];
                     fname = [config.OutputDirectory '/' subject.name '_EDA_Values.csv'];
                     writematrix(output,fname,'Delimiter','semi')
                 end
@@ -95,6 +109,8 @@ classdef FilterAction < handle
                     % calculate time and add to timeseries
                     time = 1:1/hrvDevice.samplingRate:seconds+5; % add 5 seconds according to SubjectFactory.m
                     output = cat(2,time',subject.hrvValues);
+                    title = ["Time [s]","R-R [ms]"];
+                    output = [title;output];
                     fname = [config.OutputDirectory '/' subject.name '_HRV_Values.csv'];
                     writematrix(output,fname,'Delimiter','semi')
                 end

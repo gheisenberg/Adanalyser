@@ -42,9 +42,20 @@ classdef Plotter
             output_text= strcat(output_text,"DetrendedEDAFig=" + num2str(config.DetrendedEDAFig)+newline);
             output_text= strcat(output_text,"RecurrenceFig=" + num2str(config.RecurrenceFig)+newline);
             output_text= strcat(output_text,"QualityFig=" + num2str(config.QualityFig)+newline);
-            output_text= strcat(output_text,"FrequencyFig=" + num2str(config.FrequencyFig)+newline+newline);
-            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"FrequencyFig=" + num2str(config.FrequencyFig)+newline);
+            output_text= strcat(output_text,"Statistics=" + num2str(config.Statistics)+newline);
+            output_text= strcat(output_text,"TopologyPlot=" + num2str(config.topoplot)+newline);
+            output_text= strcat(output_text,"BrainActivityPlot=" + num2str(config.brainactivity)+newline+newline);
             
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"Data Export Settings"+newline);
+            output_text= strcat(output_text,thinbraid);
+            output_text= strcat(output_text,"EEGData=" + num2str(config.EEGData)+newline);
+            output_text= strcat(output_text,"EDAData=" + num2str(config.EDAData)+newline);
+            output_text= strcat(output_text,"HRVData=" + num2str(config.HRVData)+newline);
+            output_text= strcat(output_text,"SignalSpectra=" + num2str(config.signalSpec)+newline+newline);
+            
+            output_text= strcat(output_text,thinbraid);
             output_text= strcat(output_text,"EEG Quality Settings"+newline);
             output_text= strcat(output_text,thinbraid);
             output_text= strcat(output_text,"LowerThreshold=" + num2str(config.LowerThreshold)+newline);
@@ -72,6 +83,7 @@ classdef Plotter
             output_text= strcat(output_text,"Device Manufacturer=" + eegDevice.name +newline);
             output_text= strcat(output_text,"Sampling Frequency[Hz]=" + num2str(eegDevice.samplingRate)+newline);
             output_text= strcat(output_text,"Electrode Positions=" + eegDevice.electrodePositions);
+            
             if length(eegDevice.electrodePositions) > 1
                 for i = 2:length(eegDevice.electrodePositions)
                     output_text= strcat(output_text,", " + eegDevice.electrodePositions(i));
@@ -286,16 +298,24 @@ classdef Plotter
             % loop for each Stimulus Interval
             for i = 1:numStimuInts
                 StimuInt = StimuDef{i};
-
+                
+                %create subfolder
+                subfolder_name = '2D_TopologyMap';
+                
+                if ~exist([config.OutputDirectory '\' subfolder_name], 'dir')
+                parentfolder = config.OutputDirectory;
+                mkdir(fullfile(parentfolder, subfolder_name));
+                end
+                
                 % video obj
-                vName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+                vName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
                 
                 % prepare print range
-                TopoEnd = StimuInt.Stimulength*256 + TopoStart; %1000 - Tim
-                range = TopoStart:interval:TopoEnd;
+                TopoEnd = StimuInt.Stimulength *1000 + TopoStart; %1000 - Tim
+                range = TopoStart:interval:TopoEnd; % devided by 1000 to convert ms into s
                 range = double(range);
                 TopoStart = TopoEnd; % defined for the next loop
                 
@@ -303,7 +323,7 @@ classdef Plotter
                 if StimuInt.stimuIntType >= 4
                     
                     % prepare video for print
-                    fileDirectory = [config.videoString StimuInt.stimuIntDescrp '.mp4']; % get directory
+                    fileDirectory = [config.videoString '\' StimuInt.stimuIntDescrp '.mp4']; % get directory
                     %fileDirectory = regexprep(fileDirectory, ' ', '_');
                     vid = VideoReader(fileDirectory); % import video
                     numOfFrames = round(vid.FrameRate*vid.Duration); % calculate number of frames
@@ -313,7 +333,7 @@ classdef Plotter
                     
                     % prepare data for print
                     SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-                    pos = round((range/256-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 364 - Testen
+                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 364 - Testen
                         if pos(end) == EEG.pnts+1
                             pos(end) = pos(end)-1; % Cut 1 so index of pnts and pos is ==
                         end
@@ -337,7 +357,7 @@ classdef Plotter
                         % information please look at eegfiltfft.m
                         
                         % Theta(5-7 Hz)
-                        theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
+                        theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2)); %Warum wird Theta 0 bei Werten > 1000ms?
                         % Alpha(8-13 Hz)
                         alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
                         % Beta1(14-24 Hz)
@@ -370,8 +390,8 @@ classdef Plotter
 
                         % Print of 2D Topo
                         subplot(2,2,3);
-                        title({['AVG TEI between ' num2str(range(k)-range(1)) '-' num2str(range(k+1)-range(1)) 'ms'];...
-                               ['in test range from ' num2str(range(k)) '-' num2str(range(k+1)) 'ms'               ]});
+                        title({['AVG TEI between ' num2str((range(k)-range(1))*1000) '-' num2str((range(k+1)-range(1))*1000) 'ms'];...
+                               ['in test range from ' num2str((range(k))*1000) '-' num2str((range(k+1))*1000) 'ms'               ]});
                         % topoplot is a function of the eeglab libary
                         topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
                         cb = colorbar;
@@ -389,7 +409,7 @@ classdef Plotter
                         % print out first frame
                         videochart = subplot(2,2,[1 2]);
                         imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
-                        fName = [config.OutputDirectory '\2D_Topo' '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str(range(k+1)) 'ms_2D Topo.png'];
+                        fName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))*1000) 'ms_2D Topo.png'];
                         print(fName,'-dpng','-r300',mainfig);
                         
                         if config.videoOutput == 1
