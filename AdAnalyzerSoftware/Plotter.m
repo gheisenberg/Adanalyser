@@ -390,8 +390,9 @@ classdef Plotter
 
                         % Print of 2D Topo
                         subplot(2,2,3);
-                        title({['AVG TEI between ' num2str((range(k)-range(1))*1000) '-' num2str((range(k+1)-range(1))*1000) 'ms'];...
-                               ['in test range from ' num2str((range(k))*1000) '-' num2str((range(k+1))*1000) 'ms'               ]});
+                        % double () in case we want to add a multiplier
+                        title({['AVG TEI between ' num2str((range(k)-range(1))) '-' num2str((range(k+1)-range(1))) 'ms'];...
+                               ['in test range from ' num2str((range(k))) '-' num2str((range(k+1))) 'ms'               ]});
                         % topoplot is a function of the eeglab libary
                         topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
                         cb = colorbar;
@@ -409,7 +410,7 @@ classdef Plotter
                         % print out first frame
                         videochart = subplot(2,2,[1 2]);
                         imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
-                        fName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))*1000) 'ms_2D Topo.png'];
+                        fName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))) 'ms_2D Topo.png'];
                         print(fName,'-dpng','-r300',mainfig);
                         
                         if config.videoOutput == 1
@@ -440,14 +441,37 @@ classdef Plotter
                 end
             end
             if config.signalSpec == 1
-                header = ["Timestamps","Theta_5-7Hz","Alpha_8-13Hz","Beta1_14-24Hz","TEI_Index"];
-                for i = 1:numElec
+                allElectrodes = [];
+                for i = 1:numElec               
+                    header = [subject.Electrodes{i} + "_Theta_5-7Hz",subject.Electrodes{i} + "_Alpha_8-13Hz",...
+                           subject.Electrodes{i} + "_Beta1_14-24Hz",subject.Electrodes{i} + "_TEI_Index"];
+                    
                     signalsPerElectrode = subject.signalSpec(i:9:end,:);
-                    signalsPerElectrode = cat(2,timestamps,signalsPerElectrode);
-                    signalsPerElectrode = cat(1,header,signalsPerElectrode);
-                    fname = [config.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values_' subject.Electrodes{i} '.csv'];
-                    writematrix(signalsPerElectrode,fname,'Delimiter','semi')
-                end
+                    signalsPerElectrode = cat(1,header,signalsPerElectrode);            
+                    allElectrodes = cat(2,allElectrodes,signalsPerElectrode); 
+                end    
+                % calculate AVG.         
+                avgTheta = mean(str2double(allElectrodes(2:end,1:4:end)),2);
+                avgAlpha = mean(str2double(allElectrodes(2:end,2:4:end)),2);
+                avgBeta1 = mean(str2double(allElectrodes(2:end,3:4:end)),2);
+                avgTEI = mean(str2double(allElectrodes(2:end,4:4:end)),2);
+                
+                avgTheta = cat(1,"AVG_Theta_5-7Hz",avgTheta);
+                avgAlpha  = cat(1,"AVG__Alpha_8-13Hz",avgAlpha);
+                avgBeta1  = cat(1,"AVG_Beta1_14-24Hz",avgBeta1);
+                avgTEI = cat(1,"AVG_TEI_Index",avgTEI);
+                
+                allElectrodes = cat(2,avgTEI,allElectrodes);
+                allElectrodes = cat(2,avgBeta1,allElectrodes);
+                allElectrodes = cat(2,avgAlpha,allElectrodes);
+                allElectrodes = cat(2,avgTheta,allElectrodes);
+                
+                % add time
+                timestamps = ["Time[s]";timestamps];
+                allElectrodes = cat(2,timestamps,allElectrodes);
+                
+                fname = [config.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
+                writematrix(allElectrodes,fname,'Delimiter','semi');
             end
         end
         

@@ -107,7 +107,11 @@ classdef FilterAction < handle
                 
                 if config.HRVData == 1
                     % calculate time and add to timeseries
-                    time = 1:1/hrvDevice.samplingRate:seconds+5; % add 5 seconds according to SubjectFactory.m
+                    time = 1:1/hrvDevice.samplingRate:seconds; % add 5 seconds according to SubjectFactory.m
+                    % cut off HRV into the exact timeframe
+                    cut = length(subject.hrvValues)-length(time);
+                    subject.hrvValues = subject.hrvValues(1:end-cut);
+                    % combine the matrix
                     output = cat(2,time',subject.hrvValues);
                     title = ["Time [s]","R-R [ms]"];
                     output = [title;output];
