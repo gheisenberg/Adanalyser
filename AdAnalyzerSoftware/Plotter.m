@@ -19,7 +19,7 @@ classdef Plotter
         %   config: contains all configs as String
         %   fName: File name as String
         %   Devices: contains settings of different devices
-        function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,fName)
+        function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,subject,fName)
             fatbraid="===========================================================" + newline;
             thinbraid="------------------------------------------------------" + newline;
             
@@ -84,9 +84,10 @@ classdef Plotter
             output_text= strcat(output_text,"Sampling Frequency[Hz]=" + num2str(eegDevice.samplingRate)+newline);
             output_text= strcat(output_text,"Electrode Positions=" + eegDevice.electrodePositions);
             
-            if length(eegDevice.electrodePositions) > 1
-                for i = 2:length(eegDevice.electrodePositions)
-                    output_text= strcat(output_text,", " + eegDevice.electrodePositions(i));
+            if length(subject{1, 1}.Electrodes) > 1
+                electrodes = subject{1, 1}.Electrodes;
+                for i = 2:length(electrodes)
+                    output_text= strcat(output_text,", " + electrodes(i));
                 end
             end
             output_text= strcat(output_text,""+newline);
@@ -210,22 +211,6 @@ classdef Plotter
             header = index(1:3);
             index = index(4:end);
             numberOfPages = ceil(length(index)/50);
-            
-%             % for loop to create different pages if more than 50 subjects
-%             if numberOfPages == 1
-%                 
-%                 % setup fig
-%                 fig = figure('Visible','off');
-%                 axes('Position',[0.1 0.1 1 1],'Visible','off');
-%                 fig.PaperPositionMode='auto';
-%                 % set it full size for pdf page
-%                 set(fig,'Units','centimeters');
-%                 fig.Position = [0,0,20.635, 29.35];
-%                 
-%                 % print fig and save as pdf
-%                 descrp = text(0.1,0.9,index,'FontName','FixedWidth','FontSize',8);
-%                 descrp.VerticalAlignment = 'top';
-%                 print(fName,'-dpdf',fig,'-r0','-fillpage');
                 
             for i = 1:numberOfPages
                 % setup fig
@@ -257,9 +242,13 @@ classdef Plotter
 
                 % print fig and save as pdf
                 indexPage = cat(1,header,indexPage);
-                descrp = text(0.1,0.9,indexPage,'FontName','FixedWidth','FontSize',8);
+                descrp = text(0,0.9,indexPage,'FontName','FixedWidth','FontSize',8);
                 descrp.VerticalAlignment = 'top';
-                fNamePage = [fName(1:length(fName)-4) '_' num2str(i) '.pdf'];
+                if numberOfPages == 1
+                    fNamePage = [fName(1:length(fName)-4) '.pdf'];
+                else
+                    fNamePage = [fName(1:length(fName)-4) '_' num2str(i) '.pdf'];
+                end
                 print(fNamePage,'-dpdf',fig,'-r0','-fillpage');
             end
             close(fig);
@@ -302,13 +291,13 @@ classdef Plotter
                 %create subfolder
                 subfolder_name = '2D_TopologyMap';
                 
-                if ~exist([config.OutputDirectory '\' subfolder_name], 'dir')
-                parentfolder = config.OutputDirectory;
+                if ~exist([subject.OutputDirectory '\' subfolder_name], 'dir')
+                parentfolder = subject.OutputDirectory;
                 mkdir(fullfile(parentfolder, subfolder_name));
                 end
                 
                 % video obj
-                vName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+                vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
@@ -362,6 +351,8 @@ classdef Plotter
                         alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
                         % Beta1(14-24 Hz)
                         beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
+                        % Beta2(25-40 Hz)
+                        beta2(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,25,40)).^2));
                         % TEI Index
                             if alpha(j) > 0 && theta(j) > 0 % Theta = 0 bei 900ms, geht in else - else war falsch programmiert
                             task(j,m) = beta1(j)/(alpha(j)+theta(j));
@@ -370,7 +361,7 @@ classdef Plotter
                             end
                         end
                         % get all signalSpec Data
-                        Signals = [theta; alpha; beta1;task(:,m)']';
+                        Signals = [theta; alpha; beta1;beta2;task(:,m)']';
                         subject.signalSpec = cat(1,subject.signalSpec,Signals);
                     end
                     
@@ -410,7 +401,7 @@ classdef Plotter
                         % print out first frame
                         videochart = subplot(2,2,[1 2]);
                         imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
-                        fName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))) 'ms_2D Topo.png'];
+                        fName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))) 'ms_2D Topo.png'];
                         print(fName,'-dpng','-r300',mainfig);
                         
                         if config.videoOutput == 1
@@ -444,24 +435,28 @@ classdef Plotter
                 allElectrodes = [];
                 for i = 1:numElec               
                     header = [subject.Electrodes{i} + "_Theta_5-7Hz",subject.Electrodes{i} + "_Alpha_8-13Hz",...
-                           subject.Electrodes{i} + "_Beta1_14-24Hz",subject.Electrodes{i} + "_TEI_Index"];
+                              subject.Electrodes{i} + "_Beta1_14-24Hz",subject.Electrodes{i} + "_Beta2_25-45Hz",...
+                              subject.Electrodes{i} + "_TEI_Index"];
                     
-                    signalsPerElectrode = subject.signalSpec(i:9:end,:);
+                    signalsPerElectrode = subject.signalSpec(i:numElec:end,:);
                     signalsPerElectrode = cat(1,header,signalsPerElectrode);            
                     allElectrodes = cat(2,allElectrodes,signalsPerElectrode); 
                 end    
                 % calculate AVG.         
-                avgTheta = mean(str2double(allElectrodes(2:end,1:4:end)),2);
-                avgAlpha = mean(str2double(allElectrodes(2:end,2:4:end)),2);
-                avgBeta1 = mean(str2double(allElectrodes(2:end,3:4:end)),2);
-                avgTEI = mean(str2double(allElectrodes(2:end,4:4:end)),2);
+                avgTheta = mean(str2double(allElectrodes(2:end,1:5:end)),2);
+                avgAlpha = mean(str2double(allElectrodes(2:end,2:5:end)),2);
+                avgBeta1 = mean(str2double(allElectrodes(2:end,3:5:end)),2);
+                avgBeta2 = mean(str2double(allElectrodes(2:end,4:5:end)),2);
+                avgTEI = mean(str2double(allElectrodes(2:end,5:5:end)),2);
                 
                 avgTheta = cat(1,"AVG_Theta_5-7Hz",avgTheta);
                 avgAlpha  = cat(1,"AVG__Alpha_8-13Hz",avgAlpha);
                 avgBeta1  = cat(1,"AVG_Beta1_14-24Hz",avgBeta1);
+                avgBeta2  = cat(1,"AVG_Beta2_25-45Hz",avgBeta2);
                 avgTEI = cat(1,"AVG_TEI_Index",avgTEI);
                 
                 allElectrodes = cat(2,avgTEI,allElectrodes);
+                allElectrodes = cat(2,avgBeta2,allElectrodes);
                 allElectrodes = cat(2,avgBeta1,allElectrodes);
                 allElectrodes = cat(2,avgAlpha,allElectrodes);
                 allElectrodes = cat(2,avgTheta,allElectrodes);
@@ -470,7 +465,7 @@ classdef Plotter
                 timestamps = ["Time[s]";timestamps];
                 allElectrodes = cat(2,timestamps,allElectrodes);
                 
-                fname = [config.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
+                fname = [subject.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
                 writematrix(allElectrodes,fname,'Delimiter','semi');
             end
         end
@@ -495,7 +490,8 @@ classdef Plotter
             StimuIntDefinitions = [];
             
             % main figure
-            mainfig = figure('Visible','off');
+            mainfig = figure('Visible','on');
+            drawnow;
             set(mainfig,'Units','pixels');
             
             % prepare vector to draw lines
@@ -571,6 +567,7 @@ classdef Plotter
             Pos = cell(1,numPrints); % vector for position
             topoX = 100; % X position of first head in print
             mainfig.Position = [mainfig.Position(1), mainfig.Position(2), numPrints*150 , sizey]; 
+            drawforce = 1;
             
             for j = 1:numPrints
                 % Print of 2D Topo
@@ -579,6 +576,7 @@ classdef Plotter
                 topo.Position = [topoX, 40, 90, 90]; % set position
                 % topoplot is a function of the eeglab libary
                 topoplot(task(:,j),EEG.chanlocs,'electrodes','on');
+                drawnow;
                 topoX = topoX + 110; % move X position for next head
 
                 % get Positions of topo plots
@@ -610,12 +608,14 @@ classdef Plotter
                 y = SubplotLeft(2)/sizey; % convert from pixels to normazied unit
                 % timestamp line for each interval
                 timeLine = annotation('line',[x,x],[0.6,y]);
-                pause(0.5) % force figure update
+                drawnow 
+                %pause(drawforce) % force figure update
                 timeLine.LineWidth = 1;
                 % timestamp text
                 str = strcat(num2str(rangeAll(index+1)-rangeAll(1)),' ms');
                 timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                pause(0.5) % force figure update
+                drawnow 
+                %pause(drawforce) % force figure update
                 % move text for half its size, because start getting printed on X position
                 timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
                 
@@ -635,7 +635,8 @@ classdef Plotter
                     y = SubplotLeft(2)/sizey; % convert to normazied unit
                     % line
                     tickLines = annotation('line',[x,x],[0.6,y]);
-                    pause(0.5) % force figure update
+                    drawnow 
+                    %pause(drawforce) % force figure update
                     tickLines.Color = 'b'; % blue
                     tickLines.LineStyle = '--'; % dotted
                     tickLines.LineWidth = 0.25; 
@@ -645,7 +646,8 @@ classdef Plotter
                     if length(rangeAll) > linesPos
                     str = strcat(num2str(rangeAll(linesPos)-rangeAll(1)),' ms');
                     addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
-                    pause(0.5) % force figure update
+                    drawnow 
+                    %pause(drawforce) % force figure update
                     addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
                     end
                 end
@@ -664,7 +666,8 @@ classdef Plotter
                 % get x for middle of this interval
                 x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
                 StimulusDefinition = annotation('textbox',[x,0.575,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                pause(0.5)
+                drawnow 
+                %pause(drawforce)
                 % move text for half its size
                 StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
             end
@@ -675,7 +678,8 @@ classdef Plotter
             x1 = SubplotLeft(1)/sizex;
             x2 = (SubplotRight(1)+SubplotRight(3))/sizex;
             timeLine = annotation('line',[x1,x2],[0.6,0.6]);
-            pause(0.5) % force figure update
+            drawnow 
+            %pause(drawforce) % force figure update
             timeLine.LineWidth = 1;
             
             % first timestamp line
@@ -683,22 +687,25 @@ classdef Plotter
             x = SubplotTopo(1)/sizex;
             y = SubplotTopo(2)/sizey;
             timeLine = annotation('line',[x,x],[0.6,y]);
-            pause(0.5) % force figure update
+            drawnow 
+            %pause(drawforce) % force figure update
             timeLine.LineWidth = 1;
             % first timestamp text
             timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String','0 ms','EdgeColor','none');
-            pause(0.5)
+            drawnow 
+            %pause(drawforce)
             timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
             
             % Subplot title
             str = 'Per Electrode Brain Activity over all Stimulus Intervals';
             x = (SubplotRight(1)+SubplotRight(3)-SubplotLeft(1))/2/sizex;
             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-            pause(0.5) % force figure update
+            drawnow 
+            %pause(drawforce) % force figure update
    
             % save as pdf
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
-            fName = [config.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
+            fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
             set(gcf,'color','w');
             F = getframe(mainfig); % get frame of figure
             ImageSize = size(F.cdata); % get length of figure
@@ -768,7 +775,7 @@ classdef Plotter
         %  config: Config 
         %  StimuIntName: String
         %  hrvData: HRV values for Subject as double[] 
-        function plotHRVRecurrence(self,subjectName,config,StimuIntName,hrvData,StimuIntDefs)
+        function plotHRVRecurrence(self,subject,config,StimuIntName,hrvData,StimuIntDefs)
             % get the timestamps for each interval over the hole timeframe
             % see function for further explanation
             [~,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDefs);
@@ -803,7 +810,7 @@ classdef Plotter
             ax = gca;
             % plot marker for the intervals
             self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r');
-            title(['Distance map of ' StimuIntName ' phase space trajectory for subject' subjectName]);
+            title(['Distance map of ' StimuIntName ' phase space trajectory for subject' subject.name]);
             
             % plot distance map based on Recurrence plot
             subplot(2,1,2);
@@ -818,8 +825,8 @@ classdef Plotter
             ylabel('Time [s]');
             set(gca,'YDir','normal')
             self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r');
-            title([StimuIntName ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_' StimuIntName '_recurrence.pdf'];
+            title([StimuIntName ' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
+            fName = [subject.OutputDirectory '/' subject.name '_' StimuIntName '_recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
@@ -828,7 +835,7 @@ classdef Plotter
         %  config: Config 
         %  StimuIntName: String
         %  edaData: EDA values for Subject as double[] 
-        function plotEDARecurrence(self,subjectName,config,StimuInt,edaData,edaDevice)
+        function plotEDARecurrence(self,subject,config,StimuInt,edaData,edaDevice)
             SamplingRate=edaDevice.samplingRate;
             N = length(edaData);
             S = zeros(N, N);
@@ -858,7 +865,7 @@ classdef Plotter
             % plot marker
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
-            title(['Distance map of ' StimuInt.stimuIntDescrp ' phase space trajectory for subject' subjectName]);    
+            title(['Distance map of ' StimuInt.stimuIntDescrp ' phase space trajectory for subject' subject.name]);    
             subplot(2,1,2);
             maxDiff = max(max(S) - min(S))*0.001;
             if (config.RecurrenceThreshold ~= 0)
@@ -873,8 +880,8 @@ classdef Plotter
             % plot marker
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
-            title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subjectName ' with threshold ' num2str(maxDiff)]);
-            fName = [config.OutputDirectory '/' subjectName '_EDA_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
+            title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
+            fName = [subject.OutputDirectory '/' subject.name '_EDA_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
@@ -965,13 +972,37 @@ classdef Plotter
             % get values for intervals over hole time frame with starting
             % points, to plot marker on each Stimulus 
             [StimuIntStartPoints,StimuIntTyps,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
+            
+            % get index and length of EDA Orientation, to build HRV
+            % Baseline
+            for i = 1:length(StimuIntDef)
+                if StimuIntDef{1, i}.stimuIntType == 0
+                    index = i;
+                    StimuIntLength = StimuIntDef{1, i}.Stimulength;
+                end
+            end
+            % calculate the HRV Baseline
+            BaselineSignal = mean(hrvValues(ceil(StimuIntStartPoints(index)):round(StimuIntStartPoints(index))+StimuIntLength));
+            
             self.plotIntervals(intervals,[yMin, yMax],1,[],'r');
             self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntTyps,[yMin, yMax],1);
+            yline(BaselineSignal,'-g');
             axis([1 max(time) yMin yMax]);
             ylabel('RR intervals [ms]');
             xlabel('time [s]');
             m = sprintf('%.2f',mean(hrvValues));
             sd = sprintf('%.2f',std(hrvValues));
+            hold on
+            
+            % create custom legend
+            h = zeros(4,1);
+            h(1) = plot(NaN,NaN,'-k');
+            h(2) = plot(NaN,NaN,'-g');
+            h(3) = plot(NaN,NaN,'-r');
+            h(4) = plot(NaN,NaN,'-b');
+            
+            legend(h,'HRV Signal', 'Baseline', 'Marker', 'Stimuli','location','northeastoutside')
+            
             title({['HRV values for subject ' subjName ' (mean=' m 'ms, sd=' sd 'ms)'],''});
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'landscape');
@@ -1023,7 +1054,7 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            print([config.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
+            print([subject.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
             close(fig);
         end 
      
@@ -1440,7 +1471,7 @@ classdef Plotter
         
 %         function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects) %Tim ID 12 plot of QualityFigs
 %             StimuIntIndex = length(StimuIntDefs);
-%             outputFolder= config.OutputDirectory;
+%             outputFolder= subject.OutputDirectory;
 %             h = waitbar(0,['Writing EEG quality figures for ' num2str(StimuIntIndex) ' StimulusInterval(s)']);
 %             xtick = 0:numSubjects;
 %             for i = 1:StimuIntIndex

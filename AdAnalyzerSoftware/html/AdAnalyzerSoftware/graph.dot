@@ -19,6 +19,7 @@ digraph m2html {
   Electrodes -> Electrodes;
   FilterAction -> FilterAction;
   FilterAction -> Plotter;
+  Plotter -> Data;
   Plotter -> Device;
   Plotter -> Plotter;
   Plotter -> Subject;
@@ -27,12 +28,14 @@ digraph m2html {
   PrepareAction -> PrepareAction;
   StimuIntDefinition -> StimuIntDefinition;
   StringStatistics -> StringStatistics;
+  Subject -> Electrodes;
   Subject -> Subject;
   SubjectFactory -> ElectrodeEEGData;
   SubjectFactory -> Subject;
   SubjectFactory -> SubjectFactory;
 
   AnalyseAction [URL="AnalyseAction.html"];
+  BrainMapAction [URL="BrainMapAction.html"];
   Config [URL="Config.html"];
   ConfigManager [URL="ConfigManager.html"];
   Data [URL="Data.html"];

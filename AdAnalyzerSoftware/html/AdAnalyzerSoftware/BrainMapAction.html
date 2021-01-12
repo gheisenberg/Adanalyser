@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of BrainMapAction</title>
+  <meta name="keywords" content="BrainMapAction">
+  <meta name="description" content="Creates videos of specific stimuli at specific times">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html AdAnalyzerSoftware -->
+<h1>BrainMapAction
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Creates videos of specific stimuli at specific times</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function BrainMapAction(StimulusChosen,interval,timeframe,videoRes) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Creates videos of specific stimuli at specific times
+ the user can select them in the GUI
+
+ Author: Gernot Heisenberg, Tim Kreitzberg</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function barsimg = plotElectrodeBars(electrodes,startpos,endpos,data,srate)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% Creates videos of specific stimuli at specific times</span>
+0002 <span class="comment">% the user can select them in the GUI</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Author: Gernot Heisenberg, Tim Kreitzberg</span>
+0005 <span class="comment">%</span>
+0006 
+0007 <a name="_sub0" href="#_subfunctions" class="code">function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)</a>
+0008     
+0009     <span class="comment">% get global var</span>
+0010     <span class="keyword">global</span> data
+0011     <span class="keyword">global</span> conf
+0012     <span class="keyword">global</span> eegdevice
+0013     
+0014     allSubjects = data.subjects;
+0015     config = conf;
+0016     
+0017     message = [<span class="string">'Rendering videos for '</span>, num2str(length(allSubjects)), <span class="string">' subject(s)'</span>];
+0018     h = waitbar(0,message);
+0019     
+0020     <span class="comment">%create subfolder</span>
+0021     subfolder_name = <span class="string">'2D_BrainMaps'</span>;
+0022 
+0023     <span class="keyword">if</span> ~exist([config.OutputDirectory <span class="string">'\'</span> subfolder_name], <span class="string">'dir'</span>)
+0024     parentfolder = config.OutputDirectory;
+0025     mkdir(fullfile(parentfolder, subfolder_name));
+0026     <span class="keyword">end</span>
+0027     
+0028     <span class="keyword">for</span> i = 1:length(allSubjects)
+0029         
+0030         subject = allSubjects{i};
+0031         
+0032         <span class="keyword">if</span> ~exist([config.OutputDirectory <span class="string">'\'</span> subfolder_name subject.name], <span class="string">'dir'</span>)
+0033         parentfolder = [config.OutputDirectory <span class="string">'\'</span> subfolder_name];
+0034         mkdir(fullfile(parentfolder, subject.name));
+0035         <span class="keyword">end</span>
+0036         
+0037         <span class="comment">% Preparing EEG Data for print</span>
+0038         <span class="comment">% Import of Standard 10-20 System channel locs for electrodes</span>
+0039         load Standard-10-20-Cap81.mat;
+0040 
+0041         <span class="comment">% Data preparation</span>
+0042         Usedelectrodes = subject.Electrodes;
+0043         numValues = subject.eegValuesForElectrodes; 
+0044         numElectrodes = length(numValues);
+0045         <span class="keyword">for</span> j = 1:numElectrodes              
+0046             eegValues(:,j) =  subject.eegValuesForElectrodes{1, j}.eegValues;     
+0047         <span class="keyword">end</span>
+0048         PlotDataOverTime = eegValues';
+0049 
+0050         <span class="comment">% needed variables for chanloc preparation</span>
+0051         chanloc = Chanloc; <span class="comment">% get Chanloc included in Standard-10-20-Cap81.mat</span>
+0052         electrodes = Usedelectrodes'; <span class="comment">% transfrom vector</span>
+0053         numUsedElectrodes = length(electrodes);
+0054         lengthStandardChanloc = length(Chanloc);
+0055         deleteRow = zeros(1,lengthStandardChanloc);
+0056         SumDeleteRow = zeros(1,lengthStandardChanloc);
+0057 
+0058         <span class="comment">% delete all unused electrode chanlocs</span>
+0059         <span class="keyword">for</span> j = 1:numUsedElectrodes
+0060             deleteRow = ismember({chanloc.labels}, electrodes{j});
+0061             SumDeleteRow = SumDeleteRow + deleteRow;
+0062         <span class="keyword">end</span>
+0063         SumDeleteRow = ~SumDeleteRow;
+0064         <span class="comment">% delete the unused rows</span>
+0065         chanloc(SumDeleteRow) = [];
+0066 
+0067         <span class="comment">% Create EEG Structur which is used in Topology plot of</span>
+0068         <span class="comment">% EEGLab libary</span>
+0069         EEG.data = PlotDataOverTime;        <span class="comment">% data array (chans x frames x epochs)</span>
+0070         EEG.setname = subject.name;         <span class="comment">% Set name = Number of subject</span>
+0071         EEG.chanlocs = chanloc;             <span class="comment">% name of file containing names and positions of the channels on the scalp</span>
+0072         EEG.nbchan = length(EEG.chanlocs);  <span class="comment">% number of channels in each epoch</span>
+0073         EEG.pnts = length(EEG.data);        <span class="comment">% number of frames (time points) per epoch (trial)</span>
+0074         EEG.trials = 1;                     <span class="comment">% number of epochs (trials) in the dataset (Allways 1 for now)</span>
+0075         EEG.srate = eegdevice.samplingRate; <span class="comment">% sampling rate (in Hz)</span>
+0076         EEG.xmin = 0;                       <span class="comment">% epoch start time (in seconds)</span>
+0077         EEG.xmax = (EEG.pnts-1)/EEG.srate;  <span class="comment">% epoch end time (in seconds)</span>
+0078 
+0079         <span class="comment">% Variables needed for loop</span>
+0080         <span class="keyword">for</span> j = 1:length(data.stimuIntDefs)
+0081             <span class="keyword">if</span> strcmp(StimulusChosen, data.stimuIntDefs{1, j}.stimuIntDescrp)
+0082                 StimuInt = data.stimuIntDefs{1, j};
+0083             <span class="keyword">end</span>
+0084         <span class="keyword">end</span>
+0085         
+0086         timestamps = [];
+0087 
+0088         <span class="comment">% video obj</span>
+0089         vName = [config.OutputDirectory <span class="string">'\'</span> subfolder_name <span class="string">'/'</span> subject.name <span class="string">'/'</span> subject.name <span class="string">'_'</span> StimuInt.stimuIntDescrp <span class="string">'_2D Topo_Video.mp4'</span>];
+0090         vidObj = VideoWriter(vName);
+0091         vidObj.Quality = 100;       
+0092         vidObj.FrameRate = config.UserFrameRate; <span class="comment">% get framerate from video</span>
+0093 
+0094         <span class="comment">% prepare print range</span>
+0095         range = timeframe(1):interval:timeframe(2); <span class="comment">% devided by 1000 to convert ms into s</span>
+0096         range = double(range);
+0097 
+0098         <span class="comment">% prepare video for print</span>
+0099         fileDirectory = [config.videoString <span class="string">'\'</span> StimuInt.stimuIntDescrp <span class="string">'.mp4'</span>]; <span class="comment">% get directory</span>
+0100         <span class="comment">%fileDirectory = regexprep(fileDirectory, ' ', '_');</span>
+0101         vid = VideoReader(fileDirectory); <span class="comment">% import video</span>
+0102         numOfFrames = round(vid.FrameRate*vid.Duration); <span class="comment">% calculate number of frames</span>
+0103         vidFrame = read(vid,[1 numOfFrames]);
+0104         <span class="comment">% resize video according to UserFrameRate</span>
+0105         vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
+0106 
+0107         <span class="comment">% prepare data for print</span>
+0108         SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
+0109         pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; <span class="comment">% Gernot / Tim -&gt; 1000 abändern, auf mögliche 364 - Testen</span>
+0110             <span class="keyword">if</span> pos(end) == EEG.pnts+1
+0111                 pos(end) = pos(end)-1; <span class="comment">% Cut 1 so index of pnts and pos is ==</span>
+0112             <span class="keyword">end</span>
+0113         nanpos = find(isnan(pos));
+0114         pos(nanpos) = 1;
+0115 
+0116         <span class="comment">% create variable for .csv export with all timestamps</span>
+0117         timestamps = cat(1,timestamps,range(1:end-1)'/1000);
+0118 
+0119         <span class="comment">% prepare task variable</span>
+0120         numPos = length(pos)-1;
+0121         numValues = subject.eegValuesForElectrodes; 
+0122         numElec = length(numValues);
+0123         task = zeros(numElec,numPos);
+0124 
+0125         <span class="comment">% get TEI</span>
+0126         <span class="keyword">for</span> m = 1:numPos
+0127             <span class="keyword">for</span> j = 1:numElec
+0128             <span class="comment">% eegfiltfft is a eeglab function for (high|low|band) -</span>
+0129             <span class="comment">% pass filter data using inverse fft - for more</span>
+0130             <span class="comment">% information please look at eegfiltfft.m</span>
+0131 
+0132             <span class="comment">% Theta(5-7 Hz)</span>
+0133             theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2)); <span class="comment">%Warum wird Theta 0 bei Werten &gt; 1000ms?</span>
+0134             <span class="comment">% Alpha(8-13 Hz)</span>
+0135             alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
+0136             <span class="comment">% Beta1(14-24 Hz)</span>
+0137             beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
+0138             <span class="comment">% TEI Index</span>
+0139                 <span class="keyword">if</span> alpha(j) &gt; 0 &amp;&amp; theta(j) &gt; 0 <span class="comment">% Theta = 0 bei 900ms, geht in else - else war falsch programmiert</span>
+0140                 task(j,m) = beta1(j)/(alpha(j)+theta(j));
+0141                 <span class="keyword">else</span>
+0142                 task(j,m) = 0; <span class="comment">% zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war</span>
+0143                 <span class="keyword">end</span>
+0144             <span class="keyword">end</span>
+0145         <span class="keyword">end</span>
+0146 
+0147 
+0148 
+0149         <span class="comment">% loop preperation - open VideoObject</span>
+0150         numofprint = length(range)-1;
+0151         open(vidObj);
+0152 
+0153         <span class="keyword">for</span> k = 1:numofprint
+0154             <span class="comment">% print preparation</span>
+0155             mainfig = figure(<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0156             set(mainfig,<span class="string">'PaperUnits'</span>,<span class="string">'inches'</span>,<span class="string">'PaperPosition'</span>,[0 0 12 7.5])
+0157             hold on
+0158 
+0159             <span class="comment">% Print of 2D Topo</span>
+0160             subplot(2,2,3);
+0161             <span class="comment">% double () in case we want to add a multiplier</span>
+0162             title([<span class="string">'AVG TEI between '</span> num2str((range(k))) <span class="string">'-'</span> num2str((range(k+1))) <span class="string">'ms'</span>]);
+0163             <span class="comment">% topoplot is a function of the eeglab libary</span>
+0164             topoplot(task(:,k),EEG.chanlocs,<span class="string">'electrodes'</span>,<span class="string">'ptslabels'</span>);
+0165             cb = colorbar;
+0166             cb.Limits = [0,1];
+0167 
+0168             <span class="comment">% print of histogram</span>
+0169             barsimg = <a href="#_sub1" class="code" title="subfunction barsimg = plotElectrodeBars(electrodes,startpos,endpos,data,srate)">plotElectrodeBars</a>(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
+0170             barschart = subplot(2,2,4);
+0171             barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
+0172             imshow(barsimg);
+0173 
+0174             <span class="comment">% Subplot title</span>
+0175             sgtitle([StimuInt.stimuIntDescrp <span class="string">' for subject '</span> subject.name]);
+0176 
+0177             <span class="comment">% print out first frame</span>
+0178             videochart = subplot(2,2,[1 2]);
+0179             imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
+0180             fName = [config.OutputDirectory <span class="string">'\'</span> subfolder_name <span class="string">'/'</span> subject.name <span class="string">'/'</span> subject.name <span class="string">'_'</span> StimuInt.stimuIntDescrp <span class="string">'_'</span> num2str((range(k+1))) <span class="string">'ms_2D Topo.png'</span>];
+0181             print(fName,<span class="string">'-dpng'</span>,<span class="string">'-r300'</span>,mainfig);
+0182 
+0183             <span class="comment">% set render to opengl</span>
+0184             set(mainfig,<span class="string">'units'</span>,<span class="string">'pixels'</span>,<span class="string">'position'</span>,[0 0 videoRes(1) videoRes(2)]) 
+0185             set(gcf,<span class="string">'renderer'</span>,<span class="string">'opengl'</span>) 
+0186             drawnow nocallbacks
+0187 
+0188             <span class="comment">% add to test VM - delete comment</span>
+0189             <span class="comment">% set(videoObj, 'LoggingMode', 'memory');</span>
+0190 
+0191             <span class="comment">%create video in plot</span>
+0192             <span class="keyword">for</span> t = 1:vidObj.FrameRate
+0193                 <span class="comment">% insert video frames</span>
+0194                 videochart = subplot(2,2,[1 2]);
+0195                 imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*k)));
+0196 
+0197                 <span class="comment">% get frame from figure</span>
+0198                 currentFrame = getframe(mainfig);
+0199 
+0200                 <span class="comment">% create video</span>
+0201                 writeVideo(vidObj, currentFrame);
+0202             <span class="keyword">end</span>
+0203             <span class="comment">% close figure</span>
+0204             close
+0205         <span class="keyword">end</span>
+0206         waitbar(i/length(data.subjects));
+0207     <span class="keyword">end</span>
+0208     close(h);
+0209 <span class="keyword">end</span>
+0210 
+0211 <span class="comment">%% Prints of electrode frequency</span>
+0212         <span class="comment">% electrodes: List of used electrodes</span>
+0213         <span class="comment">% startpos/endpos: Range of the printed data</span>
+0214         <span class="comment">% data: data</span>
+0215         <span class="comment">% srate: Frequency of the device used</span>
+0216         <a name="_sub1" href="#_subfunctions" class="code">function barsimg = plotElectrodeBars(electrodes,startpos,endpos,data,srate)</a>
+0217             
+0218             <span class="comment">% prepare plot</span>
+0219             numelec = length(electrodes);
+0220             barsfig = figure(<span class="string">'visible'</span>,<span class="string">'off'</span>,<span class="string">'DefaultAxesFontSize'</span>,12);
+0221             set(barsfig,<span class="string">'color'</span>,<span class="string">'w'</span>);
+0222             set(barsfig,<span class="string">'Position'</span>, [1, 1, 1200, 1200]);
+0223             data = data(:,startpos:endpos);
+0224             
+0225             <span class="comment">% get frequency bands</span>
+0226             <span class="keyword">for</span> i = 1:numelec
+0227                 <span class="comment">% Delta (1-4 Hz)</span>
+0228                 delta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,1,4)).^2));
+0229                 <span class="comment">% Theta(5-7 Hz)</span>
+0230                 theta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,5,7)).^2));
+0231                 <span class="comment">% Alpha(8-13 Hz)</span>
+0232                 alpha(i) = mean(sqrt((eegfiltfft(data(i,:),srate,8,13)).^2));
+0233                 <span class="comment">% Beta1(14-24 Hz)</span>
+0234                 beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
+0235                 <span class="comment">% Beta2(25-40 Hz)</span>
+0236                 beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
+0237             <span class="keyword">end</span>
+0238             allfreq = [delta theta alpha beta1 beta2];
+0239             ymax = max(max(allfreq)); <span class="comment">% y max for graph</span>
+0240             
+0241             <span class="comment">% Print</span>
+0242             <span class="keyword">for</span> i = 1:numelec
+0243                 hold on
+0244                 <span class="comment">% create subplot for each electrode</span>
+0245                 subplot(3,3,i);
+0246                 names = categorical({<span class="string">'delta'</span>,<span class="string">'theta'</span>,<span class="string">'alpha'</span>,<span class="string">'beta1'</span>,<span class="string">'beta2'</span>});
+0247                 names = reordercats(names,{<span class="string">'delta'</span>,<span class="string">'theta'</span>,<span class="string">'alpha'</span>,<span class="string">'beta1'</span>,<span class="string">'beta2'</span>});
+0248                 bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i)];
+0249                 h = bar(names,bars,<span class="string">'FaceColor'</span>,<span class="string">'flat'</span>);
+0250                 ylim([0 ymax]);
+0251                 title(electrodes(i),<span class="string">'FontSize'</span>, 24)
+0252                 <span class="comment">% recolor bars</span>
+0253                 h.CData(1,:) = [1 0 0];
+0254                 h.CData(2,:) = [0.8500 0.3250 0.0980];
+0255                 h.CData(3,:) = [0.9290 0.6940 0.1250];
+0256                 h.CData(4,:) = [0 1 0];
+0257                 h.CData(5,:) = [0.3010 0.7450 0.9330];
+0258             <span class="keyword">end</span>
+0259             
+0260             <span class="comment">% save as img</span>
+0261             barsFrame = getframe(barsfig);
+0262             barsimg = barsFrame.cdata;
+0263         <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 12-Jan-2021 15:39:55 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

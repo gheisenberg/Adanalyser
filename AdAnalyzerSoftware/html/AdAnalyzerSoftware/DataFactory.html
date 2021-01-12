@@ -37,7 +37,7 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="Data.html" class="code" title="">Data</a>	Representation of all data</li><li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="StimuIntDefinition.html" class="code" title="">StimuIntDefinition</a>	Representation of a Stimulus</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Factory class creating Subjects objects</li></ul>
+<li><a href="Data.html" class="code" title="">Data</a>	Representation of all data</li><li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="StimuIntDefinition.html" class="code" title="">StimuIntDefinition</a>	Representation of a Stimulus</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	% Factory class creating Subjects objects</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="PrepareAction.html" class="code" title="">PrepareAction</a>	</li></ul>
@@ -45,7 +45,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function data = createData(self, conf, eegDevice,edaDevice,hrvDevice)</a></li><li><a href="#_sub2" class="code">function StimuIntDefs = parseStimuIntDefinition(self,StimuIntDefFile)</a></li></ul>
+<li><a href="#_sub1" class="code">function data = createData(self, conf, eegDevice,edaDevice,hrvDevice)</a></li><li><a href="#_sub2" class="code">function StimuIntDefs = parseStimuIntDefinition(self,StimulusIndex)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <span class="comment">% Factory class creating _Data_ objects</span>
@@ -65,50 +65,67 @@ This function is called by:
 0015         <span class="comment">%   Cut off first X seconds of eeg values, selected by user</span>
 0016         <span class="comment">%   Cut off eda values at the end</span>
 0017         <span class="comment">%   Sets eeg matrix</span>
-0018         <a name="_sub0" href="#_subfunctions" class="code">function data = createData(self, conf, eegDevice,edaDevice,hrvDevice)</a>
-0019             stimuIntDefs = self.parseStimuIntDefinition(conf.StimuIntDef);
-0020             StimuIntLength = 0;
-0021             <span class="comment">% Calculate complete StimulusInterval length</span>
-0022             <span class="keyword">for</span> i=1:length(stimuIntDefs)
-0023                 StimuIntLength = StimuIntLength + stimuIntDefs{i}.Stimulength;
-0024             <span class="keyword">end</span>
-0025             subjectFactory = <a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>();
-0026             subjects = subjectFactory.createSubjects(conf,StimuIntLength,eegDevice,edaDevice,hrvDevice);
-0027             data = <a href="Data.html" class="code" title="">Data</a>(subjects,stimuIntDefs);
-0028         <span class="keyword">end</span>
-0029     <span class="keyword">end</span>
-0030     
-0031     methods(Access=private)
-0032         <span class="comment">%% Parses StimulusInterval definitions</span>
-0033         <a name="_sub1" href="#_subfunctions" class="code">function StimuIntDefs = parseStimuIntDefinition(self,StimuIntDefFile)</a>
-0034             fileID = fopen(StimuIntDefFile);
-0035             fileContents = textscan(fileID,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'\n'</span>);
-0036             fclose(fileID);
-0037             fileContents = fileContents{1};
-0038             [numStimuIntDefs,~] = size(fileContents);
-0039             StimuIntDefs = cell(1,numStimuIntDefs);
-0040             <span class="keyword">for</span> i = 1:numStimuIntDefs 
-0041                 stimuIntDef = fileContents{i};
-0042                 AdIndex = textscan(stimuIntDef,<span class="string">'%u %u %s %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
-0043                 AdIndex = AdIndex(~cellfun(<span class="string">'isempty'</span>,AdIndex));
-0044                 Stimulength = cell2mat(AdIndex(1));
-0045                 type = cell2mat(AdIndex(2));
-0046                 stimuIntDescrp = cell2mat(AdIndex{1,3});
-0047                 IndexLength = length(AdIndex);
-0048                 <span class="keyword">if</span> IndexLength &gt;= 4
-0049                 intervals = zeros(IndexLength-3,1);
-0050                     <span class="keyword">for</span> j = 1:IndexLength-3
-0051                     intervals(j,1) = cell2mat(AdIndex(j+3));
-0052                     <span class="keyword">end</span>
-0053                 <span class="keyword">else</span>
-0054                     intervals = [];
-0055                 <span class="keyword">end</span>
-0056                 StimuIntDefs{i} = <a href="StimuIntDefinition.html" class="code" title="">StimuIntDefinition</a>(Stimulength,type,stimuIntDescrp,intervals);
-0057             <span class="keyword">end</span>
-0058         <span class="keyword">end</span>
-0059     <span class="keyword">end</span>
-0060 <span class="keyword">end</span>
-0061</pre></div>
-<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0018         <span class="comment">%   Creates data object for subjects and Stimulus</span>
+0019         <a name="_sub0" href="#_subfunctions" class="code">function data = createData(self, conf, eegDevice,edaDevice,hrvDevice)</a>
+0020             stimuIntDefs = self.parseStimuIntDefinition(conf.StimuIntDef);
+0021             StimuIntLength = 0;
+0022             <span class="comment">% Calculate complete StimulusInterval length</span>
+0023             <span class="keyword">for</span> i=1:length(stimuIntDefs)
+0024                 StimuIntLength = StimuIntLength + stimuIntDefs{i}.Stimulength;
+0025             <span class="keyword">end</span>
+0026             subjectFactory = <a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>();
+0027             <span class="comment">% create subject</span>
+0028             subjects = subjectFactory.createSubjects(conf,StimuIntLength,eegDevice,edaDevice,hrvDevice);
+0029             <span class="comment">% save subject and Stimulus in data</span>
+0030             data = <a href="Data.html" class="code" title="">Data</a>(subjects,stimuIntDefs);
+0031         <span class="keyword">end</span>
+0032     <span class="keyword">end</span>
+0033     
+0034     methods(Access=private)
+0035         <span class="comment">%% Parses StimulusInterval definition</span>
+0036         <span class="comment">% import the AdIndex and creates a Stimulus Interval Definition</span>
+0037         <span class="comment">% cell array with each Stimulus Interval</span>
+0038         <a name="_sub1" href="#_subfunctions" class="code">function StimuIntDefs = parseStimuIntDefinition(self,StimulusIndex)</a>
+0039             <span class="comment">%get AdIndex and store it in cell array</span>
+0040             fileID = fopen(StimulusIndex);
+0041             fileContents = textscan(fileID,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'\n'</span>);
+0042             fclose(fileID);
+0043             fileContents = fileContents{1};
+0044             [numStimuIntDefs,~] = size(fileContents);
+0045             StimuIntDefs = cell(1,numStimuIntDefs);
+0046             <span class="comment">% for loop for each Stimulus Interval</span>
+0047             <span class="keyword">for</span> i = 1:numStimuIntDefs 
+0048                 stimuIntDef = fileContents{i};
+0049                 AdIndex = textscan(stimuIntDef,<span class="string">'%u %u %s %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+0050                 AdIndex = AdIndex(~cellfun(<span class="string">'isempty'</span>,AdIndex));
+0051                 Stimulength = cell2mat(AdIndex(1));
+0052                 <span class="comment">% get type - see StimuusIntDefinition.m</span>
+0053                 <span class="comment">% and user given Description</span>
+0054                 type = cell2mat(AdIndex(2));
+0055                 stimuIntDescrp = cell2mat(AdIndex{1,3});
+0056                 IndexLength = length(AdIndex);
+0057                 <span class="comment">% length above 4 = Stimulus with Interval - see AdIndex</span>
+0058                 <span class="comment">% conventions in ReadMe</span>
+0059                 <span class="keyword">if</span> IndexLength &gt;= 4
+0060                     intervals = zeros(IndexLength-3,1);
+0061                     <span class="keyword">for</span> j = 1:IndexLength-3
+0062                         intervals(j,1) = cell2mat(AdIndex(j+3));
+0063                     <span class="keyword">end</span>
+0064                     <span class="comment">% validate the length of the Stimulus with the given</span>
+0065                     <span class="comment">% intervals by the user</span>
+0066                     <span class="keyword">if</span> max(intervals) &gt; Stimulength
+0067                         fprintf(<span class="string">'Intervals in &quot;%s&quot; doesn´t match stimulus length.\n\n'</span>,stimuIntDescrp)
+0068                     <span class="keyword">end</span>
+0069                 <span class="keyword">else</span>
+0070                     intervals = [];
+0071                 <span class="keyword">end</span>
+0072                 <span class="comment">% save Stimulus Interval in Stimlus Interval Definitions</span>
+0073                 StimuIntDefs{i} = <a href="StimuIntDefinition.html" class="code" title="">StimuIntDefinition</a>(Stimulength,type,stimuIntDescrp,intervals);
+0074             <span class="keyword">end</span>
+0075         <span class="keyword">end</span>
+0076     <span class="keyword">end</span>
+0077 <span class="keyword">end</span>
+0078</pre></div>
+<hr><address>Generated on Tue 12-Jan-2021 15:39:55 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

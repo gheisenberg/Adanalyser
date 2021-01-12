@@ -18,6 +18,7 @@ classdef Subject
     properties
         %Initial values set during creation in SubjectFactory
         name = '' 
+        OutputDirectory = ''
         % parsed eda values
         edaValues={}
         % parsed hrv values 

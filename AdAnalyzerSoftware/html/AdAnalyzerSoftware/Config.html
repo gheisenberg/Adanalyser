@@ -59,7 +59,7 @@ This function is called by:
 0009 classdef <a href="Config.html" class="code" title="">Config</a>
 0010     
 0011     properties
-0012         <span class="comment">% File paths</span>
+0012         <span class="comment">% Variables for file paths</span>
 0013         EDAFiles = cell(0)
 0014         EEGFiles = cell(0)
 0015         HRVFiles = cell(0)
@@ -68,7 +68,7 @@ This function is called by:
 0018         EEG_DEVICE=<span class="string">''</span>
 0019         EDA_DEVICE=<span class="string">''</span>
 0020         HRV_DEVICE=<span class="string">''</span>
-0021         <span class="comment">% Output flags</span>
+0021         <span class="comment">% Variables for output flags</span>
 0022         EEG_DEVICE_USED = 0
 0023         FrequencyFig = 0
 0024         EDA_DEVICE_USED = 0
@@ -81,74 +81,84 @@ This function is called by:
 0031         Statistics = 0 
 0032         topoplot = 1
 0033         brainactivity = 1
-0034         <span class="comment">% Quality Settings</span>
+0034         <span class="comment">% Variables forQuality Settings</span>
 0035         LowerThreshold = -100
 0036         UpperThreshold = 100
 0037         QualityIndex = 10
-0038         <span class="comment">% Recurrence Treshhold</span>
+0038         <span class="comment">% Variables for Recurrence Treshhold</span>
 0039         RecurrenceThreshold = 0
 0040         EEGCutoffValue = 10
-0041         <span class="comment">%Topology Plot</span>
-0042         videoName = <span class="string">''</span>
+0041         <span class="comment">% Variables for Topology Plot</span>
+0042         videoString = <span class="string">''</span>
 0043         UserFrameRate = 30
 0044         TopoRange = 2000
 0045         BrainRange = 2000
-0046         <span class="comment">%Subject</span>
-0047         numSubjects = 0
-0048         
-0049     <span class="keyword">end</span>
-0050     
-0051     methods
-0052         <span class="comment">%% Generates string representation of config object</span>
-0053         <span class="comment">%   Used to store config objects as file See:_ConfigManager_</span>
-0054         <a name="_sub0" href="#_subfunctions" class="code">function str = toString(config)</a>
-0055             edaTxt = config.cellArrayToString(config.EDAFiles); 
-0056             eegTxt = config.cellArrayToString(config.EEGFiles); 
-0057             hrvTxt = config.cellArrayToString(config.HRVFiles); 
-0058             str = [<span class="keyword">...</span>
-0059                 <span class="string">'OutputDirectory='</span>,config.OutputDirectory,newline,<span class="keyword">...</span>
-0060                 <span class="string">'EDAFiles='</span>,edaTxt,newline,<span class="keyword">...</span>
-0061                 <span class="string">'EEGFiles='</span>,eegTxt,newline,<span class="keyword">...</span>
-0062                 <span class="string">'HRVFiles='</span>,hrvTxt,newline,<span class="keyword">...</span>
-0063                 <span class="string">'StimuIntDef='</span>,config.StimuIntDef,newline,<span class="keyword">...</span>
-0064                 <span class="string">'VideoName='</span>,config.videoName,newline,<span class="keyword">...</span>
-0065                 <span class="string">'EEG_DEVICE_USED='</span>,num2str(config.EEG_DEVICE_USED),newline,<span class="keyword">...</span>
-0066                 <span class="string">'EDA_DEVICE_USED='</span>,num2str(config.EDA_DEVICE_USED),newline,<span class="keyword">...</span>
-0067                 <span class="string">'HRV_DEVICE_USED='</span>,num2str(config.HRV_DEVICE_USED),newline,<span class="keyword">...</span>
-0068                 <span class="string">'EEG_DEVICE='</span>,config.EEG_DEVICE,newline,<span class="keyword">...</span>
-0069                 <span class="string">'EDA_DEVICE='</span>,config.EDA_DEVICE,newline,<span class="keyword">...</span>
-0070                 <span class="string">'HRV_DEVICE='</span>,config.HRV_DEVICE,newline,<span class="keyword">...</span>
-0071                 <span class="string">'SubStimuIntEDAFig='</span>,num2str(config.SubStimuIntEDAFig),newline,<span class="keyword">...</span>
-0072                 <span class="string">'Statistics='</span>,num2str(config.Statistics),newline,<span class="keyword">...</span>
-0073                 <span class="string">'BehaveFig='</span>,num2str(config.BehaveFig),newline,<span class="keyword">...</span>
-0074                 <span class="string">'DetrendedEDAFig='</span>,num2str(config.DetrendedEDAFig),newline,<span class="keyword">...</span>
-0075                 <span class="string">'RecurrenceFig='</span>,num2str(config.RecurrenceFig),newline,<span class="keyword">...</span>
-0076                 <span class="string">'QualityFig='</span>,num2str(config.QualityFig),newline,<span class="keyword">...</span>
-0077                 <span class="string">'FrequencyFig='</span>,num2str(config.FrequencyFig),newline,<span class="keyword">...</span>
-0078                 <span class="string">'LowerThreshold='</span>,num2str(config.LowerThreshold),newline,<span class="keyword">...</span>
-0079                 <span class="string">'UpperThreshold='</span>,num2str(config.UpperThreshold),newline,<span class="keyword">...</span>
-0080                 <span class="string">'QualityIndex='</span>,num2str(config.QualityIndex),newline,<span class="keyword">...</span>
-0081                 <span class="string">'RecurrenceTreshold='</span>,num2str(config.RecurrenceThreshold),newline,<span class="keyword">...</span>
-0082                 <span class="string">'EEGCutoffValue='</span>,num2str(config.EEGCutoffValue),newline,<span class="keyword">...</span>
-0083                 <span class="string">'TopoRange='</span>,num2str(config.TopoRange),newline,<span class="keyword">...</span>
-0084                 <span class="string">'BrainRange='</span>,num2str(config.BrainRange),newline,<span class="keyword">...</span>
-0085                 <span class="string">'numSubjects='</span>,num2str(config.numSubjects),newline,<span class="keyword">...</span>
-0086                 <span class="string">'topoplot='</span>,num2str(config.topoplot),newline,<span class="keyword">...</span>
-0087                 <span class="string">'UserFrameRate='</span>,num2str(config.UserFrameRate),newline,<span class="keyword">...</span>
-0088                 <span class="string">'brainactivity='</span>,num2str(config.brainactivity)
-0089                 ];
-0090         <span class="keyword">end</span>
-0091     <span class="keyword">end</span>
-0092    methods(Access=private)
-0093        <a name="_sub1" href="#_subfunctions" class="code">function str = cellArrayToString(self,cellArray)</a>
-0094             cellArray(cellfun(<span class="string">'isempty'</span>,cellArray)) = [];
-0095             cellArrayTxt = sprintf(<span class="string">'%s,'</span>,cellArray{:});
-0096             str = cellArrayTxt(1:end-1);
-0097        <span class="keyword">end</span> 
-0098    <span class="keyword">end</span>
-0099     
-0100 <span class="keyword">end</span>
-0101</pre></div>
-<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0046         videoOutput = 1
+0047         <span class="comment">% Variables for number of subject</span>
+0048         numSubjects = 0
+0049         <span class="comment">% Variables for export settings</span>
+0050         EEGData = 1
+0051         EDAData = 1
+0052         HRVData = 1
+0053         signalSpec = 1
+0054     <span class="keyword">end</span>
+0055     
+0056     methods
+0057         <span class="comment">%% Generates string representation of config object</span>
+0058         <span class="comment">%   Used to store config objects as file See:_ConfigManager_</span>
+0059         <a name="_sub0" href="#_subfunctions" class="code">function str = toString(config)</a>
+0060             edaTxt = config.cellArrayToString(config.EDAFiles); 
+0061             eegTxt = config.cellArrayToString(config.EEGFiles); 
+0062             hrvTxt = config.cellArrayToString(config.HRVFiles); 
+0063             str = [<span class="keyword">...</span>
+0064                 <span class="string">'OutputDirectory='</span>,config.OutputDirectory,newline,<span class="keyword">...</span>
+0065                 <span class="string">'EDAFiles='</span>,edaTxt,newline,<span class="keyword">...</span>
+0066                 <span class="string">'EEGFiles='</span>,eegTxt,newline,<span class="keyword">...</span>
+0067                 <span class="string">'HRVFiles='</span>,hrvTxt,newline,<span class="keyword">...</span>
+0068                 <span class="string">'StimuIntDef='</span>,config.StimuIntDef,newline,<span class="keyword">...</span>
+0069                 <span class="string">'videoString='</span>,config.videoString,newline,<span class="keyword">...</span>
+0070                 <span class="string">'EEG_DEVICE_USED='</span>,num2str(config.EEG_DEVICE_USED),newline,<span class="keyword">...</span>
+0071                 <span class="string">'EDA_DEVICE_USED='</span>,num2str(config.EDA_DEVICE_USED),newline,<span class="keyword">...</span>
+0072                 <span class="string">'HRV_DEVICE_USED='</span>,num2str(config.HRV_DEVICE_USED),newline,<span class="keyword">...</span>
+0073                 <span class="string">'EEG_DEVICE='</span>,config.EEG_DEVICE,newline,<span class="keyword">...</span>
+0074                 <span class="string">'EDA_DEVICE='</span>,config.EDA_DEVICE,newline,<span class="keyword">...</span>
+0075                 <span class="string">'HRV_DEVICE='</span>,config.HRV_DEVICE,newline,<span class="keyword">...</span>
+0076                 <span class="string">'SubStimuIntEDAFig='</span>,num2str(config.SubStimuIntEDAFig),newline,<span class="keyword">...</span>
+0077                 <span class="string">'Statistics='</span>,num2str(config.Statistics),newline,<span class="keyword">...</span>
+0078                 <span class="string">'BehaveFig='</span>,num2str(config.BehaveFig),newline,<span class="keyword">...</span>
+0079                 <span class="string">'DetrendedEDAFig='</span>,num2str(config.DetrendedEDAFig),newline,<span class="keyword">...</span>
+0080                 <span class="string">'RecurrenceFig='</span>,num2str(config.RecurrenceFig),newline,<span class="keyword">...</span>
+0081                 <span class="string">'QualityFig='</span>,num2str(config.QualityFig),newline,<span class="keyword">...</span>
+0082                 <span class="string">'FrequencyFig='</span>,num2str(config.FrequencyFig),newline,<span class="keyword">...</span>
+0083                 <span class="string">'LowerThreshold='</span>,num2str(config.LowerThreshold),newline,<span class="keyword">...</span>
+0084                 <span class="string">'UpperThreshold='</span>,num2str(config.UpperThreshold),newline,<span class="keyword">...</span>
+0085                 <span class="string">'QualityIndex='</span>,num2str(config.QualityIndex),newline,<span class="keyword">...</span>
+0086                 <span class="string">'RecurrenceThreshold='</span>,num2str(config.RecurrenceThreshold),newline,<span class="keyword">...</span>
+0087                 <span class="string">'EEGCutoffValue='</span>,num2str(config.EEGCutoffValue),newline,<span class="keyword">...</span>
+0088                 <span class="string">'TopoRange='</span>,num2str(config.TopoRange),newline,<span class="keyword">...</span>
+0089                 <span class="string">'BrainRange='</span>,num2str(config.BrainRange),newline,<span class="keyword">...</span>
+0090                 <span class="string">'numSubjects='</span>,num2str(config.numSubjects),newline,<span class="keyword">...</span>
+0091                 <span class="string">'topoplot='</span>,num2str(config.topoplot),newline,<span class="keyword">...</span>
+0092                 <span class="string">'UserFrameRate='</span>,num2str(config.UserFrameRate),newline,<span class="keyword">...</span>
+0093                 <span class="string">'brainactivity='</span>,num2str(config.brainactivity),newline,<span class="keyword">...</span>
+0094                 <span class="string">'ExportEEG='</span>,num2str(config.EEGData),newline,<span class="keyword">...</span>
+0095                 <span class="string">'ExportEDA='</span>,num2str(config.EDAData),newline,<span class="keyword">...</span>
+0096                 <span class="string">'ExportHRV='</span>,num2str(config.HRVData),newline,<span class="keyword">...</span>
+0097                 <span class="string">'ExportSignalSpectra='</span>,num2str(config.signalSpec)
+0098                 ];
+0099         <span class="keyword">end</span>
+0100     <span class="keyword">end</span>
+0101    methods(Access=private)
+0102        <span class="comment">%converts cell to array to be able to save them later on</span>
+0103        <a name="_sub1" href="#_subfunctions" class="code">function str = cellArrayToString(self,cellArray)</a>
+0104             cellArray(cellfun(<span class="string">'isempty'</span>,cellArray)) = [];
+0105             cellArrayTxt = sprintf(<span class="string">'%s,'</span>,cellArray{:});
+0106             str = cellArrayTxt(1:end-1);
+0107        <span class="keyword">end</span> 
+0108    <span class="keyword">end</span>
+0109     
+0110 <span class="keyword">end</span>
+0111</pre></div>
+<hr><address>Generated on Tue 12-Jan-2021 15:39:55 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

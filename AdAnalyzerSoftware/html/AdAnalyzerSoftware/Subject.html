@@ -32,7 +32,7 @@
            edaValues, 
            hrvValues,
            eegValuesForElectrodes,
-           validElectrodes,
+           Electrodes,
            isValid,
            edaPerVid,
    hence, two different constructors are necessary 
@@ -44,10 +44,10 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li></ul>
+<li><a href="Electrodes.html" class="code" title="">Electrodes</a>	Enumaration representing the electrode positions</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="Plotter.html" class="code" title="">Plotter</a>	Performs different plots</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Factory class creating Subjects objects</li></ul>
+<li><a href="Plotter.html" class="code" title="">Plotter</a>	Performs different plots</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	% Factory class creating Subjects objects</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -61,7 +61,7 @@ This function is called by:
 0004 <span class="comment">%           edaValues,</span>
 0005 <span class="comment">%           hrvValues,</span>
 0006 <span class="comment">%           eegValuesForElectrodes,</span>
-0007 <span class="comment">%           validElectrodes,</span>
+0007 <span class="comment">%           Electrodes,</span>
 0008 <span class="comment">%           isValid,</span>
 0009 <span class="comment">%           edaPerVid,</span>
 0010 <span class="comment">%   hence, two different constructors are necessary</span>
@@ -75,35 +75,39 @@ This function is called by:
 0018     properties
 0019         <span class="comment">%Initial values set during creation in SubjectFactory</span>
 0020         name = <span class="string">''</span> 
-0021         <span class="comment">% parsed eda values</span>
-0022         edaValues={}
-0023         <span class="comment">% parsed hrv values</span>
-0024         hrvValues={}
-0025         <span class="comment">% parsed eeg values and status of position</span>
-0026         eegValuesForElectrodes ={}
-0027         validElectrodes = []
-0028         <span class="comment">%Values set during FilterAction</span>
-0029         isValid = 1
-0030         edaPerVid= {}
-0031     <span class="keyword">end</span>
-0032     
-0033     methods
-0034         
-0035         <a name="_sub0" href="#_subfunctions" class="code">function eegValues = eegValuesByElectrode(self, electrode)</a>
-0036             eegValues = {}; 
-0037             numEegValues = length(self.eegValuesForElectrodes); 
-0038             <span class="keyword">for</span> i=1:numEegValues
-0039                 currentElectrode = self.eegValuesForElectrodes{i}.electrode; 
-0040                 <span class="keyword">if</span> (electrode == currentElectrode)
-0041                     eegValues = self.eegValuesForElectrodes{i}; 
-0042                 <span class="keyword">end</span>
-0043             <span class="keyword">end</span>
-0044         <span class="keyword">end</span> 
-0045         
-0046     <span class="keyword">end</span>
-0047     
-0048 <span class="keyword">end</span>
-0049</pre></div>
-<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0021         OutputDirectory = <span class="string">''</span>
+0022         <span class="comment">% parsed eda values</span>
+0023         edaValues={}
+0024         <span class="comment">% parsed hrv values</span>
+0025         hrvValues={}
+0026         <span class="comment">% parsed eeg values and status of position</span>
+0027         eegValuesForElectrodes ={}
+0028         <a href="Electrodes.html" class="code" title="">Electrodes</a> = []
+0029         invalidElectrodes = []
+0030         <span class="comment">% Values set during FilterAction</span>
+0031         isValid = 1
+0032         edaPerVid= {}
+0033         <span class="comment">% signalSpec</span>
+0034         signalSpec = []
+0035     <span class="keyword">end</span>
+0036     
+0037     methods
+0038         
+0039         <a name="_sub0" href="#_subfunctions" class="code">function eegValues = eegValuesByElectrode(self, electrode)</a>
+0040             eegValues = {}; 
+0041             numEegValues = length(self.eegValuesForElectrodes); 
+0042             <span class="keyword">for</span> i=1:numEegValues
+0043                 currentElectrode = self.eegValuesForElectrodes{i}.electrode; 
+0044                 <span class="keyword">if</span> (electrode == currentElectrode)
+0045                     eegValues = self.eegValuesForElectrodes{i}; 
+0046                 <span class="keyword">end</span>
+0047             <span class="keyword">end</span>
+0048         <span class="keyword">end</span> 
+0049         
+0050     <span class="keyword">end</span>
+0051     
+0052 <span class="keyword">end</span>
+0053</pre></div>
+<hr><address>Generated on Tue 12-Jan-2021 15:39:55 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

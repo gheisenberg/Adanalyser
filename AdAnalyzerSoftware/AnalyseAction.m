@@ -33,7 +33,7 @@ classdef AnalyseAction < handle
             self.subjectValid(subjects,config);
                         
             % plot the a file as pdf containing all the GUI and all DEVICE settings
-            self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,[config.OutputDirectory,'/Settings.pdf']); 
+            self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,subjects,[config.OutputDirectory,'/Settings.pdf']); 
             
             % plot the a file as pdf containing all the ADIndex settings
             self.plotter.writeAdIndex(StimuIntDefs,[config.OutputDirectory,'/AdIndex.pdf']);
@@ -46,6 +46,7 @@ classdef AnalyseAction < handle
                     self.analyseSubject(subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
                 end
                 waitbar(i/validSubjects);
+                fprintf('\n');
             end
             close(wBar);
         end
@@ -76,7 +77,7 @@ classdef AnalyseAction < handle
                if sub.isValid == 1
                    isValid = isValid+1;
                    % save subject as valid
-                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid']};
+                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid ']};
                    j = j+1;
                    % check for invalid electrodes and save them behind the
                    % subject
@@ -88,9 +89,9 @@ classdef AnalyseAction < handle
                    end
                else 
                    % save subject as invalid
-                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid']};
+                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid |']};
                    isValid = isValid + 0;
-                   if  ~isempty(sub.invalidElectodes)
+                   if  length(sub.invalidElectrodes) >= 1 
                        validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
                        for j = 1:length(sub.invalidElectrodes)
                        validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
@@ -120,12 +121,12 @@ classdef AnalyseAction < handle
             
             % Plot eda values
             if (config.EDA_DEVICE_USED)
-                self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
+                self.plotter.plotEDA(StimuIntDefs,[subject.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
             end
             
             % Plot eda detrended
             if (config.DetrendedEDAFig)
-                self.plotter.plotEDA(StimuIntDefs,[config.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
+                self.plotter.plotEDA(StimuIntDefs,[subject.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
             end
             
             % Plot EEG 
@@ -181,8 +182,8 @@ classdef AnalyseAction < handle
             % Plot statistics
             if (config.Statistics)
                 % save statistics as pdf and CSV
-                self.plotter.writeCSV([config.OutputDirectory '/' subject.name '_statistics.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
-                self.plotter.writeStatistics([statString newline newline delayString newline ampString],[config.OutputDirectory '/' subject.name '_statistics.pdf']);
+                self.plotter.writeCSV([subject.OutputDirectory '/' subject.name '_statistics.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
+                self.plotter.writeStatistics([statString newline newline delayString newline ampString],[subject.OutputDirectory '/' subject.name '_statistics.pdf']);
             end
             
             % create data for EEG Topology plots, if necessary 
@@ -242,17 +243,17 @@ classdef AnalyseAction < handle
             
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
-                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[config.OutputDirectory '/' subject.name ' EDA_Values_for_all_StimulusInterval(s)'],[edaStatsString newline newline delayString newline ampString]);
+                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[subject.OutputDirectory '/' subject.name ' EDA_Values_for_all_StimulusInterval(s)'],[edaStatsString newline newline delayString newline ampString]);
             end
             
             % Plot HRV figure
             if (config.HRV_DEVICE_USED)
-                self.plotter.plotHRV(subject.hrvValues,config.OutputDirectory,subject.name,StimuIntDefs);
+                self.plotter.plotHRV(subject.hrvValues,subject.OutputDirectory,subject.name,StimuIntDefs);
             end
             
             % Plot HRV Recurrence
             if (config.RecurrenceFig)
-                self.plotter.plotHRVRecurrence(subject.name,config,'HRV',subject.hrvValues,StimuIntDefs);
+                self.plotter.plotHRVRecurrence(subject,config,'HRV',subject.hrvValues,StimuIntDefs);
             end
             
             % plot frequencies for baseline Stimulus Intervals with baseline magnitude
@@ -278,7 +279,7 @@ classdef AnalyseAction < handle
                     StimuIntDescrp = StimuIntDefs{i}.stimuIntDescrp;
                     
                     self.plotter.plotFrequencysWithBaselineMagnitude(length(filteredEEGPerVid{i})/eegDevice.samplingRate,...
-                        [config.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
+                        [subject.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                         StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s,baselineTheta_s,...
                         baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
                         ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
@@ -330,19 +331,19 @@ classdef AnalyseAction < handle
             
             % plot Behavioral Characteristics 
             if(config.BehaveFig)
-                self.plotter.plotBehavioralCharacteristics(subject.name,StimuIntNumber,config.OutputDirectory,self.frequencies(StimuIntNumber,:),StimuIntDef,eegDevice)
+                self.plotter.plotBehavioralCharacteristics(subject.name,StimuIntNumber,subject.OutputDirectory,self.frequencies(StimuIntNumber,:),StimuIntDef,eegDevice)
             end
             
             %plot Frequency figure
             if (config.FrequencyFig)
                 resolution = 4;
-                self.plotter.plotFrequencys(StimuIntLength,[config.OutputDirectory '\' subject.name '_freq_bands_' StimuIntDef.stimuIntDescrp],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaPerVid{StimuIntNumber});
+                self.plotter.plotFrequencys(StimuIntLength,[subject.OutputDirectory '\' subject.name '_freq_bands_' StimuIntDef.stimuIntDescrp],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaPerVid{StimuIntNumber});
             end
             
             % Plot Recurrence
             if (config.RecurrenceFig)
                 if StimuIntDef.stimuIntType >= 4 % Types -> see StimuIntDefinition.m
-                    self.plotter.plotEDARecurrence(subject.name,config,StimuIntDef,edaPerVid{StimuIntNumber},edaDevice);
+                    self.plotter.plotEDARecurrence(subject,config,StimuIntDef,edaPerVid{StimuIntNumber},edaDevice);
                 end
             end
         end

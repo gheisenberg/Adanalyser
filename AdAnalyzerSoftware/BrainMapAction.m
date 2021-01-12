@@ -14,9 +14,25 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
     allSubjects = data.subjects;
     config = conf;
     
+    message = ['Rendering videos for ', num2str(length(allSubjects)), ' subject(s)'];
+    h = waitbar(0,message);
+    
+    %create subfolder
+    subfolder_name = '2D_BrainMaps';
+
+    if ~exist([config.OutputDirectory '\' subfolder_name], 'dir')
+    parentfolder = config.OutputDirectory;
+    mkdir(fullfile(parentfolder, subfolder_name));
+    end
+    
     for i = 1:length(allSubjects)
         
         subject = allSubjects{i};
+        
+        if ~exist([config.OutputDirectory '\' subfolder_name subject.name], 'dir')
+        parentfolder = [config.OutputDirectory '\' subfolder_name];
+        mkdir(fullfile(parentfolder, subject.name));
+        end
         
         % Preparing EEG Data for print
         % Import of Standard 10-20 System channel locs for electrodes
@@ -26,8 +42,8 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
         Usedelectrodes = subject.Electrodes;
         numValues = subject.eegValuesForElectrodes; 
         numElectrodes = length(numValues);
-        for i = 1:numElectrodes              
-            eegValues(:,i) =  subject.eegValuesForElectrodes{1, i}.eegValues;              
+        for j = 1:numElectrodes              
+            eegValues(:,j) =  subject.eegValuesForElectrodes{1, j}.eegValues;     
         end
         PlotDataOverTime = eegValues';
 
@@ -40,8 +56,8 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
         SumDeleteRow = zeros(1,lengthStandardChanloc);
 
         % delete all unused electrode chanlocs
-        for i = 1:numUsedElectrodes
-            deleteRow = ismember({chanloc.labels}, electrodes{i});
+        for j = 1:numUsedElectrodes
+            deleteRow = ismember({chanloc.labels}, electrodes{j});
             SumDeleteRow = SumDeleteRow + deleteRow;
         end
         SumDeleteRow = ~SumDeleteRow;
@@ -66,20 +82,11 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
                 StimuInt = data.stimuIntDefs{1, j};
             end
         end
-        subjectName = subject.name;
-        TopoStart = 0;
+        
         timestamps = [];
 
-        %create subfolder
-        subfolder_name = '2D_BrainMaps';
-
-        if ~exist([config.OutputDirectory '\' subfolder_name], 'dir')
-        parentfolder = config.OutputDirectory;
-        mkdir(fullfile(parentfolder, subfolder_name));
-        end
-
         % video obj
-        vName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+        vName = [config.OutputDirectory '\' subfolder_name '/' subject.name '/' subject.name '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
         vidObj = VideoWriter(vName);
         vidObj.Quality = 100;       
         vidObj.FrameRate = config.UserFrameRate; % get framerate from video
@@ -135,9 +142,6 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
                 task(j,m) = 0; % zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
                 end
             end
-            % get all signalSpec Data
-            Signals = [theta; alpha; beta1;task(:,m)']';
-            subject.signalSpec = cat(1,subject.signalSpec,Signals);
         end
 
 
@@ -173,7 +177,7 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
             % print out first frame
             videochart = subplot(2,2,[1 2]);
             imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
-            fName = [config.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))) 'ms_2D Topo.png'];
+            fName = [config.OutputDirectory '\' subfolder_name '/' subject.name '/' subject.name '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))) 'ms_2D Topo.png'];
             print(fName,'-dpng','-r300',mainfig);
 
             % set render to opengl
@@ -198,8 +202,10 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
             end
             % close figure
             close
-        end     
+        end
+        waitbar(i/length(data.subjects));
     end
+    close(h);
 end
 
 %% Prints of electrode frequency

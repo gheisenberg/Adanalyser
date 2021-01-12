@@ -68,26 +68,28 @@ This function is called by:
 0016         <span class="comment">% electrodePositions is a cell containing the strings for each electrode position</span>
 0017         <span class="comment">% access them via electrodePositions(n)</span>
 0018         electrodePositions = {};
-0019         electrodeState = {};
-0020     <span class="keyword">end</span>
-0021     
-0022     methods
-0023         <span class="comment">%% Constructor: Creates new EEG device object and sets properties _Name_, _SamplingRate_, _ElectrodePositions_</span>
-0024         <a name="_sub0" href="#_subfunctions" class="code">function EEGdevice = createEEGDevice(self, name,samplingRate,electrodePositions,electrodeState)</a>
-0025             EEGdevice.name = name; 
-0026             EEGdevice.samplingRate = samplingRate;
-0027             EEGdevice.electrodePositions = electrodePositions;
-0028             EEGdevice.electrodeState = electrodeState;
-0029         <span class="keyword">end</span> 
-0030         
-0031         <span class="comment">%% Constructor: Creates new standard device object (EDA or HRV ) and sets properties _Name_, _SamplingRate_</span>
-0032         <a name="_sub1" href="#_subfunctions" class="code">function Standarddevice = createStandardDevice(self,name,samplingRate)</a>
-0033             Standarddevice.name = name; 
-0034             Standarddevice.samplingRate = samplingRate;
-0035         <span class="keyword">end</span>
-0036         
-0037     <span class="keyword">end</span>
-0038 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0019         <span class="comment">% electrodeState represents if the eletrode of a device is turn on</span>
+0020         <span class="comment">% or off in the Eletrodes Dialog UI</span>
+0021         electrodeState = {};
+0022     <span class="keyword">end</span>
+0023     
+0024     methods
+0025         <span class="comment">%% Constructor: Creates new EEG device object and sets properties _Name_, _SamplingRate_, _ElectrodePositions_</span>
+0026         <a name="_sub0" href="#_subfunctions" class="code">function EEGdevice = createEEGDevice(self, name,samplingRate,electrodePositions,electrodeState)</a>
+0027             EEGdevice.name = name; 
+0028             EEGdevice.samplingRate = samplingRate;
+0029             EEGdevice.electrodePositions = electrodePositions;
+0030             EEGdevice.electrodeState = electrodeState;
+0031         <span class="keyword">end</span> 
+0032         
+0033         <span class="comment">%% Constructor: Creates new standard device object (EDA or HRV ) and sets properties _Name_, _SamplingRate_</span>
+0034         <a name="_sub1" href="#_subfunctions" class="code">function Standarddevice = createStandardDevice(self,name,samplingRate)</a>
+0035             Standarddevice.name = name; 
+0036             Standarddevice.samplingRate = samplingRate;
+0037         <span class="keyword">end</span>
+0038         
+0039     <span class="keyword">end</span>
+0040 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 12-Jan-2021 15:39:55 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

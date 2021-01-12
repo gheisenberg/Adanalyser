@@ -43,7 +43,16 @@ classdef FilterAction < handle
             filteredQuality = zeros(numSubjects,numStimuInt);
             %loop for each subject
             for i=1:numSubjects
-                subject = data.subjects{i}; 
+                subject = data.subjects{i};
+                
+                % create folder for each subject
+                parentfolder = config.OutputDirectory;
+                subfolder_name = subject.name;
+                mkdir(fullfile(parentfolder, subfolder_name));
+                
+                % change directory to subject folder
+                subject.OutputDirectory = [parentfolder '\' subfolder_name];
+                
                 if subject.isValid == 1 % Filter invalid subjects
                 numElectrodes = length(subject.eegValuesForElectrodes);
                 %loop for each electrode position
@@ -91,7 +100,7 @@ classdef FilterAction < handle
                     output = [subject.Electrodes num2cell(allEEGValues)];
                     % combine
                     output = [time; output];
-                    fname = [config.OutputDirectory '/' subject.name '_Filtered_EEG_Values.csv'];
+                    fname = [subject.OutputDirectory '/' subject.name '_Filtered_EEG_Values.csv'];
                     writematrix(output', fname,'Delimiter','semi');
                 end
                 
@@ -101,7 +110,7 @@ classdef FilterAction < handle
                     output = cat(2,time(2:end)',subject.edaValues);
                     title = ["Time [s]","EDA [MUs]"];
                     output = [title;output];
-                    fname = [config.OutputDirectory '/' subject.name '_EDA_Values.csv'];
+                    fname = [subject.OutputDirectory '/' subject.name '_EDA_Values.csv'];
                     writematrix(output,fname,'Delimiter','semi')
                 end
                 
@@ -115,7 +124,7 @@ classdef FilterAction < handle
                     output = cat(2,time',subject.hrvValues);
                     title = ["Time [s]","R-R [ms]"];
                     output = [title;output];
-                    fname = [config.OutputDirectory '/' subject.name '_HRV_Values.csv'];
+                    fname = [subject.OutputDirectory '/' subject.name '_HRV_Values.csv'];
                     writematrix(output,fname,'Delimiter','semi')
                 end
                 

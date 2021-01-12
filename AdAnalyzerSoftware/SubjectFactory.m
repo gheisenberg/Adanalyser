@@ -144,8 +144,18 @@ classdef SubjectFactory
                 hrvFileForSubject = hrvFilePaths{hrvFileIndex};
                 % create the subject
                 subject.name = subjectName;
-                subject.edaValues = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
-                subject.hrvValues = self.parseHRVFile(hrvFileForSubject,StimuIntLength,hrvDevice);
+                [subject.edaValues,EDAValidation] = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
+                if EDAValidation ~= 0
+                    fprintf(['The EDA File of subject ' subjectName ' is too short!\n'])
+                    fprintf('This subject will neither be filtered nor analyzed!\n\n')
+                    subject.isValid = 0;
+                end
+                [subject.hrvValues,HRVValidation] = self.parseHRVFile(hrvFileForSubject,StimuIntLength,hrvDevice);
+                if HRVValidation ~= 0
+                    fprintf(['The HRV File of subject ' subjectName ' is too short!\n'])
+                    fprintf('This subject will neither be filtered nor analyzed!\n\n')
+                    subject.isValid = 0;
+                end
                 % Check for validation, else dont save subject
                 subjects{i}=subject; 
                 %  update waitbar
@@ -188,7 +198,8 @@ classdef SubjectFactory
         end
         
         %% Parses HRV file to double array
-        function hrvValues = parseHRVFile(self,hrvFile,StimuIntLength,hrvDevice)
+        function [hrvValues,invalid] = parseHRVFile(self,hrvFile,StimuIntLength,hrvDevice)
+            invalid = [];
             hrvValuesPerSec = hrvDevice.samplingRate;
             fileID = fopen(hrvFile);
             fileContents = textscan(fileID,'%f %f','Delimiter',',');
@@ -196,19 +207,28 @@ classdef SubjectFactory
             hrvValues = fileContents(:,2);
             % cut off all HRV values after Stimulus Interval Length
             % 5*sampling rate
-            hrvValues = hrvValues{1}(1:hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5); % Add 5 values as dummy
+            if length(hrvValues{1}) >= hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5
+                hrvValues = hrvValues{1}(1:hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5); % Add 5 values as dummy
+            else
+                invalid = 1;
+            end
         end
         
         
         %% Parses EDA file to double array
-        function edaValues = parseEDAFile(self,edaFile,StimuIntLength,edaDevice)
+        function [edaValues,invalid] = parseEDAFile(self,edaFile,StimuIntLength,edaDevice)
+            invalid = [];
             edaValuesPerSec = edaDevice.samplingRate;
             fileID = fopen(edaFile);
             fileContents = textscan(fileID,'%f %f','HeaderLines',1,'Delimiter',',');
             fclose(fileID);
             edaValues = fileContents(:,2);
             % cut off all EDA values after Stimlus Interval Length
-            edaValues = edaValues{1}(1:edaValuesPerSec*StimuIntLength);
+            if length(edaValues{1}) >= edaValuesPerSec*StimuIntLength
+                edaValues = edaValues{1}(1:edaValuesPerSec*StimuIntLength);
+            else
+                invalid = 1;
+            end
         end
         
     end

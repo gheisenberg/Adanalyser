@@ -4,7 +4,7 @@
 <head>
   <title>Description of SubjectFactory</title>
   <meta name="keywords" content="SubjectFactory">
-  <meta name="description" content="Factory class creating Subjects objects">
+  <meta name="description" content="% Factory class creating Subjects objects">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -20,13 +20,13 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>Factory class creating Subjects objects</strong></div>
+<div class="box"><strong>% Factory class creating Subjects objects</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box"><strong>This is a script file. </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Factory class creating Subjects objects
+<div class="fragment"><pre class="comment">% Factory class creating Subjects objects
    Reads subject related files and creates appropriate data representation -&gt; See: Subject
    Also checks for in/valid of the provided data and if all nessesary
    files are provided
@@ -37,18 +37,18 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="ElectrodeEEGData.html" class="code" title="">ElectrodeEEGData</a>	Representation of all Values for each EEG electrode position</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Factory class creating Subjects objects</li></ul>
+<li><a href="ElectrodeEEGData.html" class="code" title="">ElectrodeEEGData</a>	Representation of all Values for each EEG electrode position</li><li><a href="Subject.html" class="code" title="">Subject</a>	Data representation of all informations related to one subject</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	% Factory class creating Subjects objects</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	Factory class creating Subjects objects</li></ul>
+<li><a href="DataFactory.html" class="code" title="">DataFactory</a>	Factory class creating _Data_ objects</li><li><a href="SubjectFactory.html" class="code" title="">SubjectFactory</a>	% Factory class creating Subjects objects</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function subjects = createSubjects(self,config,StimuIntLength,eegDevice,edaDevice,hrvDevice)</a></li><li><a href="#_sub2" class="code">function [electrodeEEGdata,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)</a></li><li><a href="#_sub3" class="code">function hrvValues = parseHRVFile(self,hrvFile,hrvDevice)</a></li><li><a href="#_sub4" class="code">function edaValues = parseEDAFile(self,edaFile,StimuIntLength,edaDevice)</a></li></ul>
+<li><a href="#_sub1" class="code">function subjects = createSubjects(self,config,StimuIntLength,eegDevice,edaDevice,hrvDevice)</a></li><li><a href="#_sub2" class="code">function [electrodeEEGdata,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)</a></li><li><a href="#_sub3" class="code">function [hrvValues,invalid] = parseHRVFile(self,hrvFile,StimuIntLength,hrvDevice)</a></li><li><a href="#_sub4" class="code">function [edaValues,invalid] = parseEDAFile(self,edaFile,StimuIntLength,edaDevice)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <span class="comment">% Factory class creating Subjects objects</span>
+<div class="fragment"><pre>0001 <span class="comment">%% Factory class creating Subjects objects</span>
 0002 <span class="comment">%   Reads subject related files and creates appropriate data representation -&gt; See: Subject</span>
 0003 <span class="comment">%   Also checks for in/valid of the provided data and if all nessesary</span>
 0004 <span class="comment">%   files are provided</span>
@@ -76,26 +76,26 @@ This function is called by:
 0026                 <span class="comment">% get subject name and electrode name from eeg file name</span>
 0027                 numberOfEDA = length(edaFilePaths);
 0028                 numberofHRV = length(hrvFilePaths);
-0029                 <span class="comment">%Check if number of EDA Files -&gt; correct = get subject</span>
-0030                 <span class="comment">%names</span>
+0029                 <span class="comment">% Check if number of EDA Files -&gt; correct = get subject</span>
+0030                 <span class="comment">% names</span>
 0031                 <span class="keyword">if</span> numberOfSubjects &lt;= numberOfEDA &amp;&amp; numberOfEDA &gt;= numberofHRV          
 0032                     edaFileForSubject = edaFilePaths{i};
 0033                     [~,name,~] = fileparts(edaFileForSubject);
 0034                     splitFileName =  textscan(name,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'_'</span>);
 0035                     subjectName = splitFileName{1}{2};
-0036                     <span class="comment">%Check if subject also containes a HRV file -&gt; Invalid</span>
-0037                     <span class="comment">%if not</span>
+0036                     <span class="comment">% Check if subject also containes a HRV file -&gt; Invalid</span>
+0037                     <span class="comment">% if not</span>
 0038                     <span class="keyword">if</span> 0 == contains(hrvFilePaths,subjectName)
 0039                         fprintf([<span class="string">'Subject '</span> subjectName <span class="string">' is missing the HRV File!\n\n'</span>])
 0040                         fprintf(<span class="string">'This subject will neither be filtered nor analyzed!\n\n'</span>)
 0041                         subject.isValid = 0;
-0042                         <span class="comment">%go for next loop iteration</span>
+0042                         <span class="comment">% go for next loop iteration</span>
 0043                         <span class="keyword">continue</span>
 0044                     <span class="keyword">end</span>
 0045                     <span class="keyword">if</span> numberOfSubjects &lt; numberOfEDA || numberOfSubjects &lt; numberofHRV
 0046                             <span class="keyword">if</span> numberOfEDA == numberofHRV
 0047                             total = numberOfEDA-numberOfSubjects;
-0048                             fprintf(<span class="string">'The number of subjects doesn´t match the number of EDA and HRV Files!\n'</span>)
+0048                             fprintf(<span class="string">'\n\nThe number of subjects doesn´t match the number of EDA and HRV Files!\n'</span>)
 0049                             fprintf([num2str(total) <span class="string">' files will be filtered and analyzed in ascending order!\n\n'</span>])
 0050                             <span class="keyword">end</span>
 0051                             <span class="keyword">if</span> numberOfEDA &gt; numberofHRV
@@ -104,13 +104,13 @@ This function is called by:
 0054                             fprintf([num2str(total) <span class="string">' files will be filtered and analyzed in ascending order!\n\n'</span>])
 0055                             <span class="keyword">end</span>
 0056                     <span class="keyword">end</span>
-0057                 <span class="comment">%if EDA is incorrect check for HRV</span>
+0057                 <span class="comment">% if EDA is incorrect check for HRV</span>
 0058                 <span class="keyword">elseif</span> numberOfSubjects &lt;= numberofHRV                 
 0059                     hrvFileForSubject = hrvFilePaths{i};
 0060                     [~,name,~] = fileparts(hrvFileForSubject);
 0061                     splitFileName =  textscan(name,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'_'</span>);
 0062                     subjectName = splitFileName{1}{2};
-0063                     <span class="comment">%get incorrect Subject for EDA</span>
+0063                     <span class="comment">% get incorrect Subject for EDA</span>
 0064                     <span class="keyword">if</span> 0 == contains(edaFilePaths,subjectName)
 0065                         fprintf([<span class="string">'Subject '</span> subjectName <span class="string">' is missing the EDA File!\n'</span>])
 0066                         fprintf(<span class="string">'This subject will neither be filtered nor analyzed!\n\n'</span>)
@@ -136,8 +136,8 @@ This function is called by:
 0086                 NumElectrodesVector = size(usedElectrodes);
 0087                 NumElectrodes = NumElectrodesVector(1);
 0088                 NumMatches = length(Subjectmatches);
-0089                 <span class="comment">%Check for EEG Files</span>
-0090                 <span class="keyword">if</span> NumMatches ~= NumElectrodes
+0089                 <span class="comment">% Check for EEG Files</span>
+0090                 <span class="keyword">if</span> NumMatches &lt; NumElectrodes
 0091                     missing = NumElectrodes - NumMatches;
 0092                     fprintf([<span class="string">'Subject '</span> subjectName <span class="string">' is missing '</span> num2str(missing) <span class="string">' EEG File/s!\n'</span>])
 0093                     fprintf(<span class="string">'This subject will neither be filtered nor analyzed!\n\n'</span>)
@@ -148,7 +148,7 @@ This function is called by:
 0098                     subjectlist = eegFilePaths(Subjectmatches(1):Subjectmatches(end));
 0099                     electrodelist = strfind(subjectlist,usedElectrodes{k});
 0100                     eegFileIndicies = find(~cellfun(@isempty,electrodelist));
-0101                     <span class="comment">%Check State of Electrode</span>
+0101                     <span class="comment">% Check State of Electrode</span>
 0102                     <span class="keyword">if</span> ElectrodesStates{k} == 1
 0103                         <span class="keyword">if</span> eegFileIndicies &gt; 0
 0104                             eegFileForSubject = subjectlist{eegFileIndicies}; 
@@ -163,27 +163,27 @@ This function is called by:
 0113                             MissingElectrode = usedElectrodes(k);
 0114                             Electrode = MissingElectrode{1};
 0115                             SubjectNumber = num2str(i);
-0116                             <span class="keyword">if</span> config.EEG_DEVICE_USED == 1 <span class="comment">%Tim Besprechen, wo schon gestoppt wird generell</span>
+0116                             <span class="keyword">if</span> config.EEG_DEVICE_USED == 1
 0117                             fprintf(<span class="string">'Data missing for subject %s for EEG electrode &quot;%s&quot;.\n'</span>,SubjectNumber,Electrode)
 0118                             fprintf(<span class="string">'This subject will neither be filtered nor analyzed!\n\n'</span>)
 0119                             subject.isValid = 0;
 0120                             <span class="keyword">end</span>
 0121                         <span class="keyword">end</span>
 0122                     <span class="keyword">else</span>
-0123                         <span class="comment">%Empty unused Electrodes from Device</span>
+0123                         <span class="comment">% Empty unused Electrodes from Device</span>
 0124                         eegDevice.electrodePositions{k} = [];
 0125                         eegDevice.electrodeState{k} = [];
 0126                     <span class="keyword">end</span>
 0127                 <span class="keyword">end</span>
-0128                 <span class="comment">%Get empty rows</span>
+0128                 <span class="comment">% Get empty rows</span>
 0129                 removeEmptyPositions = eegDevice.electrodePositions;
 0130                 removeEmptyState = eegDevice.electrodeState;
 0131                 removeEmpty = subject.eegValuesForElectrodes;
-0132                 <span class="comment">%delete empty rows</span>
+0132                 <span class="comment">% delete empty rows</span>
 0133                 eegDevice.electrodePositions = removeEmptyPositions(~cellfun(<span class="string">'isempty'</span>,removeEmptyPositions));
 0134                 eegDevice.electrodeState = removeEmptyState(~cellfun(<span class="string">'isempty'</span>,removeEmptyState));
 0135                 subject.eegValuesForElectrodes = removeEmpty(~cellfun(<span class="string">'isempty'</span>,removeEmpty));
-0136                 subject.validElectrodes = eegDevice.electrodePositions;
+0136                 subject.Electrodes = eegDevice.electrodePositions;
 0137                 <span class="comment">% get eda file for subject by subject name</span>
 0138                 matches = strfind(edaFilePaths,subjectName);
 0139                 edaFileIndex = ~cellfun(@isempty,matches);
@@ -194,73 +194,101 @@ This function is called by:
 0144                 hrvFileForSubject = hrvFilePaths{hrvFileIndex};
 0145                 <span class="comment">% create the subject</span>
 0146                 subject.name = subjectName;
-0147                 subject.edaValues = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
-0148                 subject.hrvValues = self.parseHRVFile(hrvFileForSubject,hrvDevice);
-0149                 <span class="comment">%Check for validation, else dont save subject</span>
-0150                 subjects{i}=subject; 
-0151                 <span class="comment">% update waitbar</span>
-0152                 waitbar(i /numberOfSubjects);
-0153             <span class="keyword">end</span>
-0154             subjects = subjects(~cellfun(<span class="string">'isempty'</span>,subjects));
-0155             close(bar);
-0156         <span class="keyword">end</span>
-0157     <span class="keyword">end</span>
-0158     methods(Access=private)
-0159  
-0160         
-0161         <span class="comment">%% Parses EEG file to int array</span>
-0162         <a name="_sub1" href="#_subfunctions" class="code">function [electrodeEEGdata,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)</a>
-0163             invalid = [];
-0164             [~,name,~] = fileparts(eegFile);
-0165             splitFileName = textscan(name,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'_'</span>);
-0166             electrodeName = splitFileName{1}{3};
-0167             fileID = fopen(eegFile);
-0168             fileContents = textscan(fileID,<span class="string">'%d'</span>,<span class="string">'Headerlines'</span>,1);
-0169             fclose(fileID);
-0170             eegRawValues =  fileContents{1};
-0171             electrodeEEGdata = <a href="ElectrodeEEGData.html" class="code" title="">ElectrodeEEGData</a>();
-0172             electrodeEEGdata.electrode = electrodeName; 
-0173             eegOffset = config.EEGCutoffValue;
-0174             EEGSamplingRate = eegDevice.samplingRate;
-0175             start = eegOffset*EEGSamplingRate;
-0176             ende = start+(StimuIntLength*EEGSamplingRate);
-0177             <span class="keyword">if</span> length(eegRawValues) &lt; ende
-0178                 invalid = electrodeName;
-0179             <span class="keyword">else</span>
-0180             <span class="comment">% Cut of eeg values and create eeg matrix for each subject</span>
-0181             eegValsCutoff = eegRawValues(start:ende-1);
-0182             eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
-0183             electrodeEEGdata.eegValues = eegValsCutoff;
-0184             electrodeEEGdata.eegMatrix = double(eegValsMatrix');
-0185             <span class="keyword">end</span>
-0186         <span class="keyword">end</span>
-0187         
-0188         <span class="comment">%% Parses HRV file to double array</span>
-0189         <a name="_sub2" href="#_subfunctions" class="code">function hrvValues = parseHRVFile(self,hrvFile,hrvDevice)</a>
-0190             fileID = fopen(hrvFile);
-0191             fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
-0192             fclose(fileID);
-0193             hrvValues = fileContents(:,2);
-0194             hrvValues = hrvValues{1};
-0195             <span class="comment">%maybe we have to implement the HRV data values the same way as the EDA values</span>
-0196             <span class="comment">% see below !!! Now we assume that hrvDevice.samplingRate = 1</span>
-0197         <span class="keyword">end</span>
-0198         
-0199         
-0200         <span class="comment">%% Parses EDA file to double array</span>
-0201         <a name="_sub3" href="#_subfunctions" class="code">function edaValues = parseEDAFile(self,edaFile,StimuIntLength,edaDevice)</a>
-0202             edaValuesPerSec = edaDevice.samplingRate;
-0203             fileID = fopen(edaFile);
-0204             fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'HeaderLines'</span>,1,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
-0205             fclose(fileID);
-0206             edaValues = fileContents(:,2);
-0207             edaValues = edaValues{1}(1:edaValuesPerSec*StimuIntLength);
-0208         <span class="keyword">end</span>
-0209         
-0210     <span class="keyword">end</span>
-0211 <span class="keyword">end</span>
-0212 
-0213</pre></div>
-<hr><address>Generated on Wed 03-Jun-2020 11:38:58 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+0147                 [subject.edaValues,EDAValidation] = self.parseEDAFile(edaFileForSubject,StimuIntLength,edaDevice);
+0148                 <span class="keyword">if</span> EDAValidation ~= 0
+0149                     fprintf([<span class="string">'The EDA File of subject '</span> subjectName <span class="string">' is too short!\n'</span>])
+0150                     fprintf(<span class="string">'This subject will neither be filtered nor analyzed!\n\n'</span>)
+0151                     subject.isValid = 0;
+0152                     <span class="keyword">continue</span>
+0153                 <span class="keyword">end</span>
+0154                 [subject.hrvValues,HRVValidation] = self.parseHRVFile(hrvFileForSubject,StimuIntLength,hrvDevice);
+0155                 <span class="keyword">if</span> HRVValidation ~= 0
+0156                     fprintf([<span class="string">'The HRV File of subject '</span> subjectName <span class="string">' is too short!\n'</span>])
+0157                     fprintf(<span class="string">'This subject will neither be filtered nor analyzed!\n\n'</span>)
+0158                     subject.isValid = 0;
+0159                     <span class="keyword">continue</span>
+0160                 <span class="keyword">end</span>
+0161                 <span class="comment">% Check for validation, else dont save subject</span>
+0162                 <span class="keyword">if</span> subject.isValid == 1
+0163                     subjects{i}=subject; 
+0164                 <span class="keyword">end</span>
+0165                 <span class="comment">%  update waitbar</span>
+0166                 waitbar(i /numberOfSubjects);
+0167             <span class="keyword">end</span>
+0168             subjects = subjects(~cellfun(<span class="string">'isempty'</span>,subjects));
+0169             close(bar);
+0170         <span class="keyword">end</span>
+0171     <span class="keyword">end</span>
+0172     methods(Access=private)
+0173  
+0174         
+0175         <span class="comment">%% Parses EEG file to array</span>
+0176         <a name="_sub1" href="#_subfunctions" class="code">function [electrodeEEGdata,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)</a>
+0177             invalid = [];
+0178             <span class="comment">% get eeg files and split them</span>
+0179             [~,name,~] = fileparts(eegFile);
+0180             splitFileName = textscan(name,<span class="string">'%s'</span>,<span class="string">'Delimiter'</span>,<span class="string">'_'</span>);
+0181             electrodeName = splitFileName{1}{3};
+0182             fileID = fopen(eegFile);
+0183             fileContents = textscan(fileID,<span class="string">'%d'</span>,<span class="string">'Headerlines'</span>,1);
+0184             fclose(fileID);
+0185             eegRawValues =  fileContents{1};
+0186             electrodeEEGdata = <a href="ElectrodeEEGData.html" class="code" title="">ElectrodeEEGData</a>();
+0187             electrodeEEGdata.electrode = electrodeName; 
+0188             eegOffset = config.EEGCutoffValue;
+0189             EEGSamplingRate = eegDevice.samplingRate;
+0190             start = eegOffset*EEGSamplingRate;
+0191             ende = start+(StimuIntLength*EEGSamplingRate);
+0192             <span class="comment">% check for correct length of raw values</span>
+0193             <span class="keyword">if</span> length(eegRawValues) &lt; ende
+0194                 invalid = electrodeName;
+0195             <span class="keyword">else</span>
+0196             <span class="comment">% Cut of eeg values and create eeg matrix for each subject</span>
+0197             eegValsCutoff = eegRawValues(start:ende-1);
+0198             eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
+0199             electrodeEEGdata.eegValues = eegValsCutoff;
+0200             electrodeEEGdata.eegMatrix = double(eegValsMatrix');
+0201             <span class="keyword">end</span>
+0202         <span class="keyword">end</span>
+0203         
+0204         <span class="comment">%% Parses HRV file to double array</span>
+0205         <a name="_sub2" href="#_subfunctions" class="code">function [hrvValues,invalid] = parseHRVFile(self,hrvFile,StimuIntLength,hrvDevice)</a>
+0206             invalid = [];
+0207             hrvValuesPerSec = hrvDevice.samplingRate;
+0208             fileID = fopen(hrvFile);
+0209             fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+0210             fclose(fileID);
+0211             hrvValues = fileContents(:,2);
+0212             <span class="comment">% cut off all HRV values after Stimulus Interval Length</span>
+0213             <span class="comment">% 5*sampling rate</span>
+0214             <span class="keyword">if</span> length(hrvValues{1}) &gt;= hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5
+0215                 hrvValues = hrvValues{1}(1:hrvValuesPerSec*StimuIntLength+hrvValuesPerSec*5); <span class="comment">% Add 5 values as dummy</span>
+0216             <span class="keyword">else</span>
+0217                 invalid = 1;
+0218             <span class="keyword">end</span>
+0219         <span class="keyword">end</span>
+0220         
+0221         
+0222         <span class="comment">%% Parses EDA file to double array</span>
+0223         <a name="_sub3" href="#_subfunctions" class="code">function [edaValues,invalid] = parseEDAFile(self,edaFile,StimuIntLength,edaDevice)</a>
+0224             invalid = [];
+0225             edaValuesPerSec = edaDevice.samplingRate;
+0226             fileID = fopen(edaFile);
+0227             fileContents = textscan(fileID,<span class="string">'%f %f'</span>,<span class="string">'HeaderLines'</span>,1,<span class="string">'Delimiter'</span>,<span class="string">','</span>);
+0228             fclose(fileID);
+0229             edaValues = fileContents(:,2);
+0230             <span class="comment">% cut off all EDA values after Stimlus Interval Length</span>
+0231             <span class="keyword">if</span> length(edaValues{1}) &gt;= edaValuesPerSec*StimuIntLength
+0232                 edaValues = edaValues{1}(1:edaValuesPerSec*StimuIntLength);
+0233             <span class="keyword">else</span>
+0234                 invalid = 1;
+0235             <span class="keyword">end</span>
+0236         <span class="keyword">end</span>
+0237         
+0238     <span class="keyword">end</span>
+0239 <span class="keyword">end</span>
+0240 
+0241</pre></div>
+<hr><address>Generated on Tue 12-Jan-2021 15:39:55 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
