@@ -84,7 +84,7 @@ classdef FilterAction < handle
                         unfilteredEEGVid = eegValuesPerStim{v};
                         filteredEEGVid = filteredEEGValuesPerVid{v};
                         % unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
-                        filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid);
+                        filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
                     end
                     % rate quality of each Stimulus Interval
                     subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex,j);
@@ -181,7 +181,7 @@ classdef FilterAction < handle
         %% Stores invalid Electrodes in subject
         %   Sets isValid flag for each Electrode based on used qualityThreshold
         function subjects = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold,electrode) 
-            if any(quality < qualityThreshold)
+            if any(quality > qualityThreshold)
                     subjects.invalidElectrodes{end+1} = subjects.Electrodes{electrode};
             end
         end

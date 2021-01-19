@@ -64,7 +64,7 @@ classdef DataFactory
                     % validate the length of the Stimulus with the given
                     % intervals by the user
                     if max(intervals) > Stimulength
-                        fprintf('Intervals in "%s" doesn´t match stimulus length.\n\n',stimuIntDescrp)
+                        fprintf('Stimuli in "%s" doesn´t match stimulus length.\n\n',stimuIntDescrp)
                     end
                 else
                     intervals = [];

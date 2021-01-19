@@ -490,7 +490,7 @@ classdef Plotter
             StimuIntDefinitions = [];
             
             % main figure
-            mainfig = figure('Visible','on');
+            mainfig = figure('Visible','off');
             drawnow;
             set(mainfig,'Units','pixels');
             
@@ -566,7 +566,7 @@ classdef Plotter
             sizey = 300; % height of image
             Pos = cell(1,numPrints); % vector for position
             topoX = 100; % X position of first head in print
-            mainfig.Position = [mainfig.Position(1), mainfig.Position(2), numPrints*150 , sizey]; 
+            mainfig.Position = [mainfig.Position(1), mainfig.Position(2), (numPrints*150) , sizey]; 
             drawforce = 1;
             
             for j = 1:numPrints
@@ -701,7 +701,6 @@ classdef Plotter
             x = (SubplotRight(1)+SubplotRight(3)-SubplotLeft(1))/2/sizex;
             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
             drawnow 
-            %pause(drawforce) % force figure update
    
             % save as pdf
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
@@ -895,16 +894,19 @@ classdef Plotter
             EEGSamplingRate=eegDevice.samplingRate;
             intervals = StimuIntDef.intervals;
             stimuIntDescrp = StimuIntDef.stimuIntDescrp;
-            lengthInSeconds = length(frequencies{1,1})/EEGSamplingRate; 
+            StimuIntLength = length(frequencies{1,1})/EEGSamplingRate; 
             stepWith = 1;
-            if lengthInSeconds > 30
-                xName = 0:5:lengthInSeconds;
+            if StimuIntLength > 300
+                xAxis = 0:25:StimuIntLength;
+                stepWith = 25;
+            elseif StimuIntLength > 30
+                xAxis = 0:5:StimuIntLength;
                 stepWith = 5;
             else
-                xName = 0:lengthInSeconds;
+                xAxis = 0:StimuIntLength;
             end
-            xTime = xName./stepWith; 
-            absolutValuesPerSecond = zeros(length(frequencies),lengthInSeconds/stepWith); 
+            xTime = xAxis./stepWith; 
+            absolutValuesPerSecond = zeros(length(frequencies),StimuIntLength/stepWith); 
             [m,n] = size(absolutValuesPerSecond);
             % make values discrete (calculate mean per second)
             for i=1:m
@@ -943,7 +945,7 @@ classdef Plotter
             legend('Sleepiness','Thinking','Relaxation','Attention','Stress','TEI','Stimulus');
             warning('on','MATLAB:legend:IgnoringExtraEntries'); 
             axis([0 max(xTime)+1 0 100]);
-            set(gca,'XTick',xTime,'XTickLabel',xName);
+            set(gca,'XTick',xTime,'XTickLabel',xAxis);
             xlabel('time [s]');
             ylabel('[%]'); 
             set(fig, 'PaperType', 'A4');
@@ -983,7 +985,6 @@ classdef Plotter
             end
             % calculate the HRV Baseline
             BaselineSignal = mean(hrvValues(ceil(StimuIntStartPoints(index)):round(StimuIntStartPoints(index))+StimuIntLength));
-            
             self.plotIntervals(intervals,[yMin, yMax],1,[],'r');
             self.plotStimuIntStartPoints(StimuIntStartPoints,StimuIntTyps,[yMin, yMax],1);
             yline(BaselineSignal,'-g');
@@ -1001,7 +1002,7 @@ classdef Plotter
             h(3) = plot(NaN,NaN,'-r');
             h(4) = plot(NaN,NaN,'-b');
             
-            legend(h,'HRV Signal', 'Baseline', 'Marker', 'Stimuli','location','northeastoutside')
+            legend(h,'Signal', 'Baseline', 'Stimulus', 'Begin/End of Stimulus Interval','location','northeastoutside')
             
             title({['HRV values for subject ' subjName ' (mean=' m 'ms, sd=' sd 'ms)'],''});
             set(fig, 'PaperType', 'A4');
@@ -1066,50 +1067,71 @@ classdef Plotter
         %   fPath: file path as String 
         %   stats: eda statistics for subject as String 
         function plotSubStimuIntEDA(self,StimuIntIndex,edaValues,StimuIntDefs,subjectName,fPath,stats)
-            fig = figure('Visible','off');
+            
+            numberofPages = ceil(length(StimuIntIndex)/5);
+            index = 1;
             allValues=  edaValues(StimuIntIndex);
             allValues = vertcat(allValues{:});
             yMin = min(allValues);
             yMax = max(allValues);
             yL = [yMin yMax];
-            subplotCounter = 1;
-            % choose x axis interval on base of StimulusInterval length
-            for i = StimuIntIndex
-                StimuIntType = StimuIntDefs{1,i}(1);
-                StimuIntLength = StimuIntDefs{i}.Stimulength;
-                labels = [];
-                % get x Axis for long and short Stimulus Intervals
-                if StimuIntLength > 30
-                    xAxis = 0:5:StimuIntLength;
+            
+            for k = 1:numberofPages
+                fig = figure('Visible','off');
+                subplotCounter = 1;
+                % choose x axis interval on base of StimulusInterval length
+                loopcounter = 1;
+                while loopcounter ~= 6
+                    i = StimuIntIndex(index);
+                    if index +1 <= length(StimuIntIndex)
+                        index = index + 1;
+                    else
+                        loopcounter = 5;
+                    end
+                    StimuIntType = StimuIntDefs{1,i}(1);
+                    StimuIntLength = StimuIntDefs{i}.Stimulength;
+                    labels = [];
+                    % get x Axis for long and short Stimulus Intervals
+                    if StimuIntLength > 300
+                        xAxis = 0:25:StimuIntLength;
+                    elseif StimuIntLength > 30
+                        xAxis = 0:5:StimuIntLength;
+                    else
+                        xAxis = 0:StimuIntLength;
+                    end
                     labels = StimuIntDefs{i}.intervals;
+                    xTime = xAxis .* 5;
+                    subplot(6,1,subplotCounter);
+                    subplotCounter = subplotCounter + 1;
+                    plot(edaValues{i},'k');
+                    % plot marker on EDA plot
+                    self.plotIntervals(StimuIntDefs{i}.intervals,yL,max(xTime)/max(xAxis),labels,'r');
+                    grid;
+                    ylabel([StimuIntType.stimuIntDescrp ' [µS]']);
+                    l = length(edaValues{i});
+                    axis([1,l, yL]);
+                    set(gca,'XTick',xTime,'XTickLabel',xAxis);
+                    if (subplotCounter==1)
+                        title(['Overview of all EDA values from all related StimulusInterval of subject ' subjectName]);
+                    end
+                    loopcounter = loopcounter + 1;
+                end
+                xlabel('Time [s]');
+                axes('Position',[.08 .10 0.8 1],'Visible','off'); % Tim Position Hardcoded bei mehr Stimus kommt es zu Problemen! 
+                text(0,0,stats,'FontName','FixedWidth','FontSize',8);
+                set(fig, 'PaperType', 'A4');
+                set(fig, 'PaperOrientation', 'portrait');
+                set(fig, 'PaperUnits', 'centimeters');
+                set(fig, 'PaperPositionMode', 'auto');
+                set(fig, 'PaperPosition', [0.2 0.2 20 29 ]);
+                if numberofPages > 1
+                    fPathNum = [fPath '_' int2str(k)];
+                    print(fPathNum,'-dpdf',fig);
                 else
-                    xAxis = 0:StimuIntLength;
+                    print(fPath,'-dpdf',fig);
                 end
-                xTime = xAxis .* 5;
-                subplot(6,1,subplotCounter);
-                subplotCounter = subplotCounter + 1;
-                plot(edaValues{i},'k');
-                % plot marker on EDA plot
-                self.plotIntervals(StimuIntDefs{i}.intervals,yL,max(xTime)/max(xAxis),labels,'r');
-                grid;
-                ylabel([StimuIntType.stimuIntDescrp ' [µS]']);
-                l = length(edaValues{i});
-                axis([1,l, yL]);
-                set(gca,'XTick',xTime,'XTickLabel',xAxis);
-                if (i==1)
-                    title(['Overview of all EDA values from all related StimulusInterval of subject ' subjectName]);
-                end
+                close(fig);
             end
-            xlabel('Time [s]');
-            axes('Position',[.08 .10 0.8 1],'Visible','off'); % Tim Position Hardcoded bei mehr Stimus kommt es zu Problemen! 
-            text(0,0,stats,'FontName','FixedWidth','FontSize',8);
-            set(fig, 'PaperType', 'A4');
-            set(fig, 'PaperOrientation', 'portrait');
-            set(fig, 'PaperUnits', 'centimeters');
-            set(fig, 'PaperPositionMode', 'auto');
-            set(fig, 'PaperPosition', [0.2 0.2 20 29 ]);
-            print(fPath,'-dpdf',fig);
-            close(fig);
         end
         
         %% Plots complete EDA figure to given file name
@@ -1122,8 +1144,14 @@ classdef Plotter
             % typs
             maxscale = max(edaValues);
             minscale = min(edaValues);
-            [StimuIntStartPoints,StimuIntTyps,intervals,completeVidLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
-            xAxis = 0:10:completeVidLength;
+            [StimuIntStartPoints,StimuIntTyps,intervals,StimuIntLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
+            if StimuIntLength > 300
+                xAxis = 0:25:StimuIntLength;
+            elseif StimuIntLength > 30
+                xAxis = 0:5:StimuIntLength;
+            else
+                xAxis = 0:StimuIntLength;
+            end
             xTime = xAxis .* 5;
             fig = figure('Visible','off');
             plot(edaValues,'k');
@@ -1168,9 +1196,10 @@ classdef Plotter
             labels = [];
             % get x Axis for long and short Stimulus Intervals and xAxis 
             % labels for interval if necessary 
-            if StimuIntLength > 30
+            if StimuIntLength > 300
+                xAxis = 0:25:StimuIntLength;
+            elseif StimuIntLength > 30
                 xAxis = 0:5:StimuIntLength;
-                labels = intervals;
             else
                 xAxis = 0:StimuIntLength;
             end
@@ -1229,11 +1258,16 @@ classdef Plotter
             subplot(6,1,6);
             plot(edaSubStimuIntList,'k');
             yL = [min(edaSubStimuIntList) max(edaSubStimuIntList)];
+            % check if min/max the same
+            if yL(1) == yL(1)
+                yL(1) = yL(1)-yL(1)*0.05;
+                yL(2) = yL(2)+yL(2)*0.05;
+            end
             self.plotIntervals(intervals,yL,max(edaXTime)/max(xAxis),labels,'r');
             grid;
             ylabel('EDA [µS]');
-            l = length(edaSubStimuIntList);
-            axis([1,l, yL]);
+            len = length(edaSubStimuIntList);
+            axis([1,len, yL]);
             set(gca,'XTick',edaXTime,'XTickLabel',xAxis);
 
             set(fig, 'PaperType', 'A4');
@@ -1270,13 +1304,14 @@ classdef Plotter
             labels = [];
             % get x Axis for long and short Stimulus Intervals and xAxis 
             % labels for interval if necessary 
-            if StimuIntLength > 30
-                xname = 0:5:StimuIntLength;
-                labels = intervals;
+            if StimuIntLength > 300
+                xAxis = 0:25:StimuIntLength;
+            elseif StimuIntLength > 30
+                xAxis = 0:5:StimuIntLength;
             else
-                xname = 0:StimuIntLength;
+                xAxis = 0:StimuIntLength;
             end
-            xtime = xname .* resolution;
+            xtime = xAxis .* resolution;
             
 			% subplots for each frequency band with own color
 			subplot(6,1,1)
@@ -1285,7 +1320,7 @@ classdef Plotter
             m = mean(baselineTheta);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
             % print marker on plot for each Stimulus Interval
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
             grid;
             hold off
             massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
@@ -1297,7 +1332,7 @@ classdef Plotter
             end
             ylabel('Theta [µV]');
             axis([0 length(theta_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
             
             % title for the hole plot
 			title(t_title);
@@ -1307,7 +1342,7 @@ classdef Plotter
             plot(alpha_s,'Color',[0/255 128/255 0/255]);
             m = mean(baselineAlpha);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
             hold off;
             massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
             if(isempty(intervals))
@@ -1318,14 +1353,14 @@ classdef Plotter
             grid;
             ylabel('Alpha [µV]');
             axis([0 length(alpha_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
                         
             subplot(6,1,3);
             hold on;
             plot(beta1_s,'Color',[255/255 128/255 0/255]);
             m = mean(baselineBeta1);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
             massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
             hold off;
             if(isempty(intervals))
@@ -1336,7 +1371,7 @@ classdef Plotter
             grid;
             ylabel('Beta1 [µV]');
             axis([0 length(beta1_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
             
             subplot(6,1,4);
             hold on;
@@ -1344,7 +1379,7 @@ classdef Plotter
             m = mean(baselineBeta2);
             line('XData',[0 xtime(end)],'YData',[m,m],'Color','b')
             massAndTime = self.calculateMassAndTime(beta2_s,numDataPoints,mean(baselineBeta2));
-            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xname),labels,'r');
+            self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
             hold off;
             if(isempty(intervals))
                 legend(massAndTime,'beta2 baseline average');
@@ -1354,7 +1389,7 @@ classdef Plotter
             grid;
             ylabel('Beta2 [µV]');
             axis([0 length(beta2_s) 0 maxscale]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
 			
 			subplot(6,1,5);
             hold on;
@@ -1365,7 +1400,7 @@ classdef Plotter
             % calculated separately 
             maxscaleTask = scaleFactor*max(task_s);
             massAndTime = self.calculateMassAndTime(task_s,numDataPoints,mean(baselineTEI));
-            self.plotIntervals(intervals,[0, maxscaleTask],max(xtime)/max(xname),labels,'r');
+            self.plotIntervals(intervals,[0, maxscaleTask],max(xtime)/max(xAxis),labels,'r');
             hold off;
             if(isempty(intervals))
                 legend(massAndTime,'TEI baseline average');
@@ -1375,7 +1410,7 @@ classdef Plotter
             grid;
             ylabel('TEI');
             axis([0 length(task_s) 0 maxscaleTask]);
-            set(gca,'XTick',xtime,'XTickLabel',xname);
+            set(gca,'XTick',xtime,'XTickLabel',xAxis);
             			
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'portrait');

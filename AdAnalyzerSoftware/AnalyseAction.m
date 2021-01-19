@@ -173,7 +173,7 @@ classdef AnalyseAction < handle
             % create EDA stats matrix
             edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
-            edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | ');
+            edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | '); %bug
             delayString =  self.stringStatistics.delaysToString(edaStatsMat(end-1,:));
             ampString =  self.stringStatistics.aplitudesToString(edaStatsMat(end,:));
             statsMat = vertcat(statsMat,edaStatsMat);
@@ -391,10 +391,13 @@ classdef AnalyseAction < handle
             [m,sd,devP,devM] = self.calculateStatistics(completeEDA);
             statsMat(2,1:5) = {'EDA complete',num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             % get Stimlus Type
-            for i=1:numEDAStimuInts
+            index = 1;
+            % for loop trough vector, therefor a index counter also needed
+            for i = StimuInt
                 StimuIntClass = StimuIntDefs{i};
-                [m,sd,devP,devM] = self.calculateStatistics(edaValuesForStimuInt{i});
-                statsMat(i+2,1:5) = {StimuIntClass.stimuIntDescrp,num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+                [m,sd,devP,devM] = self.calculateStatistics(edaValuesForStimuInt{index});
+                statsMat(index+2,1:5) = {StimuIntClass.stimuIntDescrp,num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
+                index = index + 1;
             end
             delaysNotNull = delays(delays~=0);
             amplitudesNotNull = amplitudes(amplitudes~=0);
@@ -506,7 +509,8 @@ classdef AnalyseAction < handle
                 StimuIntType = StimuIntDef{i}.stimuIntType;
                 for j = 1:length(SearchType)
                     if StimuIntType == SearchType(j)
-                        indicies(i)= i;    
+                        indicies(i)= i;
+                        break;
                     end
                 end 
             end
