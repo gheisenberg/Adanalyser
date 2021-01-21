@@ -86,7 +86,7 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
         timestamps = [];
 
         % video obj
-        vName = [config.OutputDirectory '\' subfolder_name '/' subject.name '/' subject.name '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+        vName = [config.OutputDirectory '\' subfolder_name '/' subject.name '/' subject.name '_' StimuInt.stimuIntDescrp '_2D Topo_Video'];
         vidObj = VideoWriter(vName);
         vidObj.Quality = 100;       
         vidObj.FrameRate = config.UserFrameRate; % get framerate from video

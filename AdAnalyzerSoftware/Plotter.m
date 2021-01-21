@@ -297,7 +297,7 @@ classdef Plotter
                 end
                 
                 % video obj
-                vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
+                vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video'];
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
@@ -465,7 +465,7 @@ classdef Plotter
                 timestamps = ["Time[s]";timestamps];
                 allElectrodes = cat(2,timestamps,allElectrodes);
                 
-                fname = [subject.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
+                fname = [subject.OutputDirectory '/' subject.name '_EEG_PowerSignalSpectra_Values.csv'];
                 writematrix(allElectrodes,fname,'Delimiter','semi');
             end
         end
@@ -704,7 +704,7 @@ classdef Plotter
    
             % save as pdf
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
-            fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
+            fName = [subject.OutputDirectory '\' subject.name '_Brain_activity_over_entire_stimulus_period.png'];
             set(gcf,'color','w');
             F = getframe(mainfig); % get frame of figure
             ImageSize = size(F.cdata); % get length of figure
@@ -880,7 +880,7 @@ classdef Plotter
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
-            fName = [subject.OutputDirectory '/' subject.name '_EDA_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
+            fName = [subject.OutputDirectory '/' subject.name '_EDA_' StimuInt.stimuIntDescrp '_recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
