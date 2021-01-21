@@ -348,7 +348,7 @@ classdef AnalyseAction < handle
             end
         end
               
-        %% Method calculates mean of values and standard derivation, max, min for detrended values
+        %% Method calculates mean of values and standard deviation, max, min for detrended values
         %   Used to create statistics
         function [m,sd,devP,devM] = calculateStatistics(self,values)
             m = mean(values);
