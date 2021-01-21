@@ -297,7 +297,7 @@ classdef Plotter
                 end
                 
                 % video obj
-                vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video'];
+                vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D_Topo_Video'];
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
