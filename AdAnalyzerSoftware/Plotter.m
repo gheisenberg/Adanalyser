@@ -382,8 +382,12 @@ classdef Plotter
                         % Print of 2D Topo
                         subplot(2,2,3);
                         % double () in case we want to add a multiplier
-                        title({['AVG TEI between ' num2str((range(k)-range(1))) '-' num2str((range(k+1)-range(1))) 'ms'];...
-                               ['in test range from ' num2str((range(k))) '-' num2str((range(k+1))) 'ms'               ]});
+                        %title({['AVG TEI between ' num2str((range(k)-range(1))) '-' num2str((range(k+1)-range(1))) 'ms'];...
+                        %       ['in test range from ' num2str((range(k))) '-' num2str((range(k+1))) 'ms'               ]});
+                        % shorter and more comprehensive version 
+                        % for the title
+                        title(['AVG TEI between ' num2str((range(k))) '-' num2str((range(k+1))) 'ms']);
+                        
                         % topoplot is a function of the eeglab libary
                         topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
                         cb = colorbar;
