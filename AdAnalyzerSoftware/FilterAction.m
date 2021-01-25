@@ -108,7 +108,7 @@ classdef FilterAction < handle
                     % calculate time and add to timeseries
                     time = 0:1/edaDevice.samplingRate:seconds;
                     output = cat(2,time(2:end)',subject.edaValues);
-                    title = ["Time [s]","EDA [MUs]"];
+                    title = ["Time [s]","Skin Conductance [µS]"];
                     output = [title;output];
                     fname = [subject.OutputDirectory '/' subject.name '_EDA_Values.csv'];
                     writematrix(output,fname,'Delimiter','semi')
