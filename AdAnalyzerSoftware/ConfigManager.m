@@ -85,8 +85,11 @@ classdef ConfigManager
                         if strcmp(splitLine{1},'BehaveFig')
                             conf.BehaveFig=str2num(splitLine{2});
                         end
-                        if strcmp(splitLine{1},'RecurrenceFig')
-                            conf.RecurrenceFig=str2num(splitLine{2});
+                        if strcmp(splitLine{1},'HRVRecurrence')
+                            conf.HRVRecurrence=str2num(splitLine{2});
+                        end
+                        if strcmp(splitLine{1},'EDARecurrence')
+                            conf.EDARecurrence=str2num(splitLine{2});
                         end
                         if strcmp(splitLine{1},'EDAFiles')
                             if ~isempty(findstr(',', splitLine{2}))
@@ -144,6 +147,27 @@ classdef ConfigManager
                         end
                         if strcmp(splitLine{1},'UserFrameRate')
                             conf.UserFrameRate=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'topoplot')
+                            conf.topoplot=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'brainactivity')
+                            conf.brainactivity=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'ExportEEG')
+                            conf.EEGData=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'ExportEDA')
+                            conf.EDAData=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'ExportHRV')
+                            conf.HRVData=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'ExportSignalSpectra')
+                            conf.signalSpec=str2double(splitLine{2}); 
+                        end
+                        if strcmp(splitLine{1},'videoOutput')
+                            conf.videoOutput=str2double(splitLine{2}); 
                         end
                     end
                     % parse the device files and create those

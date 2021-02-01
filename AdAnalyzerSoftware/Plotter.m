@@ -40,7 +40,8 @@ classdef Plotter
             output_text= strcat(output_text,"Statistics=" + num2str(config.Statistics)+newline);
             output_text= strcat(output_text,"BehaveFig=" + num2str(config.BehaveFig)+newline);
             output_text= strcat(output_text,"DetrendedEDAFig=" + num2str(config.DetrendedEDAFig)+newline);
-            output_text= strcat(output_text,"RecurrenceFig=" + num2str(config.RecurrenceFig)+newline);
+            output_text= strcat(output_text,"HRVRecurrence=" + num2str(config.HRVRecurrence)+newline);
+            output_text= strcat(output_text,"EDARecurrence=" + num2str(config.EDARecurrence)+newline);
             output_text= strcat(output_text,"QualityFig=" + num2str(config.QualityFig)+newline);
             output_text= strcat(output_text,"FrequencyFig=" + num2str(config.FrequencyFig)+newline);
             output_text= strcat(output_text,"Statistics=" + num2str(config.Statistics)+newline);
@@ -142,8 +143,10 @@ classdef Plotter
                     CharStimuLength(7) = num2str(StimuInt{1, i}.Stimulength);
                 elseif lengthOfStimlus == 2
                     CharStimuLength(6:7) = num2str(StimuInt{1, i}.Stimulength);
-                else
+                elseif lengthOfStimlus == 3
                     CharStimuLength(5:7) = num2str(StimuInt{1, i}.Stimulength);
+                else
+                    CharStimuLength(4:7) = num2str(StimuInt{1, i}.Stimulength);
                 end
                 
                 % Stimulus type
@@ -196,12 +199,35 @@ classdef Plotter
         %   stats: statistics as String
         %   fName: File name as String
         function writeStatistics(self,stats,fName)
-            fig = figure('Visible','off');
-            axes('Position',[0.0 0.0 1 1],'Visible','off');
-            fig.PaperPositionMode='auto';
-            stats = text(0.0,0.75,stats,'FontName','FixedWidth','FontSize',6); % Changed font size to 6 (from 8) for displaying the whole text
-            print(fName,'-dpdf',fig,'-r0');
-            close(fig);
+            numberOfPrints = ceil(length(stats)/7000);
+            
+            if numberOfPrints == 1
+                fig = figure('Visible','off');
+                axes('Position',[0.0 0.0 1 1],'Visible','off');
+                fig.PaperPositionMode='auto';
+                
+                text(0.0,0.75,stats,'FontName','FixedWidth','FontSize',6); % Changed font size to 6 (from 8) for displaying the whole text
+                fName = [fName '.pdf'];
+                print(fName,'-dpdf',fig,'-r0');
+                
+                close(fig);
+            else
+                for i = 1:numberOfPrints
+                    fig = figure('Visible','off');
+                    axes('Position',[0.0 0.0 1 1],'Visible','off');
+                    fig.PaperPositionMode='auto';
+                    
+                    if 7000*i > length(stats)
+                        text(0.0,0.75,stats(1+7000*(i-1):end),'FontName','FixedWidth','FontSize',6);
+                    else
+                        text(0.0,0.75,stats(1+7000*(i-1):7000*i),'FontName','FixedWidth','FontSize',6);
+                    end
+                    fNameCycle = [fName '_' int2str(i) '.pdf'];
+                    print(fNameCycle,'-dpdf',fig,'-r0');
+                    
+                    close(fig);
+                end
+            end
         end
         
         %% Saves in/valid Subjects and status
@@ -297,7 +323,7 @@ classdef Plotter
                 end
                 
                 % video obj
-                vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D_Topo_Video'];
+                vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
                 vidObj = VideoWriter(vName);
                 vidObj.Quality = 100;       
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
@@ -382,12 +408,8 @@ classdef Plotter
                         % Print of 2D Topo
                         subplot(2,2,3);
                         % double () in case we want to add a multiplier
-                        %title({['AVG TEI between ' num2str((range(k)-range(1))) '-' num2str((range(k+1)-range(1))) 'ms'];...
-                        %       ['in test range from ' num2str((range(k))) '-' num2str((range(k+1))) 'ms'               ]});
-                        % shorter and more comprehensive version 
-                        % for the title
-                        title(['AVG TEI between ' num2str((range(k))) '-' num2str((range(k+1))) 'ms']);
-                        
+                        title({['AVG TEI between ' num2str((range(k)-range(1))) '-' num2str((range(k+1)-range(1))) 'ms'];...
+                               ['in test range from ' num2str((range(k))) '-' num2str((range(k+1))) 'ms'               ]});
                         % topoplot is a function of the eeglab libary
                         topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
                         cb = colorbar;
@@ -469,7 +491,7 @@ classdef Plotter
                 timestamps = ["Time[s]";timestamps];
                 allElectrodes = cat(2,timestamps,allElectrodes);
                 
-                fname = [subject.OutputDirectory '/' subject.name '_EEG_PowerSignalSpectra_Values.csv'];
+                fname = [subject.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
                 writematrix(allElectrodes,fname,'Delimiter','semi');
             end
         end
@@ -499,14 +521,18 @@ classdef Plotter
             set(mainfig,'Units','pixels');
             
             % prepare vector to draw lines
+            counter = 0; %counter to save first TopoStart 
             for i = 1:numStimuInts
-                StimuInt = StimuDef{i};   
-                if StimuInt.stimuIntType > 2
+                StimuInt = StimuDef{i};
+                if StimuInt.stimuIntType <= 3
+                    TopoStart = TopoStart + double(StimuInt.Stimulength*1000);
+                end
+                if StimuInt.stimuIntType > 3
                     % Initialisation for first loop
-                    if TopoStart == 0
-                        rangeAll = double(StimuInt.Stimulength*1000);
-                        TopoStart = double(StimuInt.Stimulength*1000);
+                    if counter == 0
+                        rangeAll = TopoStart;
                     end
+                    counter = counter + 1;
                     % prepare print range
                     % creates vector range from start to end in a certain
                     % interval
@@ -708,7 +734,7 @@ classdef Plotter
    
             % save as pdf
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
-            fName = [subject.OutputDirectory '\' subject.name '_Brain_activity_over_entire_stimulus_period.png'];
+            fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
             set(gcf,'color','w');
             F = getframe(mainfig); % get frame of figure
             ImageSize = size(F.cdata); % get length of figure
@@ -884,7 +910,7 @@ classdef Plotter
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
-            fName = [subject.OutputDirectory '/' subject.name '_EDA_' StimuInt.stimuIntDescrp '_recurrence.pdf'];
+            fName = [subject.OutputDirectory '/' subject.name '_EDA_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
@@ -900,7 +926,10 @@ classdef Plotter
             stimuIntDescrp = StimuIntDef.stimuIntDescrp;
             StimuIntLength = length(frequencies{1,1})/EEGSamplingRate; 
             stepWith = 1;
-            if StimuIntLength > 300
+            if StimuIntLength > 1000
+                xAxis = 0:100:StimuIntLength;
+                stepWith = 100;
+            elseif StimuIntLength > 300
                 xAxis = 0:25:StimuIntLength;
                 stepWith = 25;
             elseif StimuIntLength > 30
@@ -1004,9 +1033,9 @@ classdef Plotter
             h(1) = plot(NaN,NaN,'-k');
             h(2) = plot(NaN,NaN,'-g');
             h(3) = plot(NaN,NaN,'-r');
-            h(4) = plot(NaN,NaN,'-b');
+            h(4) = plot(NaN,NaN,'--b');
             
-            legend(h,'Signal', 'Baseline', 'Stimulus', 'Begin/End of Stimulus Interval','location','northeastoutside')
+            legend(h,'Signal', 'Baseline', 'Stimulus', 'Begin/End of Stimulus Interval','location','southoutside','Orientation','horizontal')
             
             title({['HRV values for subject ' subjName ' (mean=' m 'ms, sd=' sd 'ms)'],''});
             set(fig, 'PaperType', 'A4');
@@ -1096,7 +1125,9 @@ classdef Plotter
                     StimuIntLength = StimuIntDefs{i}.Stimulength;
                     labels = [];
                     % get x Axis for long and short Stimulus Intervals
-                    if StimuIntLength > 300
+                    if StimuIntLength > 1000
+                        xAxis = 0:100:StimuIntLength;
+                    elseif StimuIntLength > 300
                         xAxis = 0:25:StimuIntLength;
                     elseif StimuIntLength > 30
                         xAxis = 0:5:StimuIntLength;
@@ -1104,7 +1135,7 @@ classdef Plotter
                         xAxis = 0:StimuIntLength;
                     end
                     labels = StimuIntDefs{i}.intervals;
-                    xTime = xAxis .* 5;
+                    xTime = xAxis .* 5; % Warum 5?
                     subplot(6,1,subplotCounter);
                     subplotCounter = subplotCounter + 1;
                     plot(edaValues{i},'k');
@@ -1149,7 +1180,9 @@ classdef Plotter
             maxscale = max(edaValues);
             minscale = min(edaValues);
             [StimuIntStartPoints,StimuIntTyps,intervals,StimuIntLength] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDef);
-            if StimuIntLength > 300
+            if StimuIntLength > 1000
+                xAxis = 0:100:StimuIntLength;
+            elseif StimuIntLength > 300
                 xAxis = 0:25:StimuIntLength;
             elseif StimuIntLength > 30
                 xAxis = 0:5:StimuIntLength;
@@ -1173,6 +1206,16 @@ classdef Plotter
                 t = 'EDA values';
             end
             title({t,''});
+            
+            % create custom legend
+            hold on
+            h = zeros(3,1);
+            h(1) = plot(NaN,NaN,'-k');
+            h(2) = plot(NaN,NaN,'-r');
+            h(3) = plot(NaN,NaN,'--b');
+            
+            legend(h,'Signal', 'Stimulus', 'Begin/End of Stimulus Interval','location','southoutside','Orientation','horizontal')
+            
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
@@ -1200,7 +1243,9 @@ classdef Plotter
             labels = [];
             % get x Axis for long and short Stimulus Intervals and xAxis 
             % labels for interval if necessary 
-            if StimuIntLength > 300
+            if StimuIntLength > 1000
+                xAxis = 0:100:StimuIntLength;
+            elseif StimuIntLength > 300
                 xAxis = 0:25:StimuIntLength;
             elseif StimuIntLength > 30
                 xAxis = 0:5:StimuIntLength;
@@ -1299,7 +1344,7 @@ classdef Plotter
         %   resolution: values per second as double 
         %   intervals: intervals of interest as int[]
         %   t_title: Diagramm title as String 
-        function plotFrequencysWithBaselineMagnitude(self,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)
+        function plotFrequencysWithBaselineMagnitude(self,edaPerStim,hrvPerStim,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,resolution,intervals,t_title)
             fig = figure('Visible','off');
             % Scaling factor to extend the y axis for the legend
             scaleFactor = 1.7;
@@ -1308,17 +1353,19 @@ classdef Plotter
             labels = [];
             % get x Axis for long and short Stimulus Intervals and xAxis 
             % labels for interval if necessary 
-            if StimuIntLength > 300
+            if StimuIntLength > 1000
+                xAxis = 0:100:StimuIntLength;
+            elseif StimuIntLength > 300
                 xAxis = 0:25:StimuIntLength;
             elseif StimuIntLength > 30
                 xAxis = 0:5:StimuIntLength;
             else
                 xAxis = 0:StimuIntLength;
             end
-            xtime = xAxis .* resolution;
+            xtime = xAxis*4; % Tim - mit Gernot drüber sprechen!
             
 			% subplots for each frequency band with own color
-			subplot(6,1,1)
+			subplot(7,1,1)
             hold on
             plot(theta_s,'Color',[65/255 105/255 225/255]);
             m = mean(baselineTheta);
@@ -1341,7 +1388,7 @@ classdef Plotter
             % title for the hole plot
 			title(t_title);
 			
-			subplot(6,1,2);
+			subplot(7,1,2);
             hold on;
             plot(alpha_s,'Color',[0/255 128/255 0/255]);
             m = mean(baselineAlpha);
@@ -1359,7 +1406,7 @@ classdef Plotter
             axis([0 length(alpha_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xAxis);
                         
-            subplot(6,1,3);
+            subplot(7,1,3);
             hold on;
             plot(beta1_s,'Color',[255/255 128/255 0/255]);
             m = mean(baselineBeta1);
@@ -1377,7 +1424,7 @@ classdef Plotter
             axis([0 length(beta1_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xAxis);
             
-            subplot(6,1,4);
+            subplot(7,1,4);
             hold on;
             plot(beta2_s,'Color',[255/255 69/255 0/255]);
             m = mean(baselineBeta2);
@@ -1395,7 +1442,7 @@ classdef Plotter
             axis([0 length(beta2_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xAxis);
 			
-			subplot(6,1,5);
+			subplot(7,1,5);
             hold on;
             plot(task_s,'k');
             m = mean(baselineTEI);
@@ -1411,11 +1458,40 @@ classdef Plotter
             else
                 legend(massAndTime,'TEI baseline average','Stimulus');
             end
+            
             grid;
             ylabel('TEI');
             axis([0 length(task_s) 0 maxscaleTask]);
             set(gca,'XTick',xtime,'XTickLabel',xAxis);
-            			
+            
+            subplot(7,1,6);
+            hold on;
+            xtimeEDA = xAxis * length(edaPerStim)/StimuIntLength;
+            plot(edaPerStim,'k');
+            maxscaleEDA = max(edaPerStim)*1.1;
+            minEDA = min(edaPerStim)*0.99;
+            self.plotIntervals(intervals,[minEDA, maxscaleEDA],max(xtimeEDA)/max(xAxis),labels,'r');
+            hold off;
+            
+            grid;
+            ylabel('EDA');
+            axis([0 length(edaPerStim) minEDA maxscaleEDA]);
+            set(gca,'XTick',xtimeEDA,'XTickLabel',xAxis);
+            
+            subplot(7,1,7);
+            hold on;
+            xtimeHRV = xAxis * length(hrvPerStim)/StimuIntLength;
+            plot(hrvPerStim,'k');
+            maxscaleHRV = max(hrvPerStim)*1.1;
+            minHRV = min(hrvPerStim)*0.99;
+            self.plotIntervals(intervals,[minHRV, maxscaleHRV],max(xtimeHRV)/max(xAxis),labels,'r');
+            hold off;
+            
+            grid;
+            ylabel('HRV');
+            axis([0 length(hrvPerStim) minHRV maxscaleHRV]);
+            set(gca,'XTick',xtimeHRV,'XTickLabel',xAxis);
+            
             set(fig, 'PaperType', 'A4');
             set(fig, 'PaperOrientation', 'portrait');
             set(fig, 'PaperUnits', 'centimeters');
@@ -1424,6 +1500,39 @@ classdef Plotter
             print(['-f',int2str(fig.Number)],'-dpdf',fPath);
 			close(fig);
         end
+        
+        %% Computation of the momentary frequency of a given signal
+        function frequency_estimation(signalData, tMean, tFreq)
+            dataLength = length(signalData);
+            resultFreq = [];
+            mean1 = 0;
+            mean2 = 0;
+            mean3 = 0;
+
+            for i = 1:dataLength
+                mean1 = mean_operator(signalData(i), mean1, tMean);
+
+                % check if "bigger"
+                k1 = not(mean1 < signalData(i-1));
+
+                mean2 = mean_operator(signalData(i-1), mean2, tMean);
+
+                % check if "bigger"
+                k2 = not(mean2 < signalData(i-2));
+
+                % check if not equal
+                w = k1 ~= k2;
+                mean3 = mean_operator(w, mean3, tFreq);
+                
+            end
+            
+            % Just count half of the zero-crossings => /2
+            resultFreq = [resultFreq mean3/2];
+            
+            % plot
+            
+        end   
+        
     end
     
     methods(Access=private)   
@@ -1492,78 +1601,7 @@ classdef Plotter
                 set(t,'Rotation',90);
             end
         end
-        
-        %% Plots quality index figures for subjects and StimulusIntervals
-        %   unfilteredQuality: Percentage of unfiltered eeg values outside interval for each subject
-        %   and StimuInt as double[][]
-        %   filteredQuality: Percentage of filtered eeg values outside interval for each subject
-        %   and StimuInt as double[][]
-        %   validStimuIntsPerSubject: Number of valid baseline eeg, tv
-        %   programm and tv commercial StimulusIntervals per subject as double[][]
-        %   validSubjects: Total number of valid subjects as double
-        %   StimuIntDefs: StimulusInterval definitions as Cell<StimuIntDef>
-        %   config: Config
-        %   numSubjects: total number of subjects as double
-        
-%         Kreitzberg: Commented out, until functionality and usecase is declared
-%         or function is change
-        
-%         function plotEEGQualityFigures(self,unfilteredQuality,filteredQuality,validStimuIntsPerSubject,validSubjects,StimuIntDefs,config,numSubjects) %Tim ID 12 plot of QualityFigs
-%             StimuIntIndex = length(StimuIntDefs);
-%             outputFolder= subject.OutputDirectory;
-%             h = waitbar(0,['Writing EEG quality figures for ' num2str(StimuIntIndex) ' StimulusInterval(s)']);
-%             xtick = 0:numSubjects;
-%             for i = 1:StimuIntIndex
-%                 fig = figure('Visible','off');
-%                 numberExcluded = length(find(filteredQuality(:,i) >= config.QualityIndex));
-%                 plot(unfilteredQuality(:,i),'b');
-%                 hold on;
-%                 plot(filteredQuality(:,i),'k');
-%                 grid;
-%                 hold off;
-%                 line('XData',[1 numSubjects],'YData',[config.QualityIndex config.QualityIndex],'Color','r')
-%                 hold off;
-%                 legend('Unfiltered EEG Data','Filtered EEG Data',[num2str(config.QualityIndex) '% cutoff for filtered EEG data']);
-%                 thresholdString = ['[' num2str(config.LowerThreshold) ',' num2str(config.UpperThreshold) ']'];
-%                 StimuIntClass = StimuIntDefs{1,i}(1);
-%                 title (['Quality index (% of data outside ' thresholdString 'uV interval) for EEG data for ',StimuIntClass.stimuIntDescrp,' ',int2str(i),' = ',int2str(numberExcluded),' data sets are excluded']);
-%                 ylabel('Quality index [%]');
-%                 xlabel('subject [#]');
-%                 axis([1 numSubjects 0 100]);
-%                 set(gca,'XTick',xtick,'xTickLabel',xtick);
-%                 set(fig, 'PaperType', 'A4');
-%                 set(fig, 'PaperOrientation', 'portrait');
-%                 set(fig, 'PaperUnits', 'centimeters');
-%                 set(fig, 'PaperPositionMode', 'auto');
-%                 set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
-%                 print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality ',StimuIntClass.stimuIntDescrp,'.pdf']);
-%                 close(fig);
-%                 waitbar(i/StimuIntIndex);
-%             end
-%             fig = figure('Visible','off');
-%             ytick = 0:StimuIntIndex;
-%             xtick = 0:numSubjects;
-%             bar(validStimuIntsPerSubject,'stack');
-%             grid on;
-%             legend('Baseline','TV commercial','TV program');
-%             [~,y] = size(validStimuIntsPerSubject);
-%             axis([0 numSubjects+1 0 y+1]);
-%             set(gca,'YTick',ytick,'yTickLabel',ytick);
-%             set(gca,'XTick',xtick,'xTickLabel',xtick);
-%             tMessage = ['Number of subjects reaching EEG quality criteria: ',int2str(validSubjects)];
-%             title(tMessage);
-%             ylabel('Number of StimulusInterval [#]');
-%             xlabel('subject [#]');
-%             set(fig, 'PaperType', 'A4');
-%             set(fig, 'PaperOrientation', 'landscape');
-%             set(fig, 'PaperUnits', 'centimeters');
-%             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-%             print(['-f',int2str(fig.Number)],'-dpdf',[outputFolder,'\EEG Quality Index - Subjects.pdf']);
-%             close(fig)
-%             close(h);
-%         end
 
-        
     end
 end
 
