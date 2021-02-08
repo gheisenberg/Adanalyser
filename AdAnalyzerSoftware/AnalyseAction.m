@@ -15,7 +15,7 @@ classdef AnalyseAction < handle
         plotter = Plotter;
         stringStatistics = StringStatistics;
         frequencies;
-        frequencies4Hz;
+        frequenciesSubsampledBy4;
     end
     
     methods
@@ -36,8 +36,10 @@ classdef AnalyseAction < handle
             self.plotter.writeAdIndex(StimuIntDefs,[config.OutputDirectory,'/AdIndex.pdf']);
             
             for i=1:length(subjects)
+                % these initializations will not work anymore as soon as we
+                % have more than 6 StimuIntTypes
                 self.frequencies = cell(6,6);
-                self.frequencies4Hz = cell(6,6);
+                self.frequenciesSubsampledBy4 = cell(6,6);
                 subject = subjects{i};
                 if subject.isValid == 1 % Filter invalid subjects
                     self.analyseSubject(subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
@@ -112,7 +114,7 @@ classdef AnalyseAction < handle
             statsMat(end,1:5) = {'Mean electrode values: ',num2str(mMean/numElectrodes,'%6.4f'),num2str(sdMean/numElectrodes,'%6.4f'),num2str(devMMean/numElectrodes,'%6.4f'),num2str(devPMean/numElectrodes,'%6.4f')}; 
             for StimuIntNumber=1:numStimuInt
                 filteredEEGPerVid = self.calculateMeanEEGValuesForStimuInt(subject);
-                StimuIntStatsMat = self.analyseStimuInt(subject,StimuIntNumber,filteredEEGPerVid,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
+                StimuIntStatsMat = self.analyseStimulusInterval(subject,StimuIntNumber,filteredEEGPerVid,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             
@@ -218,20 +220,19 @@ classdef AnalyseAction < handle
                     StimuIntTypes(i) = StimuIntDefs{1, i}.stimuIntType;
                 end
                 
-                % get frequencie for baseline
-                BaselineIndex = find(StimuIntTypes == 2); % Type 2 = EEG Baseline
-                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequencies4Hz{BaselineIndex,:};
+                % get frequencies for baseline
+                BaselineIndex = find(StimuIntTypes == 2); % Type 2 == EEG Baseline
+                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequenciesSubsampledBy4{BaselineIndex,:};
                 
-                % get all indices for Stimulus >= 4
+                % get all indices for Stimulus_Interval_Types >= 4
                 % see StimuIntDefinition.m
                 StimulIndex = find(StimuIntTypes >= 4);
                 
                 %HRV values per StimuInt
                 HRVValuesPerStim = self.getValuesPerStimuInt(1,hrvDevice.samplingRate,StimuIntDefs,subject.edaValues);
                 
-                % plot frequencies for all Stimuli
                 for i = StimulIndex    
-                    [~,StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s] = self.frequencies4Hz{i,:};
+                    [~,StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s] = self.frequenciesSubsampledBy4{i,:};
                     intervals = StimuIntDefs{i}.intervals;
                     StimuIntDescrp = StimuIntDefs{i}.stimuIntDescrp;
                     
@@ -269,9 +270,9 @@ classdef AnalyseAction < handle
             end
         end
         
-        %% Performs analysis for each StimulusInterval of each subject
-        function StimuIntStatsMat = analyseStimuInt(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
-            % Calculate eeg statistics for each StimulusInterval
+        %% Performs analysis for every StimulusInterval of each subject
+        function StimuIntStatsMat = analyseStimulusInterval(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
+            % Calculate eeg statistics for every StimulusInterval
             StimuIntLength = length(filteredEEGPerStim{StimuIntNumber})/eegDevice.samplingRate;
             StimuIntDef = StimuIntDefs{StimuIntNumber};
             StimuIntStatsMat = cell(1,9);
@@ -283,9 +284,15 @@ classdef AnalyseAction < handle
             eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerStim{StimuIntNumber},delta,theta,alpha,beta1,beta2,task);
             StimuIntStatsMat = vertcat(StimuIntStatsMat,eegFreqStatsMat);
             
-            % Reduce signal resolution to 4Hznorma
-            [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task,eegDevice);
-            self.frequencies4Hz(StimuIntNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
+            % Reduce signal resolution by a factor of 4 (subsampling)
+            % the benefit is that the signals can be plotted much faster !?
+            % and the signals look much smoother
+            % It seems they are JUST used for plotting the Theta, Alpha,
+            % "Beta1, Beta2 frequencies and TEI" plots
+            % (e.g. the "Behavioral Characteristics" plot uses the original
+            % signal frequencies (see below)
+            [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.subsampleByFactorOf4(delta,theta,alpha,beta1,beta2,task,eegDevice);
+            self.frequenciesSubsampledBy4(StimuIntNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
             
             % plot Behavioral Characteristics 
             if(config.BehaveFig)
@@ -455,30 +462,67 @@ classdef AnalyseAction < handle
             task = beta1./(alpha+theta);
         end
         
-        %% Subsamples the different eeg frequencies to a resoultion of 4Hz
-        function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task,eegDevice)
-            resolution = 4;
-            resolutionFac = double(eegDevice.samplingRate/resolution);
-            l = length(delta)/(resolutionFac);
-            delta_s = zeros(1,l);
-            theta_s = zeros(1,l);
-            alpha_s = zeros(1,l);
-            beta1_s= zeros(1,l);
-            beta2_s= zeros(1,l);
-            task_s= zeros(1,l);
-            for i = 1:l
-                % Build mean value between upper and lower bound for each frequency in order to
-                % reduce the signal resolution
-                lower = (i-1)*(resolutionFac)+1;
-                upper = (i-1)*(resolutionFac)+(resolutionFac);
-                delta_s(i) = mean(delta(lower:upper));
-                theta_s(i) = mean(theta(lower:upper));
-                alpha_s(i) = mean(alpha(lower:upper));
-                beta1_s(i) = mean(beta1(lower:upper));
-                beta2_s(i) = mean(beta2(lower:upper));
-                task_s(i) = mean(task(lower:upper));
+        %% reduces the sampling frequency of the given eeg signals by a factor of 4
+        % renamed from reduceTo4Hz() to subsampleByFactorOf4()
+        % method rewritten by Gernot 
+        % old method below
+        %function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task,eegDevice)
+        function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = subsampleByFactorOf4(self,delta,theta,alpha,beta1,beta2,task,eegDevice)
+            factor = 4;
+            reducedSamplingRate = double(eegDevice.samplingRate/factor);
+            reducedSignalLength = length(delta)/(reducedSamplingRate); % the given signals have got all the same length
+            % initialize reduced signals by 0 
+            % _s may stand for "short" since the signal vectors 
+            % are shorter now
+            delta_s = zeros(1,reducedSignalLength);
+            theta_s = zeros(1,reducedSignalLength);
+            alpha_s = zeros(1,reducedSignalLength);
+            beta1_s= zeros(1,reducedSignalLength);
+            beta2_s= zeros(1,reducedSignalLength);
+            task_s= zeros(1,reducedSignalLength);
+
+            % now fill the old signals into the shorter vectors by
+            % subsampling them
+            for i = 1:reducedSignalLength
+                % Build mean value between upper and lower bound for 
+                % every frequency_band for subsampling the signal, hence reducing the resolution
+                lower_bound = (i-1)*(reducedSamplingRate)+1;
+                upper_bound = (i-1)*(reducedSamplingRate)+(reducedSamplingRate);
+
+                delta_s(i) = mean(delta(lower_bound:upper_bound));
+                theta_s(i) = mean(theta(lower_bound:upper_bound));
+                alpha_s(i) = mean(alpha(lower_bound:upper_bound));
+                beta1_s(i) = mean(beta1(lower_bound:upper_bound));
+                beta2_s(i) = mean(beta2(lower_bound:upper_bound));
+                task_s(i) = mean(task(lower_bound:upper_bound));
             end
         end
+        
+        %         %% Subsamples the different eeg frequencies to a resolution of 4Hz
+%         function [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = reduceTo4Hz(self,delta,theta,alpha,beta1,beta2,task,eegDevice)
+%             resolution = 4;
+%             resolutionFac = double(eegDevice.samplingRate/resolution);
+%             l = length(delta)/(resolutionFac);
+%             delta_s = zeros(1,l);
+%             theta_s = zeros(1,l);
+%             alpha_s = zeros(1,l);
+%             beta1_s= zeros(1,l);
+%             beta2_s= zeros(1,l);
+%             task_s= zeros(1,l);
+%             for i = 1:l
+%                 % Build mean value between upper and lower bound for each frequency in order to
+%                 % reduce the signal resolution
+%                 lower = (i-1)*(resolutionFac)+1;
+%                 upper = (i-1)*(resolutionFac)+(resolutionFac);
+%                 delta_s(i) = mean(delta(lower:upper));
+%                 theta_s(i) = mean(theta(lower:upper));
+%                 alpha_s(i) = mean(alpha(lower:upper));
+%                 beta1_s(i) = mean(beta1(lower:upper));
+%                 beta2_s(i) = mean(beta2(lower:upper));
+%                 task_s(i) = mean(task(lower:upper));
+%             end
+%         end
+        
         
         %% Splits given values per StimulusInterval using given StimuIntDefs and StimulusInterval start point
         function splittedValues = getValuesPerStimuInt(self,StimuIntStart,valuesPerSec,stimuIntDefs,values)
@@ -510,10 +554,7 @@ classdef AnalyseAction < handle
                 end 
             end
             indicies = indicies(indicies~=0);
-        end
-        
-        
-        
+        end  
     end
 end
 
