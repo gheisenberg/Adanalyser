@@ -29,7 +29,9 @@ classdef Subject
         invalidElectrodes = []
         % Values set during FilterAction
         isValid = 1
-        edaPerVid= {}
+        edaPerStim = {}
+        eegPerStim = {}
+        hrvPerStim = {}
         % signalSpec
         signalSpec = []
     end

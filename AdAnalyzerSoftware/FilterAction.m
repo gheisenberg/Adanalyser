@@ -38,10 +38,10 @@ classdef FilterAction < handle
             numStimuInt = length(data.stimuIntDefs);
             numSubjects = length(data.subjects);            
             edaValsPerSec = edaDevice.samplingRate;
-            eegValsPerSec = eegDevice.samplingRate;            
+            hrvValsPerSec = hrvDevice.samplingRate;
             unfilteredQuality = zeros(numSubjects,numStimuInt);
             filteredQuality = zeros(numSubjects,numStimuInt);
-            %loop for each subject
+            % loop for each subject
             for i=1:numSubjects
                 subject = data.subjects{i};
                 
@@ -86,11 +86,18 @@ classdef FilterAction < handle
                         % unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
                         filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
                     end
+                    % save eegData per Stim
+                    subject.eegPerStim = filteredEEGValuesPerVid;
                     % rate quality of each Stimulus Interval
                     subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex,j);
                     % calculate eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
-                    subject.edaPerVid = edaValuesPerStim;
+                    subject.edaPerStim = edaValuesPerStim;
+                     % calculate hrv values per StimulusInterval
+                    hrvValuesPerStim = self.getValuesPerStimuInt(1,hrvValsPerSec,data.stimuIntDefs,subject.hrvValues);
+                    subject.hrvPerStim = hrvValuesPerStim;
+
+                    
                 end
                 % check for flag in config and prints out EEG Data 
                 if config.EEGData == 1
@@ -131,16 +138,57 @@ classdef FilterAction < handle
                 data.subjects{i} = subject;
                 waitbar(i/numSubjects);
                 end       
-                
-            % plot quality figures
-%           Kreitzberg: Commented out; Reason go to Plotter.m
-%           rateQuality change, therefore is this function missing input variables 
-%           plotEEGQualityFigures()
-%             if (config.QualityFig)
-%                 self.plotter.plotEEGQualityFigures(unfilteredQuality,filteredQuality,validStimuIntPerSubject,validSubjects,data.stimuIntDefs,config,numSubjects);
-%             end
             end
+           
+            % plot tabel with in/valid Status of Subjects
+            self.subjectValid(data.subjects,config);
+            
             close(h);
+        end
+    
+        %% Print in/valid subject table        
+        function subjectValid(self,subject,config)
+            numSubjects = length(subject);
+            validString = cell(length(subject)+3,1); % +3 for Header
+            validString(1) = {'Overview of subjects and their EEG status'};
+
+            j = 1;
+            isValid = 0;
+            % loop to check if subject is in/valid
+            for i=1:numSubjects 
+               sub = subject{i};
+               if sub.isValid == 1
+                   isValid = isValid+1;
+                   % save subject as valid
+                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid ']};
+                   j = j+1;
+                   % check for invalid electrodes and save them behind the
+                   % subject
+                   if  ~isempty(sub.invalidElectrodes)
+                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
+                       for j = 1:length(sub.invalidElectrodes)
+                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
+                       end
+                   end
+               else 
+                   % save subject as invalid
+                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid |']};
+                   isValid = isValid + 0;
+                   if  length(sub.invalidElectrodes) >= 1 
+                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
+                       for j = 1:length(sub.invalidElectrodes)
+                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
+                       end   
+                   end
+               end
+            end
+            % Add string with summary of the subject table
+            validString(2) = {[num2str(num2str(isValid)) ' of ' num2str(numSubjects) ' subjects are valid']};
+            self.plotter.writeValid(validString,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
+
+            if isValid == 0
+                fprintf('\n\nNo valid subject found!\n\n');
+            end
         end
     end
     

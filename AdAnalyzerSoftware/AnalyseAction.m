@@ -28,9 +28,6 @@ classdef AnalyseAction < handle
             validSubjects = self.countValidSubjects(subjects);
             message = ['Analysing data for ' num2str(validSubjects) ' valid subject(s)'];
             wBar = waitbar(0,message);
-            
-            % Tabel with in/valid Status of Subjects
-            self.subjectValid(subjects,config);
                         
             % plot the a file as pdf containing all the GUI and all DEVICE settings
             self.plotter.writeSettings(config,eegDevice,edaDevice,hrvDevice,subjects,[config.OutputDirectory,'/Settings.pdf']); 
@@ -63,51 +60,6 @@ classdef AnalyseAction < handle
             end
         end
         
-        %% Print in/valid subject table        
-        function subjectValid(self,subject,config)
-            numSubjects = length(subject);
-            validString = cell(length(subject)+3,1); % +3 for Header
-            validString(1) = {'Overview of subjects and their EEG status'};
-            
-            j = 1;
-            isValid = 0;
-            % loop to check if subject is in/valid
-            for i=1:numSubjects 
-               sub = subject{i};
-               if sub.isValid == 1
-                   isValid = isValid+1;
-                   % save subject as valid
-                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid ']};
-                   j = j+1;
-                   % check for invalid electrodes and save them behind the
-                   % subject
-                   if  ~isempty(sub.invalidElectrodes)
-                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
-                       for j = 1:length(sub.invalidElectrodes)
-                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
-                       end
-                   end
-               else 
-                   % save subject as invalid
-                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid |']};
-                   isValid = isValid + 0;
-                   if  length(sub.invalidElectrodes) >= 1 
-                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
-                       for j = 1:length(sub.invalidElectrodes)
-                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
-                       end   
-                   end
-               end
-            end
-            % Add string with summary of the subject table
-            validString(2) = {[num2str(num2str(isValid)) ' of ' num2str(numSubjects) ' subjects are valid']};
-            self.plotter.writeValid(validString,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
-            
-            if isValid == 0
-                fprintf('\n\nNo valid subject found!\n\n');
-            end
-        end
-        
         %% Performs analysis of the data of each subject
         % Main function of the AdAnalyser
         %   subject: information about the current subject
@@ -115,7 +67,7 @@ classdef AnalyseAction < handle
         %   config: information on the choosen config of the user
         %   devices: information of the used devices
         function analyseSubject(self,subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
-            edaPerStim = subject.edaPerVid;
+            edaPerStim = subject.edaPerStim;
             edaComplete = subject.edaValues;
             numStimuInt = length(edaPerStim);
             
@@ -164,6 +116,11 @@ classdef AnalyseAction < handle
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             
+            % HRV statistics
+            hrvStatsMat = self.calculateHRVStatistics(StimuIntDefs,subject);
+            statsMat = vertcat(statsMat,{'HRV statistics','','','','','','','',''});
+            statsMat = vertcat(statsMat,hrvStatsMat);            
+            
             % EDA statistics
             % get index of Stimulus Type 1 - see StimuIntDefinition.m
             orientingResponseIndex = self.getStimuIntIndex(1,StimuIntDefs);
@@ -176,21 +133,12 @@ classdef AnalyseAction < handle
             edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | '); %bug
             delayString =  self.stringStatistics.delaysToString(edaStatsMat(end-1,:));
             ampString =  self.stringStatistics.aplitudesToString(edaStatsMat(end,:));
-            edaStatsMat(end-1:end,:) = []; 
             statsMat = vertcat(statsMat,edaStatsMat);
-            statString =  self.stringStatistics.matrixToString(statsMat(1:end-2,:),' | ');
-            
-            % HRV statistics
-            hrvStatsMat = self.calculateHRVStatistics(StimuIntDefs,subject);
-            statsMat = vertcat(statsMat,{'HRV statistics','','','','','','','',''});
-            statsMat = vertcat(statsMat,hrvStatsMat);
-            statString =  self.stringStatistics.matrixToString(statsMat,' | ');
             
             % Plot statistics
             if (config.Statistics)
                 % save statistics as pdf and CSV
                 self.plotter.writeCSV([subject.OutputDirectory '/' subject.name '_statistics_EEG_EDA_HRV.csv'],'%s;%s;%s;%s;%s;%s;%s;%s;%s\n',statsMat');
-                self.plotter.writeStatistics([statString newline newline delayString newline ampString],[subject.OutputDirectory '/' subject.name '_statistics_EEG_EDA_HRV']);
             end
             
             % create data for EEG Topology plots, if necessary 
@@ -284,15 +232,14 @@ classdef AnalyseAction < handle
                 % plot frequencies for all Stimuli
                 for i = StimulIndex    
                     [~,StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s] = self.frequencies4Hz{i,:};
-                    resolution = i; % TIM ?
                     intervals = StimuIntDefs{i}.intervals;
                     StimuIntDescrp = StimuIntDefs{i}.stimuIntDescrp;
                     
-                    self.plotter.plotFrequencysWithBaselineMagnitude(subject.edaPerVid{i},HRVValuesPerStim{i},...
+                    self.plotter.plotFrequencysWithBaselineMagnitude(subject.edaPerStim{i},HRVValuesPerStim{i},...
                         length(filteredEEGPerVid{i})/eegDevice.samplingRate,...
                         [subject.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                         StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s,baselineTheta_s,...
-                        baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,resolution,intervals,...
+                        baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,intervals,...
                         ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
                 end
             end
@@ -323,7 +270,7 @@ classdef AnalyseAction < handle
         end
         
         %% Performs analysis for each StimulusInterval of each subject
-        function StimuIntStatsMat = analyseStimuInt(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerVid,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
+        function StimuIntStatsMat = analyseStimuInt(self,subject,StimuIntNumber,filteredEEGPerStim,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
             % Calculate eeg statistics for each StimulusInterval
             StimuIntLength = length(filteredEEGPerStim{StimuIntNumber})/eegDevice.samplingRate;
             StimuIntDef = StimuIntDefs{StimuIntNumber};
@@ -336,7 +283,7 @@ classdef AnalyseAction < handle
             eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerStim{StimuIntNumber},delta,theta,alpha,beta1,beta2,task);
             StimuIntStatsMat = vertcat(StimuIntStatsMat,eegFreqStatsMat);
             
-            % Reduce signal resolution to 4Hz
+            % Reduce signal resolution to 4Hznorma
             [delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s] = self.reduceTo4Hz(delta,theta,alpha,beta1,beta2,task,eegDevice);
             self.frequencies4Hz(StimuIntNumber,:) = {delta_s,theta_s,alpha_s,beta1_s,beta2_s,task_s};
             
@@ -345,16 +292,17 @@ classdef AnalyseAction < handle
                 self.plotter.plotBehavioralCharacteristics(subject.name,StimuIntNumber,subject.OutputDirectory,self.frequencies(StimuIntNumber,:),StimuIntDef,eegDevice)
             end
             
+            % Tim - decision
             %plot Frequency figure
-            if (config.FrequencyFig)
-                resolution = 4;
-                self.plotter.plotFrequencys(StimuIntLength,[subject.OutputDirectory '\' subject.name '_freq_bands_' StimuIntDef.stimuIntDescrp],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaPerVid{StimuIntNumber});
-            end
+            %if (config.FrequencyFig)
+            %    resolution = 4;
+            %    self.plotter.plotFrequencys(StimuIntLength,[subject.OutputDirectory '\' subject.name '_freq_bands_' StimuIntDef.stimuIntDescrp],theta_s,alpha_s,beta1_s,beta2_s,task_s,resolution,StimuIntDef,edaPerVid{StimuIntNumber});
+            %end
             
             % Plot Recurrence
             if (config.EDARecurrence)
                 if StimuIntDef.stimuIntType >= 4 % Types -> see StimuIntDefinition.m
-                    self.plotter.plotEDARecurrence(subject,config,StimuIntDef,edaPerVid{StimuIntNumber},edaDevice);
+                    self.plotter.plotEDARecurrence(subject,config,StimuIntDef,edaPerStim{StimuIntNumber},edaDevice);
                 end
             end
         end
@@ -417,7 +365,7 @@ classdef AnalyseAction < handle
                 s= 'No valid peaks found for Delta_t';
                 statsMat{end-1,1}= s;
             elseif length(delaysNotNull)==1
-                statsMat{end-1,1} = ['Delta_t of EDA Orientation Baseline based on interval ' strtrim(num2str(indicies))];
+                statsMat{end-1,1} = ['Delta_t of EDA Orientation Baseline'];
                 statsMat{end-1,2} = num2str(delaysNotNull);
             else
                 delayMean = mean(delaysNotNull);
@@ -425,7 +373,7 @@ classdef AnalyseAction < handle
                 minVarDelay = delayMean - min(delaysNotNull);
                 maxVarDelay = max(delaysNotNull) - delayMean;
                 statsMat(end-1,1:5) = {
-                    ['Delta_t EDA Orientation Baseline for intervals ' strtrim(strrep(num2str(indicies),'  ',','))],...
+                    ['Delta_t EDA Orientation Baseline'],...
                     ['mean=' num2str(delayMean,'%6.2f') 's'],['var=' num2str(delayVar,'%6.2f') 's'],...
                     ['dev+=' num2str(minVarDelay,'%6.2f') 's'],['dev-=' num2str(maxVarDelay,'%6.2f') 's']
                     };
