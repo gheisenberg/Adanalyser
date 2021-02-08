@@ -1309,7 +1309,8 @@ classdef Plotter
         %   resolution: values per second as double 
         %   intervals: intervals of interest as int[]
         %   t_title: Diagramm title as String 
-        function plotFrequencysWithBaselineMagnitude(self,edaPerStim,hrvPerStim,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,intervals,t_title)
+        function plotFrequencysWithBaselineMagnitude(self,edaPerStim,hrvPerStim,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,baseline_EDA,baseline_HRV,intervals,t_title)
+
             fig = figure('Visible','off');
 			maxscale = (max([max(alpha_s) max(beta1_s) max(beta2_s) max(theta_s)]));
             numDataPoints = StimuIntLength*4; % Mutiply with 4, because of 4Hz
@@ -1340,16 +1341,13 @@ classdef Plotter
             massAndTime = self.calculateMassAndTime(theta_s,numDataPoints,mean(baselineTheta));
             
             if(isempty(intervals))
-                legend(massAndTime,'theta baseline average','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'theta baseline average','location','northoutside','Orientation','horizontal');
             else
-                h=legend(massAndTime,'theta baseline average','Stimulus','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'theta baseline average','Stimulus','location','northoutside','Orientation','horizontal');
             end
             ylabel('Theta [µV]');
             axis([0 length(theta_s) 0 maxscale]);
             set(gca,'XTick',xtime,'XTickLabel',xAxis);
-            
-            % title for the hole plot
-			title(t_title);
 			
 			subplot(7,1,2);
             hold on;
@@ -1360,9 +1358,9 @@ classdef Plotter
             hold off;
             massAndTime = self.calculateMassAndTime(alpha_s,numDataPoints,mean(baselineAlpha));
             if(isempty(intervals))
-                legend(massAndTime,'alpha baseline average','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'alpha baseline average','location','northoutside','Orientation','horizontal');
             else
-                legend(massAndTime,'alpha baseline average','Stimulus','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'alpha baseline average','Stimulus','location','northoutside','Orientation','horizontal');
             end
             grid;
             ylabel('Alpha [µV]');
@@ -1378,9 +1376,9 @@ classdef Plotter
             massAndTime = self.calculateMassAndTime(beta1_s,numDataPoints,mean(baselineBeta1));
             hold off;
             if(isempty(intervals))
-                legend(massAndTime,'beta1 baseline average','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'beta1 baseline average','location','northoutside','Orientation','horizontal');
             else
-                legend(massAndTime,'beta1 baseline average','Stimulus','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'beta1 baseline average','Stimulus','location','northoutside','Orientation','horizontal');
             end
             grid;
             ylabel('Beta1 [µV]');
@@ -1396,9 +1394,9 @@ classdef Plotter
             self.plotIntervals(intervals,[0, maxscale],max(xtime)/max(xAxis),labels,'r');
             hold off;
             if(isempty(intervals))
-                legend(massAndTime,'beta2 baseline average','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'beta2 baseline average','location','northoutside','Orientation','horizontal');
             else
-                legend(massAndTime,'beta2 baseline average','Stimulus','location','southoutside','Orientation','horizontal');
+                legend(massAndTime,'beta2 baseline average','Stimulus','location','northoutside','Orientation','horizontal');
             end
             grid;
             ylabel('Beta2 [µV]');
@@ -1417,9 +1415,9 @@ classdef Plotter
             self.plotIntervals(intervals,[0, maxscaleTask],max(xtime)/max(xAxis),labels,'r');
             hold off;
             if(isempty(intervals))
-                legend('TEI baseline average','location','southoutside','Orientation','horizontal');
+                legend('TEI baseline average','location','northoutside','Orientation','horizontal');
             else
-                legend('TEI baseline average','Stimulus','location','southoutside','Orientation','horizontal');
+                legend('TEI baseline average','Stimulus','location','northoutside','Orientation','horizontal');
             end
             
             grid;
@@ -1434,12 +1432,13 @@ classdef Plotter
             plot(edaPerStim,'k');
             maxscaleEDA = max(edaPerStim)*1.01;
             minEDA = min(edaPerStim)*0.998;
+            line('XData',[0 length(edaPerStim)],'YData',[baseline_EDA,baseline_EDA],'Color','b')
             self.plotIntervals(intervals,[minEDA, maxscaleEDA],max(xtimeEDA)/max(xAxis),labels,'r');
             hold off;
             if(isempty(intervals))
-                legend('EDA signal','location','southoutside','Orientation','horizontal');
+                legend('EDA signal','EDA Baseline','location','northoutside','Orientation','horizontal');
             else
-                legend('EDA signal','Stimulus','location','southoutside','Orientation','horizontal');
+                legend('EDA signal','EDA Baseline','Stimulus','location','northoutside','Orientation','horizontal');
             end
             
             grid;
@@ -1454,12 +1453,13 @@ classdef Plotter
             plot(hrvPerStim,'k');
             maxscaleHRV = max(hrvPerStim)*1.01;
             minHRV = min(hrvPerStim)*0.99;
+            line('XData',[0 xtime(end)],'YData',[baseline_HRV,baseline_HRV],'Color','b')
             self.plotIntervals(intervals,[minHRV, maxscaleHRV],max(xtimeHRV)/max(xAxis),labels,'r');
             hold off;
             if(isempty(intervals))
-                legend('HRV signal','location','southoutside','Orientation','horizontal');
+                legend('HRV signal','HRV Baseline','location','northoutside','Orientation','horizontal');
             else
-                legend('HRV signal','Stimulus','location','southoutside','Orientation','horizontal');
+                legend('HRV signal','HRV Baseline','Stimulus','location','northoutside','Orientation','horizontal');
             end
             
             grid;
@@ -1472,139 +1472,64 @@ classdef Plotter
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPositionMode', 'auto');
             set(fig, 'PaperPosition', [0.2 0.1 20 29 ]);
+            % title for the hole plot
+			sgtitle(t_title);
             print(['-f',int2str(fig.Number)],'-dpdf',fPath);
 			close(fig);
         end
         
         %% Computation of the momentary frequency of a given signal
         function frequency_estimation(self,tMean, tFreq, name, stimulus, conf, useData, eegData, edaData, hrvData)
-            %% eeg data loop
-            if useData(1) == 1    
-                signalData = eegData;
-                resultFreq = [];
-                mean1 = 0;
-                mean2 = 0;
-                mean3 = 0;
-                dataLength = length(signalData);
-                for i = 3:dataLength
-                    mean1 = (mean1 +  tMean .*(signalData(i) - mean1));
+            % usedata setup - EEG, EDA, HRV
+            data = {eegData,edaData,hrvData};
+            DataTyp = ['EEG'; 'EDA'; 'HRV'];
+            
+            for k = 1:sum(useData)
+                if useData(k) == 1    
+                    signalData = data{k};
+                    resultFreq = [];
+                    mean1 = 0;
+                    mean2 = 0;
+                    mean3 = 0;
+                    dataLength = length(signalData);
+                    for i = 3:dataLength
+                        mean1 = (mean1 +  tMean .*(signalData(i) - mean1));
 
-                    % check if "bigger"
-                    k1 = not(mean1 < signalData(i-1));
+                        % check if "bigger"
+                        k1 = not(mean1 < signalData(i-1));
 
-                    mean2 = mean2 +  tMean*(signalData(i-1) - mean2);
+                        mean2 = mean2 +  tMean*(signalData(i-1) - mean2);
 
-                    % check if "bigger"
-                    k2 = not(mean2 < signalData(i-2));
+                        % check if "bigger"
+                        k2 = not(mean2 < signalData(i-2));
 
-                    % check if not equal
-                    w = k1 ~= k2;
-                    mean3 = mean3 +  tFreq*(w - mean3);
-                    
-                    % Just count half of the zero-crossings => /2
-                    resultFreq = [resultFreq mean3/2];
+                        % check if not equal
+                        w = k1 ~= k2;
+                        mean3 = mean3 +  tFreq*(w - mean3);
+
+                        % Just count half of the zero-crossings => /2
+                        resultFreq = [resultFreq mean3/2];
+                    end
+
+                    % plot
+                    fig = figure('Visible','off');
+                    set(fig, 'PaperType', 'A4');
+                    set(fig, 'PaperOrientation', 'landscape');
+                    set(fig, 'PaperUnits', 'centimeters');
+                    set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
+                    plot(resultFreq,'k');
+                    if resultFreq ~= 0
+                        ylim([0 max(resultFreq)*1.5])
+                    end
+                    hold off;
+
+                    grid;
+                    title(['Momentary frequency for ' DataTyp(k,:) ' data']);
+
+                    print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_' DataTyp(k,:) '_frequency_estimation.pdf']);
+                    close(fig);   
                 end
-
-                % plot
-                fig = figure('Visible','off');
-                set(fig, 'PaperType', 'A4');
-                set(fig, 'PaperOrientation', 'landscape');
-                set(fig, 'PaperUnits', 'centimeters');
-                set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-                plot(resultFreq,'k');
-                hold off;
-
-                grid;
-                title('Frequency EEG data');
-                
-                print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_EEG_frequency_estimation.pdf']);
-                close(fig);
-                
             end
-            %% eda data loop
-            if useData(2) == 1 
-                signalData = edaData;
-                resultFreq = [];
-                mean1 = 0;
-                mean2 = 0;
-                mean3 = 0;
-                dataLength = length(signalData);
-                for i = 3:dataLength
-                    mean1 = (mean1 +  tMean .*(signalData(i) - mean1));
-
-                    % check if "bigger"
-                    k1 = not(mean1 < signalData(i-1));
-
-                    mean2 = mean2 +  tMean*(signalData(i-1) - mean2);
-
-                    % check if "bigger"
-                    k2 = not(mean2 < signalData(i-2));
-
-                    % check if not equal
-                    w = k1 ~= k2;
-                    mean3 = mean3 +  tFreq*(w - mean3);
-                    
-                    % Just count half of the zero-crossings => /2
-                    resultFreq = [resultFreq mean3/2];
-                end
-
-                 % plot
-                fig = figure('Visible','off');
-                set(fig, 'PaperType', 'A4');
-                set(fig, 'PaperOrientation', 'landscape');
-                set(fig, 'PaperUnits', 'centimeters');
-                set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-                plot(resultFreq,'k');
-                hold off;
-
-                grid;
-                title('Frequency EEG data');
-                
-                print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_EDA_frequency_estimation.pdf']);
-                close(fig);
-            end
-            if useData(3) == 1 
-                signalData = hrvData;
-                resultFreq = [];
-                mean1 = 0;
-                mean2 = 0;
-                mean3 = 0;
-                dataLength = length(signalData);
-                for i = 3:dataLength
-                    mean1 = (mean1 +  tMean .*(signalData(i) - mean1));
-
-                    % check if "bigger"
-                    k1 = not(mean1 < signalData(i-1));
-
-                    mean2 = mean2 +  tMean*(signalData(i-1) - mean2);
-
-                    % check if "bigger"
-                    k2 = not(mean2 < signalData(i-2));
-
-                    % check if not equal
-                    w = k1 ~= k2;
-                    mean3 = mean3 +  tFreq*(w - mean3);
-                    
-                    % Just count half of the zero-crossings => /2
-                    resultFreq = [resultFreq mean3/2];
-                end
-
-                 % plot
-                fig = figure('Visible','off');
-                set(fig, 'PaperType', 'A4');
-                set(fig, 'PaperOrientation', 'landscape');
-                set(fig, 'PaperUnits', 'centimeters');
-                set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-                plot(resultFreq,'k');
-                hold off;
-
-                grid;
-                title('Frequency EEG data');
-                
-                print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_HRV_frequency_estimation.pdf']);
-                close(fig);   
-            end
-            fprintf(stimulus)
         end
     end
     

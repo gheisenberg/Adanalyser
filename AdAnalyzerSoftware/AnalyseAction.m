@@ -221,27 +221,29 @@ classdef AnalyseAction < handle
                 end
                 
                 % get frequencies for baseline
-                BaselineIndex = find(StimuIntTypes == 2); % Type 2 == EEG Baseline
-                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequenciesSubsampledBy4{BaselineIndex,:};
+                BaselineIndexEEG = find(StimuIntTypes == 2); % Type 2 == EEG Baseline
+                [~,baselineTheta_s,baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s] = self.frequenciesSubsampledBy4{BaselineIndexEEG,:};
+                
+                % calculate EDA Baseline
+                BaselineIndexEDA = find(StimuIntTypes == 0); % Type 2 == EEG Baseline
+                baseline_EDA = mean(subject.edaPerStim{1,BaselineIndexEDA});
+                baseline_HRV = mean(subject.hrvPerStim{1,BaselineIndexEDA});
                 
                 % get all indices for Stimulus_Interval_Types >= 4
                 % see StimuIntDefinition.m
                 StimulIndex = find(StimuIntTypes >= 4);
-                
-                %HRV values per StimuInt
-                HRVValuesPerStim = self.getValuesPerStimuInt(1,hrvDevice.samplingRate,StimuIntDefs,subject.edaValues);
                 
                 for i = StimulIndex    
                     [~,StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s] = self.frequenciesSubsampledBy4{i,:};
                     intervals = StimuIntDefs{i}.intervals;
                     StimuIntDescrp = StimuIntDefs{i}.stimuIntDescrp;
                     
-                    self.plotter.plotFrequencysWithBaselineMagnitude(subject.edaPerStim{i},HRVValuesPerStim{i},...
+                    self.plotter.plotFrequencysWithBaselineMagnitude(subject.edaPerStim{i},subject.hrvPerStim{i},...
                         length(filteredEEGPerVid{i})/eegDevice.samplingRate,...
                         [subject.OutputDirectory '/' subject.name '_alpha_beta_theta_TEI_' StimuIntDescrp '.pdf'],...
                         StimuIntTheta_s,StimuIntAlpha_s,StimuIntBeta1_s,StimuIntBeta2_s,StimuIntTEI_s,baselineTheta_s,...
-                        baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,intervals,...
-                        ['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
+                        baselineAlpha_s,baselineBeta1_s,baselineBeta2_s,baselineTEI_s,baseline_EDA,baseline_HRV,...
+                        intervals,['Theta, Alpha, Beta1, Beta2 frequencies and TEI for ' StimuIntDescrp ' of subject ' subject.name]);
                 end
             end
             % transient = self.frequencyEstimation(edaComplete); obsolet
