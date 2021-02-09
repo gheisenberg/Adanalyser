@@ -32,6 +32,7 @@ classdef Subject
         edaPerStim = {}
         eegPerStim = {}
         hrvPerStim = {}
+        eegSubSample = {}
         % signalSpec
         signalSpec = []
     end

@@ -73,21 +73,21 @@ classdef FilterAction < handle
                     end
                     % calculate eeg values per Stimulus Interval
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
-                    filteredEEGValuesPerVid = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); 
-                    eegValues.filteredEEGPerVid = filteredEEGValuesPerVid;
+                    filteredEEGValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); 
+                    eegValues.filteredEEGPerVid = filteredEEGValuesPerStim;
                     % save EGG Values in vector to write out csv
                     allEEGValues(j,:) = filteredList';
                     eegValues.eegValues = filteredList';
                     subject.eegValuesForElectrodes{j} = eegValues;
                     % Rate Quality for EEG Electrode
-                    for v=1:numStimuInt
-                        unfilteredEEGVid = eegValuesPerStim{v};
-                        filteredEEGVid = filteredEEGValuesPerVid{v};
-                        % unfilteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,unfilteredEEGVid);
-                        filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGVid); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
+                    for v = 1:numStimuInt
+                        filteredEEGStim = filteredEEGValuesPerStim{v};
+                        filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGStim); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
                     end
                     % save eegData per Stim
-                    subject.eegPerStim = filteredEEGValuesPerVid;
+                    subject.eegPerStim = filteredEEGValuesPerStim;
+                    % create subSampled Data and save it
+                    subject.eegSubSample = self.singleSubsampleByFactorOf4(filteredEEGValuesPerStim,eegDevice);
                     % rate quality of each Stimulus Interval
                     subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex,j);
                     % calculate eda values per StimulusInterval
@@ -190,6 +190,38 @@ classdef FilterAction < handle
                 fprintf('\n\nNo valid subject found!\n\n');
             end
         end
+        
+        %% reduces the sampling frequency of the given eeg signals per Stimulus by a factor of 4
+        % change version of subsampleByFactorOf4() to sub sample a single
+        % data object
+        function data_s = singleSubsampleByFactorOf4(self,data,eegDevice)
+            factor = 4;
+            numStimuInt = length(data);
+            reducedSamplingRate = double(eegDevice.samplingRate/factor);
+            data_s = cell(1,numStimuInt);
+            
+            for j = 1:numStimuInt
+                dataPerStimu = data{1,j};
+                reducedSignalLength = length(dataPerStimu)/(reducedSamplingRate); 
+                % initialize reduced signals by 0 
+                % _s may stand for "short" since the signal vectors 
+                % are shorter now
+                dataPerStimu_s = zeros(1,reducedSignalLength);
+
+                % now fill the old signals into the shorter vectors by
+                % subsampling them
+                for i = 1:reducedSignalLength
+                    % Build mean value between upper and lower bound for 
+                    % every frequency_band for subsampling the signal, hence reducing the resolution
+                    lower_bound = (i-1)*(reducedSamplingRate)+1;
+                    upper_bound = (i-1)*(reducedSamplingRate)+(reducedSamplingRate);
+
+                    dataPerStimu_s(i) = mean(dataPerStimu(lower_bound:upper_bound));
+                end
+                data_s{j} = dataPerStimu_s;
+            end
+        end
+        
     end
     
     methods(Access=private)

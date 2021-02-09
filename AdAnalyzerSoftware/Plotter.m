@@ -1524,8 +1524,9 @@ classdef Plotter
                     hold off;
 
                     grid;
-                    title(['Momentary frequency for ' DataTyp(k,:) ' data']);
-
+                    title(['Momentary frequency for ' stimulus]);
+                    ylabel([DataTyp(k,:) ' data'])
+                    
                     print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_' DataTyp(k,:) '_frequency_estimation.pdf']);
                     close(fig);   
                 end

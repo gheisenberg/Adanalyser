@@ -49,8 +49,7 @@ classdef AnalyseAction < handle
             end
             close(wBar);
         end
-    end
-    methods(Access=private)
+        
         %% Counts valid subjects
         %   subjects: subject class with all nessesary information
         function numValidSubjects = countValidSubjects(self,subjects)
@@ -60,8 +59,9 @@ classdef AnalyseAction < handle
                     numValidSubjects = numValidSubjects+1;
                 end
             end
-        end
-        
+        end   
+    end
+    methods(Access=private)
         %% Performs analysis of the data of each subject
         % Main function of the AdAnalyser
         %   subject: information about the current subject
