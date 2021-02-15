@@ -45,7 +45,7 @@ classdef SubjectFactory
                     if numberOfSubjects < numberOfEDA || numberOfSubjects < numberofHRV
                             if numberOfEDA == numberofHRV
                             total = numberOfEDA-numberOfSubjects;
-                            fprintf('\n\nThe number of subjects doesn´t match the number of EDA and HRV Files!\n')
+                            fprintf('The number of subjects doesn´t match the number of EDA and HRV Files!\n')
                             fprintf([num2str(total) ' files will be filtered and analyzed in ascending order!\n\n'])
                             end
                             if numberOfEDA > numberofHRV
@@ -73,8 +73,8 @@ classdef SubjectFactory
                         fprintf([num2str(total) ' files will be filtered and analyzed in ascending order!\n\n'])
                     end
                 else 
-                    fprintf('Please check the EDA and HRV Files!\n')
-                    fprintf('Neither of them correlates with number of subjects.\n\n')
+                    fprintf('Please check the EDA and HRV Files or change number of subjects in config dialog!\n')
+                    fprintf('Neither of them correlates with number of subjects!\n\n')
                     close(bar);
                     return
                 end

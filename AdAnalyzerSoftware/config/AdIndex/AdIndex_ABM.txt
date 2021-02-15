@@ -4,4 +4,3 @@
 10,4,Video Stimulus,2,6,7
 10,5,Image Stimulus
 10,4,TV Commercial,5,8,9
-5,2,EEG Baseline 2,4

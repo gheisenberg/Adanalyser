@@ -329,7 +329,9 @@ classdef Plotter
                     numElec = length(numValues);
                     task = zeros(numElec,numPos);
 
-                    % get TEI
+                    % get TEI - has to calcualte seperatly because the user
+                    % can decide how the intervals between each Toplogy map
+                    % will be
                     for m = 1:numPos
                         for j = 1:numElec
                         % eegfiltfft is a eeglab function for (high|low|band) - 
@@ -1415,9 +1417,9 @@ classdef Plotter
             self.plotIntervals(intervals,[0, maxscaleTask],max(xtime)/max(xAxis),labels,'r');
             hold off;
             if(isempty(intervals))
-                legend('TEI baseline average','location','northoutside','Orientation','horizontal');
+                legend(massAndTime, 'TEI baseline average','location','northoutside','Orientation','horizontal');
             else
-                legend('TEI baseline average','Stimulus','location','northoutside','Orientation','horizontal');
+                legend(massAndTime, 'TEI baseline average','Stimulus','location','northoutside','Orientation','horizontal');
             end
             
             grid;
@@ -1479,19 +1481,37 @@ classdef Plotter
         end
         
         %% Computation of the momentary frequency of a given signal
-        function frequency_estimation(self,tMean, tFreq, name, stimulus, conf, useData, eegData, edaData, hrvData)
+        function frequency_estimation(self,tMean, tFreq, name, stimulus, conf, useData, intervals, StimuIntLength, eegData, edaData, hrvData)
             % usedata setup - EEG, EDA, HRV
             data = {eegData,edaData,hrvData};
             DataTyp = ['EEG'; 'EDA'; 'HRV'];
+            labels = [];
+            
+            % get xAxis for Stimlus
+            if StimuIntLength > 1000
+                xAxis = 0:100:StimuIntLength;
+            elseif StimuIntLength > 300
+                xAxis = 0:25:StimuIntLength;
+            elseif StimuIntLength > 30
+                xAxis = 0:5:StimuIntLength;
+            else
+                xAxis = 0:StimuIntLength;
+            end            
             
             for k = 1:sum(useData)
                 if useData(k) == 1    
+                    
                     signalData = data{k};
                     resultFreq = [];
                     mean1 = 0;
                     mean2 = 0;
                     mean3 = 0;
                     dataLength = length(signalData);
+                    
+                    % get xtime
+                    scaleFactor = dataLength/max(xAxis);
+                    xtime = xAxis * scaleFactor;
+                    
                     for i = 3:dataLength
                         mean1 = (mean1 +  tMean .*(signalData(i) - mean1));
 
@@ -1521,11 +1541,16 @@ classdef Plotter
                     if resultFreq ~= 0
                         ylim([0 max(resultFreq)*1.5])
                     end
+                    yAxis = ylim;
+                    self.plotIntervals(intervals,yAxis,scaleFactor,labels,'r');
                     hold off;
 
                     grid;
                     title(['Momentary frequency for ' stimulus]);
-                    ylabel([DataTyp(k,:) ' data'])
+                    ylabel([DataTyp(k,:) ' data averaged over all electrode positions'])
+                    
+                    % set xAxis to correct length of Stimlus
+                    set(gca,'XTick',xtime,'XTickLabel',xAxis);
                     
                     print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_' DataTyp(k,:) '_frequency_estimation.pdf']);
                     close(fig);   

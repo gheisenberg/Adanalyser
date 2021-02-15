@@ -19,20 +19,24 @@ classdef Subject
         %Initial values set during creation in SubjectFactory
         name = '' 
         OutputDirectory = ''
-        % parsed eda values
+        isValid = 1
+        
+        % parsed values
         edaValues={}
-        % parsed hrv values 
         hrvValues={}
-        % parsed eeg values and status of position
         eegValuesForElectrodes ={}
         Electrodes = []
         invalidElectrodes = []
+        
         % Values set during FilterAction
-        isValid = 1
+        % values per Stimlus
         edaPerStim = {}
         eegPerStim = {}
         hrvPerStim = {}
+        
+        % eeg values sub sampled
         eegSubSample = {}
+        
         % signalSpec
         signalSpec = []
     end

@@ -69,18 +69,16 @@ classdef AnalyseAction < handle
         %   config: information on the choosen config of the user
         %   devices: information of the used devices
         function analyseSubject(self,subject,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice)
-            edaPerStim = subject.edaPerStim;
-            edaComplete = subject.edaValues;
-            numStimuInt = length(edaPerStim);
+            numStimuInt = length(StimuIntDefs);
             
             % Plot eda values
             if (config.EDA_DEVICE_USED)
-                self.plotter.plotEDA(StimuIntDefs,[subject.OutputDirectory,'/' subject.name '_EDA','.pdf'],edaComplete,0);
+                self.plotter.plotEDA(StimuIntDefs,[subject.OutputDirectory,'/' subject.name '_EDA','.pdf'],subject.edaValues,0);
             end
             
             % Plot eda detrended
             if (config.DetrendedEDAFig)
-                self.plotter.plotEDA(StimuIntDefs,[subject.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(edaComplete),1);
+                self.plotter.plotEDA(StimuIntDefs,[subject.OutputDirectory,'/' subject.name '_EDA_detrend','.pdf'],detrend(subject.edaValues),1);
             end
             
             % Plot EEG 
@@ -112,9 +110,9 @@ classdef AnalyseAction < handle
                 statsMat(3+i,1:5) = {[char(electrode) ': '],num2str(m,'%6.4f'),num2str(sd,'%6.4f'),num2str(devM,'%6.4f'),num2str(devP,'%6.4f')};
             end
             statsMat(end,1:5) = {'Mean electrode values: ',num2str(mMean/numElectrodes,'%6.4f'),num2str(sdMean/numElectrodes,'%6.4f'),num2str(devMMean/numElectrodes,'%6.4f'),num2str(devPMean/numElectrodes,'%6.4f')}; 
-            for StimuIntNumber=1:numStimuInt
+            for StimuIntNumber = 1:numStimuInt
                 filteredEEGPerVid = self.calculateMeanEEGValuesForStimuInt(subject);
-                StimuIntStatsMat = self.analyseStimulusInterval(subject,StimuIntNumber,filteredEEGPerVid,edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
+                StimuIntStatsMat = self.analyseStimulusInterval(subject,StimuIntNumber,filteredEEGPerVid,subject.edaPerStim,StimuIntDefs,config,eegDevice,edaDevice,hrvDevice);
                 statsMat = vertcat(statsMat,StimuIntStatsMat);
             end
             
@@ -126,11 +124,11 @@ classdef AnalyseAction < handle
             % EDA statistics
             % get index of Stimulus Type 1 - see StimuIntDefinition.m
             orientingResponseIndex = self.getStimuIntIndex(1,StimuIntDefs);
-            [amplitudes,delays] = self.calculateDelaysEDA(edaPerStim{orientingResponseIndex},StimuIntDefs{orientingResponseIndex}.intervals,edaDevice);
+            [amplitudes,delays] = self.calculateDelaysEDA(subject.edaPerStim{orientingResponseIndex},StimuIntDefs{orientingResponseIndex}.intervals,edaDevice);
             % get index of Stimlus Type 0, 1, 4, 5 and 6 - see StimuIntDefinition.m
             edaStimuInt = self.getStimuIntIndex([0,1,4,5,6],StimuIntDefs);
             % create EDA stats matrix
-            edaStatsMat = self.calculateEDAStatistics(edaStimuInt,edaPerStim,delays,amplitudes,StimuIntDefs);
+            edaStatsMat = self.calculateEDAStatistics(edaStimuInt,subject.edaPerStim,delays,amplitudes,StimuIntDefs);
             edaStatsMat = vertcat({'EDA statistics','','','','','','','',''},edaStatsMat);
             edaStatsString =   self.stringStatistics.matrixToString(edaStatsMat(1:end-2,:),' | '); %bug
             delayString =  self.stringStatistics.delaysToString(edaStatsMat(end-1,:));
@@ -200,7 +198,7 @@ classdef AnalyseAction < handle
             
             % Plot subStimuIntEDA
             if (config.SubStimuIntEDAFig)
-                self.plotter.plotSubStimuIntEDA(edaStimuInt,edaPerStim,StimuIntDefs,subject.name,[subject.OutputDirectory '/' subject.name ' EDA_Values_for_all_StimulusInterval(s)'],[edaStatsString newline newline delayString newline ampString]);
+                self.plotter.plotSubStimuIntEDA(edaStimuInt,subject.edaPerStim,StimuIntDefs,subject.name,[subject.OutputDirectory '/' subject.name ' EDA_Values_for_all_StimulusInterval(s)'],[edaStatsString newline newline delayString newline ampString]);
             end
             
             % Plot HRV figure
@@ -280,7 +278,7 @@ classdef AnalyseAction < handle
             StimuIntStatsMat = cell(1,9);
             StimuIntStatsMat(1,1) = {['EEG statistics for ' StimuIntDef.stimuIntDescrp]};
             [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerStim{StimuIntNumber},eegDevice);
-            self.frequencies(StimuIntNumber,:) = {delta,theta,alpha,beta1,beta2,task};
+            self.frequencies(StimuIntNumber,:) = {deltsubsampleByFactorOf4a,theta,alpha,beta1,beta2,task};
             
             % Calculate eeg statistics for each StimulusInterval and each frequency
             eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerStim{StimuIntNumber},delta,theta,alpha,beta1,beta2,task);

@@ -6,7 +6,7 @@ EDAFiles=.\data\Testcase_data\data_20_Subjects\eda\vp_0001_2014-12-01_10-07-00_E
 EEGFiles=.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_C3_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_C4_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_Cz_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_F3_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_F4_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_Fz_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_P3_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_P4_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0001_POz_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_C3_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_C4_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_Cz_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_F3_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_F4_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_Fz_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_P3_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_P4_2020-03-10_19-08-00_EEG.csv,.\data\Testcase_data\data_20_Subjects\electrodeEEG\vp_0002_POz_2020-03-10_19-08-00_EEG.csv
 HRVFiles=.\data\Testcase_data\data_20_Subjects\hrv\vp_0001_2014-12-01_10-07-00_RR.txt,.\data\Testcase_data\data_20_Subjects\hrv\vp_0002_2014-12-01_10-07-00_RR.txt
 StimuIntDef=.\config\AdIndex\AdIndex_ABM.txt
-videoString=
+videoString=.\data\Eyetracking_Video
 ----------------------------
 DEVICES
 ----------------------------
@@ -23,7 +23,8 @@ SubStimuIntEDAFig=1
 Statistics=1
 BehaveFig=1
 DetrendedEDAFig=1
-RecurrenceFig=1
+EDARecurrence=1
+HRVRecurrence=1
 QualityFig=1
 FrequencyFig=1
 LowerThreshold=-100
