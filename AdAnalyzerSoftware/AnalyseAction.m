@@ -278,7 +278,7 @@ classdef AnalyseAction < handle
             StimuIntStatsMat = cell(1,9);
             StimuIntStatsMat(1,1) = {['EEG statistics for ' StimuIntDef.stimuIntDescrp]};
             [delta,theta,alpha,beta1,beta2,task] = self.analyseFrequencies(filteredEEGPerStim{StimuIntNumber},eegDevice);
-            self.frequencies(StimuIntNumber,:) = {deltsubsampleByFactorOf4a,theta,alpha,beta1,beta2,task};
+            self.frequencies(StimuIntNumber,:) = {delta,theta,alpha,beta1,beta2,task};
             
             % Calculate eeg statistics for each StimulusInterval and each frequency
             eegFreqStatsMat = self.calculateEEGFrequencyStatistics(filteredEEGPerStim{StimuIntNumber},delta,theta,alpha,beta1,beta2,task);
