@@ -392,7 +392,7 @@ classdef Plotter
                         sgtitle([StimuInt.stimuIntDescrp ' for subject ' subject.name]);
                         
                         % print out first frame
-                        videochart = subplot(2,2,[1 2]);
+                        subplot(2,2,[1 2]);
                         imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
                         fName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))) 'ms_2D Topo.png'];
                         print(fName,'-dpng','-r300',mainfig);
@@ -402,9 +402,6 @@ classdef Plotter
                             set(mainfig,'units','pixels','position',[0 0 640 480]) 
                             set(gcf,'renderer','opengl') 
                             drawnow nocallbacks
-                            
-                            % add to test VM - delete comment
-                            % set(videoObj, 'LoggingMode', 'memory');
                             
                             %create video in plot
                             for t = 1:vidObj.FrameRate
@@ -564,7 +561,6 @@ classdef Plotter
             Pos = cell(1,numPrints); % vector for position
             topoX = 100; % X position of first head in print
             mainfig.Position = [mainfig.Position(1), mainfig.Position(2), (numPrints*150) , sizey]; 
-            drawforce = 1;
             
             for j = 1:numPrints
                 % Print of 2D Topo
@@ -699,13 +695,15 @@ classdef Plotter
             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
             drawnow 
    
-            % save as pdf
+            % cut the mainfig
             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
-            fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
             set(gcf,'color','w');
             F = getframe(mainfig); % get frame of figure
             ImageSize = size(F.cdata); % get length of figure
             F.cdata(:,newWidth:ImageSize(2),:) = []; % delete empty pixel
+            
+            % save as png
+            fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
             imwrite(F.cdata, fName, 'png');
             
             % close figure
