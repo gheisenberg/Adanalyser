@@ -171,9 +171,10 @@ classdef Plotter
                 IntChar = '';
                 % loop through all interval chars and seperate them with a
                 % ' '
-                for i = 1:length(hold)
-                IntChar = append(IntChar,hold(i,:));
-                IntChar = append(IntChar,' ');
+                numInt = size(hold);
+                for j = 1:numInt(1)
+                    IntChar = append(IntChar,hold(j,:));
+                    IntChar = append(IntChar,' ');
                 end
                 CharStartInt = 26-length(IntChar)+1;
                 CharStimuInt([CharStartInt:end]) = IntChar;

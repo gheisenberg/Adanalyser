@@ -37,6 +37,10 @@ classdef Subject
         % eeg values sub sampled
         eegSubSample = {}
         
+        % frequency data
+        frequencies = {}
+        frequenciesSubedBy4 = {}
+        
         % signalSpec
         signalSpec = []
     end
