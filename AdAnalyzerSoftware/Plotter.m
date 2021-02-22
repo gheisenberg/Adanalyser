@@ -19,7 +19,7 @@ classdef Plotter
         %   config: contains all configs as String
         %   fName: File name as String
         %   Devices: contains settings of different devices
-        function writeSettings(self,config,eegDevice,edaDevice,hrvDevice,subject,fName)
+        function writeSettings(self,config,eegDevice,edaDevice,hrvDevice, subjects, fName)    
             fatbraid="===========================================================" + newline;
             thinbraid="------------------------------------------------------" + newline;
             
@@ -85,8 +85,8 @@ classdef Plotter
             output_text= strcat(output_text,"Sampling Frequency[Hz]=" + num2str(eegDevice.samplingRate)+newline);
             output_text= strcat(output_text,"Electrode Positions=" + eegDevice.electrodePositions);
             
-            if length(subject{1, 1}.Electrodes) > 1
-                electrodes = subject{1, 1}.Electrodes;
+            if length(config.electrodes) > 1
+                electrodes = config.electrodes;
                 for i = 2:length(electrodes)
                     output_text= strcat(output_text,", " + electrodes(i));
                 end
@@ -111,6 +111,7 @@ classdef Plotter
             fig.Position = [0,0,20.635, 29.35];
             descrp = text(0.1,0.9,output_text{1},'FontName','FixedWidth','FontSize',8);
             descrp.VerticalAlignment = 'top';
+            
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
@@ -192,6 +193,7 @@ classdef Plotter
             fig.Position = [0,0,20.635, 29.35];
             descrp = text(0.1,0.9,output_text{1},'FontName','FixedWidth','FontSize',8);
             descrp.VerticalAlignment = 'top';
+            
             print(fName,'-dpdf',fig,'-r0');
             close(fig);
         end
@@ -199,7 +201,7 @@ classdef Plotter
         %% Saves in/valid Subjects and status
         %   index: index as String
         %   fName: File name as String
-        function writeValid(self,index, fName)
+        function writeValid(self,index,fName)
             header = index(1:3);
             index = index(4:end);
             numberOfPages = ceil(length(index)/50);
@@ -250,7 +252,7 @@ classdef Plotter
         %  fName: Name of the File to write as String
         %  format: Format String 
         %  data: CellArray or Array 
-        function writeCSV(self,fName,format,data)
+        function writeCSV(self,fName,format,data) 
             fid = fopen(fName,'w');
             if iscell(data)
                 fprintf(fid,format,data{:});
@@ -268,8 +270,10 @@ classdef Plotter
         %  StimuDef: Simulus Class, with length, type, definition
         %  electrodes: contains all used electrodes as String
         %  vidFrameReSize: Contains struct with each video frame     
-        function printTopo(self,config,subject,EEG,StimuDef,electrodes)            
+        function printTopo(self,config,subject,StimuDef)
             % Variables needed for loop
+            EEG = subject.EEG;
+            electrodes = config.electrodes;
             numStimuInts = length(StimuDef);
             interval = config.TopoRange;
             subjectName = subject.name;
@@ -425,9 +429,9 @@ classdef Plotter
             if config.signalSpec == 1
                 allElectrodes = [];
                 for i = 1:numElec               
-                    header = [subject.Electrodes{i} + "_Theta_5-7Hz",subject.Electrodes{i} + "_Alpha_8-13Hz",...
-                              subject.Electrodes{i} + "_Beta1_14-24Hz",subject.Electrodes{i} + "_Beta2_25-45Hz",...
-                              subject.Electrodes{i} + "_TEI_Index"];
+                    header = [config.electrodes{i} + "_Theta_5-7Hz",config.electrodes{i} + "_Alpha_8-13Hz",...
+                              config.electrodes{i} + "_Beta1_14-24Hz",config.electrodes{i} + "_Beta2_25-45Hz",...
+                              config.electrodes{i} + "_TEI_Index"];
                     
                     signalsPerElectrode = subject.signalSpec(i:numElec:end,:);
                     signalsPerElectrode = cat(1,header,signalsPerElectrode);            
@@ -470,9 +474,9 @@ classdef Plotter
         %  subject: contains all Subjects 
         %  EEG: contains EEG Structur for topoplot function
         %  StimuDef: Simulus Class, with length, type, definition
-        function stimulusOverviewChart(self,config,subject,EEG,StimuDef)
-            
+        function stimulusOverviewChart(self,config,subject,StimuDef) 
             % Variables needed for loop
+            EEG = subject.EEG;
             numStimuInts = length(StimuDef);
             interval = config.BrainRange;
             TopoStart = 0;
@@ -717,7 +721,6 @@ classdef Plotter
         % data: data
         % srate: Frequency of the device used
         function barsimg = plotElectrodeBars(self,electrodes,startpos,endpos,data,srate)
-            
             % prepare plot
             numelec = length(electrodes);
             barsfig = figure('visible','off','DefaultAxesFontSize',12);
@@ -821,6 +824,7 @@ classdef Plotter
             set(gca,'YDir','normal')
             self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuIntName ' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
+            % file name
             fName = [subject.OutputDirectory '/' subject.name '_' StimuIntName '_recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
@@ -876,6 +880,8 @@ classdef Plotter
             ax = gca;
             self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
             title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
+            
+            % file name
             fName = [subject.OutputDirectory '/' subject.name '_EDA_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
@@ -886,7 +892,7 @@ classdef Plotter
         %  outputDir: Path to output directory as String
         %  frequencies: eeg frequency data for subject as CellArray of double[] 
         %  intervals: intervals of interest as int[]
-        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef,eegDevice)
+        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef,eegDevice)   
             EEGSamplingRate=eegDevice.samplingRate;
             intervals = StimuIntDef.intervals;
             stimuIntDescrp = StimuIntDef.stimuIntDescrp;
@@ -951,6 +957,8 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
+            
+            % file name
             fName = [outputDir '/' subjectName '_' stimuIntDescrp '_characteristics.pdf'];
             print(fName,'-dpdf',fig);
             close(fig);
@@ -1008,7 +1016,9 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            fName = [outputDir '/' subjName '_HRV.pdf'];
+            
+            % file name
+            fName = [outputDir '/' subjName '_HRV.pdf'];  
             print(fName,'-dpdf',fig);
             close(fig);
         end   
@@ -1021,7 +1031,7 @@ classdef Plotter
         %   rawValues. Second is percent outside for filtered values
         %   subject: Data of Subject
         %   config: Config  
-        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subject,electrode,config)
+        function plotRawEEGFigures(self,rawValues,filteredValues,quality,subject,electrode,config) 
             numRawValues = length(rawValues);
             numFilteredValues = length(filteredValues);
             fig = figure('visible', 'off');
@@ -1054,7 +1064,10 @@ classdef Plotter
             set(fig, 'PaperOrientation', 'landscape');
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            print([subject.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'],'-dpdf',fig);
+            
+            % file name
+            fName = [subject.OutputDirectory '/' subject.name '_' char(electrode) '_EEG.pdf'];
+            print(fName,'-dpdf',fig);
             close(fig);
         end 
      
@@ -1066,7 +1079,6 @@ classdef Plotter
         %   fPath: file path as String 
         %   stats: eda statistics for subject as String 
         function plotSubStimuIntEDA(self,StimuIntIndex,edaValues,StimuIntDefs,subjectName,fPath,stats)
-            
             numberofPages = ceil(length(StimuIntIndex)/5);
             index = 1;
             allValues=  edaValues(StimuIntIndex);
@@ -1140,7 +1152,7 @@ classdef Plotter
         %   fPath: Output file path
         %   edaValues: EDA values as double[]
         %   detrended: boolean 
-        function plotEDA(self,StimuIntDef,fPath,edaValues,detrended)
+        function plotEDA(self,StimuIntDef,fName,edaValues,detrended)
             % get scale and interval, starting points and Stimulus Interval
             % typs
             maxscale = max(edaValues);
@@ -1187,7 +1199,9 @@ classdef Plotter
             set(fig, 'PaperUnits', 'centimeters');
             set(fig, 'PaperPositionMode', 'auto');
             set(fig, 'PaperPosition', [0.2 0.1 29 20 ]);
-            print(fPath,'-dpdf',fig);
+            
+            % file name
+            print(fName,'-dpdf',fig);
             close(fig);
         end
         
@@ -1311,7 +1325,6 @@ classdef Plotter
         %   intervals: intervals of interest as int[]
         %   t_title: Diagramm title as String 
         function plotFrequencysWithBaselineMagnitude(self,edaPerStim,hrvPerStim,StimuIntLength,fPath,theta_s,alpha_s,beta1_s,beta2_s,task_s,baselineTheta,baselineAlpha,baselineBeta1,baselineBeta2,baselineTEI,baseline_EDA,baseline_HRV,intervals,t_title)
-
             fig = figure('Visible','off');
 			maxscale = (max([max(alpha_s) max(beta1_s) max(beta2_s) max(theta_s)]));
             numDataPoints = StimuIntLength*4; % Mutiply with 4, because of 4Hz

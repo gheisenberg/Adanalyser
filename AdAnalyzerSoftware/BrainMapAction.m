@@ -39,7 +39,7 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
         load Standard-10-20-Cap81.mat;
 
         % Data preparation
-        Usedelectrodes = subject.Electrodes;
+        Usedelectrodes = config.electrodes;
         numValues = subject.eegValuesForElectrodes; 
         numElectrodes = length(numValues);
         for j = 1:numElectrodes              

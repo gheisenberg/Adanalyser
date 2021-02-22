@@ -26,6 +26,16 @@ classdef PrepareAction
                 conf.OutputDirectory = conf.OutputDirectory(1:index(2)-1);
             end
             
+            % save used electodes in conifg
+            counter = 1;
+            conf.electrodes = {};
+            for i = 1:length(eegDevice.electrodePositions)
+                if eegDevice.electrodeState{i} == 1
+                    conf.electrodes{counter} = eegDevice.electrodePositions{i};
+                    counter = counter + 1;
+                end
+            end
+            
             % validate first all paths and settings and if OK 
             % then create the corresponding data
             isValid = self.configManager.validate(conf);

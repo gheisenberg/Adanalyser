@@ -133,7 +133,6 @@ classdef SubjectFactory
                 eegDevice.electrodePositions = removeEmptyPositions(~cellfun('isempty',removeEmptyPositions));
                 eegDevice.electrodeState = removeEmptyState(~cellfun('isempty',removeEmptyState));
                 subject.eegValuesForElectrodes = removeEmpty(~cellfun('isempty',removeEmpty));
-                subject.Electrodes = eegDevice.electrodePositions;
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
                 edaFileIndex = ~cellfun(@isempty,matches);
@@ -169,7 +168,7 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to array
-        function [electrodeEEGdata,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
+        function [EEGPerElectrode,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
             invalid = [];
             % get eeg files and split them
             [~,name,~] = fileparts(eegFile);
@@ -179,8 +178,8 @@ classdef SubjectFactory
             fileContents = textscan(fileID,'%d','Headerlines',1);
             fclose(fileID);
             eegRawValues =  fileContents{1};
-            electrodeEEGdata = ElectrodeEEGData();
-            electrodeEEGdata.electrode = electrodeName; 
+            EEGPerElectrode = ElectrodeEEGData();
+            EEGPerElectrode.electrode = electrodeName; 
             eegOffset = config.EEGCutoffValue;
             EEGSamplingRate = eegDevice.samplingRate;
             start = eegOffset*EEGSamplingRate;
@@ -192,8 +191,8 @@ classdef SubjectFactory
             % Cut of eeg values and create eeg matrix for each subject
             eegValsCutoff = eegRawValues(start:ende-1);
             eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
-            electrodeEEGdata.eegValues = eegValsCutoff;
-            electrodeEEGdata.eegMatrix = double(eegValsMatrix');
+            EEGPerElectrode.eegValues = eegValsCutoff;
+            EEGPerElectrode.eegMatrix = double(eegValsMatrix');
             end
         end
         

@@ -55,6 +55,7 @@ classdef FilterAction < handle
                 
                 if subject.isValid == 1 % Filter invalid subjects
                 numElectrodes = length(subject.eegValuesForElectrodes);
+                
                 %loop for each electrode position
                 for j=1:numElectrodes
                     eegValues = subject.eegValuesForElectrodes{j};
@@ -84,27 +85,27 @@ classdef FilterAction < handle
                         filteredEEGStim = filteredEEGValuesPerStim{v};
                         filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGStim); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
                     end
+                    
                     % save eegData per Stim
                     subject.eegPerStim = filteredEEGValuesPerStim;
                     % create subSampled Data and save it
                     subject.eegSubSample = self.singleSubsampleByFactorOf4(filteredEEGValuesPerStim,eegDevice);
                     % rate quality of each Stimulus Interval
-                    subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config.QualityIndex,j);
+                    subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config,j);
                     % calculate eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
                     subject.edaPerStim = edaValuesPerStim;
                      % calculate hrv values per StimulusInterval
                     hrvValuesPerStim = self.getValuesPerStimuInt(1,hrvValsPerSec,data.stimuIntDefs,subject.hrvValues);
                     subject.hrvPerStim = hrvValuesPerStim;
-
-                    
                 end
+                
                 % check for flag in config and prints out EEG Data 
                 if config.EEGData == 1
                     % calculate time and add labels to timeseries
                     time = 0:1/eegDevice.samplingRate:seconds;
                     time = ["Time [s]",time(2:end)];
-                    output = [subject.Electrodes num2cell(allEEGValues)];
+                    output = [config.electrodes num2cell(allEEGValues)];
                     % combine
                     output = [time; output];
                     fname = [subject.OutputDirectory '/' subject.name '_Filtered_EEG_Values.csv'];
@@ -133,6 +134,52 @@ classdef FilterAction < handle
                     output = [title;output];
                     fname = [subject.OutputDirectory '/' subject.name '_HRV_Values.csv'];
                     writematrix(output,fname,'Delimiter','semi')
+                end
+                
+                % create data for EEG Topology plots, if necessary 
+                if config.topoplot == 1 || config.brainactivity == 1
+                    % Preparing EEG Data for print
+                    % Import of Standard 10-20 System channel locs for electrodes
+                    load Standard-10-20-Cap81.mat;
+
+                    % Data preparation
+                    Usedelectrodes = config.electrodes;
+                    numElectrodes = length(subject.eegValuesForElectrodes);
+                    for j = 1:numElectrodes              
+                        ValuesEEG(:,j) =  subject.eegValuesForElectrodes{1, j}.eegValues;              
+                    end
+                    PlotDataOverTime = ValuesEEG';
+
+                    % needed variables for chanloc preparation
+                    chanloc = Chanloc; % get Chanloc included in Standard-10-20-Cap81.mat
+                    electrodes = Usedelectrodes'; % transfrom vector
+                    numUsedElectrodes = length(electrodes);
+                    lengthStandardChanloc = length(Chanloc);
+                    deleteRow = zeros(1,lengthStandardChanloc);
+                    SumDeleteRow = zeros(1,lengthStandardChanloc);
+
+                    % delete all unused electrode chanlocs
+                    for j = 1:numUsedElectrodes
+                        deleteRow = ismember({chanloc.labels}, electrodes{j});
+                        SumDeleteRow = SumDeleteRow + deleteRow;
+                    end
+                    SumDeleteRow = ~SumDeleteRow;
+                    % delete the unused rows
+                    chanloc(SumDeleteRow) = [];
+
+                    % Create EEG Structur which is used in Topology plot of
+                    % EEGLab libary
+                    EEG.data = PlotDataOverTime;        % data array (chans x frames x epochs)
+                    EEG.setname = subject.name;         % Set name = Number of subject
+                    EEG.chanlocs = chanloc;             % name of file containing names and positions of the channels on the scalp
+                    EEG.nbchan = length(EEG.chanlocs);  % number of channels in each epoch
+                    EEG.pnts = length(EEG.data);        % number of frames (time points) per epoch (trial)
+                    EEG.trials = 1;                     % number of epochs (trials) in the dataset (Allways 1 for now)
+                    EEG.srate = eegDevice.samplingRate; % sampling rate (in Hz)
+                    EEG.xmin = 0;                       % epoch start time (in seconds)
+                    EEG.xmax = (EEG.pnts-1)/EEG.srate;  % epoch end time (in seconds)
+                    
+                    subject.EEG = EEG;
                 end
                 
                 data.subjects{i} = subject;
@@ -184,7 +231,7 @@ classdef FilterAction < handle
             end
             % Add string with summary of the subject table
             validString(2) = {[num2str(num2str(isValid)) ' of ' num2str(numSubjects) ' subjects are valid']};
-            self.plotter.writeValid(validString,[config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
+            self.plotter.writeValid(validString, [config.OutputDirectory '/' 'Subject_Valid_Overview.pdf']);
 
             if isValid == 0
                 fprintf('\n\nNo valid subject found!\n\n');
@@ -260,37 +307,12 @@ classdef FilterAction < handle
         
         %% Stores invalid Electrodes in subject
         %   Sets isValid flag for each Electrode based on used qualityThreshold
-        function subjects = rateQuality(self,subjects,quality,stimuIntDefs,qualityThreshold,electrode) 
+        function subjects = rateQuality(self,subjects,quality,stimuIntDefs,config,electrode) 
+            qualityThreshold = config.QualityIndex;
             if any(quality > qualityThreshold)
-                    subjects.invalidElectrodes{end+1} = subjects.Electrodes{electrode};
+                    subjects.invalidElectrodes{end+1} = config.electrodes{electrode};
             end
         end
-        
-        %% Splits given StimuIntDef based on there SimulationsInterval
-        % Returns StimulusIntervals by their SimulationsInterval
-%         function [baselines,ads,other,clips]= getStimuIntIndiciesByType(self,stimuIntDefs)
-%             numStimuIntDefs = length(stimuIntDefs);
-%             baselines = zeros(1,numStimuIntDefs);
-%             ads = zeros(1,numStimuIntDefs);
-%             other = zeros(1,numStimuIntDefs);
-%             clips = zeros(1,numStimuIntDefs);
-%             for i=1:numStimuIntDefs
-%                 Stimu = stimuIntDefs{i};
-%                 if (contains(Stimu.stimuIntDescrp,'EDA Baseline'))
-%                     baselines(i) = i;
-%                 elseif (contains(Stimu.stimuIntDescrp,'TV Commercial'))
-%                     ads(i) = i;
-%                 elseif (contains(Stimu.stimuIntDescrp,'TV Programm'))
-%                     clips(i) = i;
-%                 else
-%                     other(i) = i;
-%                 end
-%             end
-%             baselines = baselines(baselines~=0);
-%             ads = ads(ads~=0);
-%             other = other(other~=0);
-%             clips = clips(clips~=0);
-%         end
     end
     
 end

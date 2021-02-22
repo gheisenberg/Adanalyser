@@ -11,7 +11,7 @@
 % Author: Tim Kreitzberg
 %
 
-classdef ElectrodeEEGData
+classdef EEGPerElectrode
     properties
         % parsed eeg values 
         eegValues={} 

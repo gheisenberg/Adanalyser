@@ -25,6 +25,7 @@ classdef ConfigManager
                 conf = oldConf;
                 return
             end
+            
             try
                 %Save strings in conf
                 if file~=0

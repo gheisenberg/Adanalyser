@@ -18,6 +18,7 @@ classdef Config
 		EEG_DEVICE=''
 		EDA_DEVICE=''
 		HRV_DEVICE=''
+        
         % Variables for output flags
         EEG_DEVICE_USED = 0
         FrequencyFig = 0
@@ -32,21 +33,27 @@ classdef Config
         Statistics = 0 
         topoplot = 1
         brainactivity = 1
+        
         % Variables forQuality Settings
         LowerThreshold = -100
         UpperThreshold = 100
         QualityIndex = 10
+        
         % Variables for Recurrence Treshhold
         RecurrenceThreshold = 0
         EEGCutoffValue = 10
+        
         % Variables for Topology Plot
         videoString = ''
         UserFrameRate = 30
         TopoRange = 2000
         BrainRange = 2000
         videoOutput = 1
-        % Variables for number of subject
+        
+        % Variables set at the start
         numSubjects = 0
+        electrodes = []
+        
         % Variables for export settings
         EEGData = 1
         EDAData = 1
