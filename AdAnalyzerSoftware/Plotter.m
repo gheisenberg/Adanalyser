@@ -277,20 +277,18 @@ classdef Plotter
             numStimuInts = length(StimuDef);
             interval = config.TopoRange;
             subjectName = subject.name;
-            TopoStart = 0;
-            timestamps = [];
+            
+            %create subfolder
+            subfolder_name = '2D_TopologyMap';
+                
+            if ~exist([subject.OutputDirectory '\' subfolder_name], 'dir')
+                parentfolder = subject.OutputDirectory;
+                mkdir(fullfile(parentfolder, subfolder_name));
+            end
             
             % loop for each Stimulus Interval
             for i = 1:numStimuInts
                 StimuInt = StimuDef{i};
-                
-                %create subfolder
-                subfolder_name = '2D_TopologyMap';
-                
-                if ~exist([subject.OutputDirectory '\' subfolder_name], 'dir')
-                parentfolder = subject.OutputDirectory;
-                mkdir(fullfile(parentfolder, subfolder_name));
-                end
                 
                 % video obj
                 vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
@@ -298,11 +296,8 @@ classdef Plotter
                 vidObj.Quality = 100;       
                 vidObj.FrameRate = config.UserFrameRate; % get framerate from video
                 
-                % prepare print range
-                TopoEnd = StimuInt.Stimulength *1000 + TopoStart; %1000 - Tim
-                range = TopoStart:interval:TopoEnd; % devided by 1000 to convert ms into s
-                range = double(range);
-                TopoStart = TopoEnd; % defined for the next loop
+                StimulusEnd = StimuInt.Stimulength *1000;
+                range = 0:interval:StimulusEnd;
                 
                 % only print Type > 4 = Video/Images/Audio Stimulus
                 if StimuInt.stimuIntType >= 4
@@ -315,18 +310,9 @@ classdef Plotter
                     vidFrame = read(vid,[1 numOfFrames]);
                     % resize video according to UserFrameRate
                     vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
-                    
-                    % prepare data for print
-                    SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-                    pos = round((range/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1; % Gernot / Tim -> 1000 abändern, auf mögliche 364 - Testen
-                        if pos(end) == EEG.pnts+1
-                            pos(end) = pos(end)-1; % Cut 1 so index of pnts and pos is ==
-                        end
-                    nanpos = find(isnan(pos));
-                    pos(nanpos) = 1;
-                    
-                    % create variable for .csv export with all timestamps
-                    timestamps = cat(1,timestamps,range(1:end-1)'/1000);
+                                       
+                    pos = range/1000*EEG.srate;
+                    pos(pos == 0) = 1; 
                     
                     % prepare task variable
                     numPos = length(pos)-1;
@@ -334,36 +320,12 @@ classdef Plotter
                     numElec = length(numValues);
                     task = zeros(numElec,numPos);
 
-                    % get TEI - has to calcualte seperatly because the user
-                    % can decide how the intervals between each Toplogy map
-                    % will be
+                    % get TEI 
                     for m = 1:numPos
-                        for j = 1:numElec
-                        % eegfiltfft is a eeglab function for (high|low|band) - 
-                        % pass filter data using inverse fft - for more
-                        % information please look at eegfiltfft.m
-                        
-                        % Theta(5-7 Hz)
-                        theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2)); %Warum wird Theta 0 bei Werten > 1000ms?
-                        % Alpha(8-13 Hz)
-                        alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
-                        % Beta1(14-24 Hz)
-                        beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
-                        % Beta2(25-40 Hz)
-                        beta2(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,25,40)).^2));
-                        % TEI Index
-                            if alpha(j) > 0 && theta(j) > 0 % Theta = 0 bei 900ms, geht in else - else war falsch programmiert
-                            task(j,m) = beta1(j)/(alpha(j)+theta(j));
-                            else
-                            task(j,m) = 0; % zeros(1,length(range)-1); alter Befehl, welcher für die erzeugung von einem ganzen Vector gedacht war
-                            end
+                        for j = 1:numElec                       
+                            task(j,m) = mean(subject.frequenciesPerElectorde{i,j,6}(pos(m):pos(m+1)));
                         end
-                        % get all signalSpec Data
-                        Signals = [theta; alpha; beta1;beta2;task(:,m)']';
-                        subject.signalSpec = cat(1,subject.signalSpec,Signals);
                     end
-                    
-                    
                     
                     % loop preperation
                     numofprint = length(range)-1;
@@ -380,15 +342,14 @@ classdef Plotter
                         % Print of 2D Topo
                         subplot(2,2,3);
                         % double () in case we want to add a multiplier
-                        title({['AVG TEI between ' num2str((range(k)-range(1))) '-' num2str((range(k+1)-range(1))) 'ms'];...
-                               ['in test range from ' num2str((range(k))) '-' num2str((range(k+1))) 'ms'               ]});
+                        title({['AVG TEI between ' num2str(range(k)) '-' num2str(range(k+1)) 'ms']});
                         % topoplot is a function of the eeglab libary
                         topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
                         cb = colorbar;
                         cb.Limits = [0,1];
 
                         % print of histogram
-                        barsimg = self.plotElectrodeBars(electrodes,pos(k),pos(k+1),SIGTMP,EEG.srate);    
+                        barsimg = self.plotElectrodeBars(electrodes,subject.frequenciesPerElectorde,[pos(k) pos(k+1)],i);
                         barschart = subplot(2,2,4);
                         barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
                         imshow(barsimg);
@@ -426,43 +387,6 @@ classdef Plotter
                     end     
                 end
             end
-            if config.signalSpec == 1
-                allElectrodes = [];
-                for i = 1:numElec               
-                    header = [config.electrodes{i} + "_Theta_5-7Hz",config.electrodes{i} + "_Alpha_8-13Hz",...
-                              config.electrodes{i} + "_Beta1_14-24Hz",config.electrodes{i} + "_Beta2_25-45Hz",...
-                              config.electrodes{i} + "_TEI_Index"];
-                    
-                    signalsPerElectrode = subject.signalSpec(i:numElec:end,:);
-                    signalsPerElectrode = cat(1,header,signalsPerElectrode);            
-                    allElectrodes = cat(2,allElectrodes,signalsPerElectrode); 
-                end    
-                % calculate AVG.         
-                avgTheta = mean(str2double(allElectrodes(2:end,1:5:end)),2);
-                avgAlpha = mean(str2double(allElectrodes(2:end,2:5:end)),2);
-                avgBeta1 = mean(str2double(allElectrodes(2:end,3:5:end)),2);
-                avgBeta2 = mean(str2double(allElectrodes(2:end,4:5:end)),2);
-                avgTEI = mean(str2double(allElectrodes(2:end,5:5:end)),2);
-                
-                avgTheta = cat(1,"AVG_Theta_5-7Hz",avgTheta);
-                avgAlpha  = cat(1,"AVG__Alpha_8-13Hz",avgAlpha);
-                avgBeta1  = cat(1,"AVG_Beta1_14-24Hz",avgBeta1);
-                avgBeta2  = cat(1,"AVG_Beta2_25-45Hz",avgBeta2);
-                avgTEI = cat(1,"AVG_TEI_Index",avgTEI);
-                
-                allElectrodes = cat(2,avgTEI,allElectrodes);
-                allElectrodes = cat(2,avgBeta2,allElectrodes);
-                allElectrodes = cat(2,avgBeta1,allElectrodes);
-                allElectrodes = cat(2,avgAlpha,allElectrodes);
-                allElectrodes = cat(2,avgTheta,allElectrodes);
-                
-                % add time
-                timestamps = ["Time[s]";timestamps];
-                allElectrodes = cat(2,timestamps,allElectrodes);
-                
-                fname = [subject.OutputDirectory '/' subject.name '_PowerSignalSpectra_Values.csv'];
-                writematrix(allElectrodes,fname,'Delimiter','semi');
-            end
         end
         
         %% Overview of all Simulus in one chart 
@@ -474,95 +398,66 @@ classdef Plotter
         %  subject: contains all Subjects 
         %  EEG: contains EEG Structur for topoplot function
         %  StimuDef: Simulus Class, with length, type, definition
-        function stimulusOverviewChart(self,config,subject,StimuDef) 
+        function stimulusOverviewChart(self,config,subject,StimuDef,StimulusIndex) 
             % Variables needed for loop
             EEG = subject.EEG;
-            numStimuInts = length(StimuDef);
             interval = config.BrainRange;
-            TopoStart = 0;
-            rangeAll = 0;
-            StimulusIntervals = 0;
             StimuIntDefinitions = [];
+            numElec = length(config.electrodes);
+            numStimuInt = length(StimulusIndex);
             
             % main figure
             mainfig = figure('Visible','off');
-            drawnow;
             set(mainfig,'Units','pixels');
             
-            % prepare vector to draw lines
-            counter = 0; %counter to save first TopoStart 
-            for i = 1:numStimuInts
-                StimuInt = StimuDef{i};
-                if StimuInt.stimuIntType <= 3
-                    TopoStart = TopoStart + double(StimuInt.Stimulength*1000);
-                end
-                if StimuInt.stimuIntType > 3
-                    % Initialisation for first loop
-                    if counter == 0
-                        rangeAll = TopoStart;
-                    end
-                    counter = counter + 1;
-                    % prepare print range
-                    % creates vector range from start to end in a certain
-                    % interval
-                    TopoEnd = StimuInt.Stimulength*1000 + TopoStart;
-                    range = TopoStart:interval:TopoEnd;
-                    range = double(range);
-                    if range(end) ~= TopoEnd
-                        range(end+1) = TopoEnd;
-                    end
-                    TopoStart = TopoEnd; % defined for the next loop
-                    
-                    % save the ranges between each head for all stimlus
-                    % intervals
-                    rangeAll = [rangeAll range(1,2:end)];
-                    if StimulusIntervals == 0
-                        StimulusIntervals = size(rangeAll);
-                        StimulusIntervals(2) = StimulusIntervals(2)-1;
-                    else
-                        StimulusIntervals = [StimulusIntervals, StimulusIntervals(end)+1,length(rangeAll)-1];
-                    end
-                    
-                    StimuIntDefinitions = [StimuIntDefinitions, convertCharsToStrings(StimuInt.stimuIntDescrp)];
-                end
+            % prelocate size of vectors for speed
+            totalLength = 0;
+            taskcounter = 0;
+            for i = StimulusIndex
+                totalLength = StimuDef{1, i}.Stimulength + totalLength;
             end
-
-            % prepare data for print
-            SIGTMP = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-            pos = round((rangeAll/1000-EEG.xmin)/(EEG.xmax-EEG.xmin) * (EEG.pnts-1))+1;
-            if pos(end) == EEG.pnts+1
-                pos(end) = pos(end)-1; % Cut 1 so index of pnts and pos is ==
-            end
-            nanpos = find(isnan(pos));
-            pos(nanpos) = 1;
-
-            % prepare task variable
-            numPrints = length(pos)-1;
-            numValues = subject.eegValuesForElectrodes; 
-            numElec = length(numValues);
+            numPrints = (totalLength*1000)/interval;
             task = zeros(numElec,numPrints);
+            
+            % prelocate time
+            time = 0:interval:totalLength*1000;
+                
+            % prepare vector to draw lines
+            for indexStim = StimulusIndex
+                
+                % get current Stimulus Interval
+                StimuInt = StimuDef{indexStim};
+                    
+                % get first and last postioin of each Stimulus Interval
+                StimulusIntervals = zeros(1,numStimuInt*2);
+                preNumber = 2;
+                for i = 2:2:numStimuInt*2
+                    StimulusIntervals(i-1) = 1 + StimulusIntervals(preNumber);
+                    StimulusIntervals(i) = (StimuInt.Stimulength*1000)/interval + StimulusIntervals(preNumber);
+                    preNumber = i;
+                end
+                
+                % save the Name
+                StimuIntDefinitions = [StimuIntDefinitions, convertCharsToStrings(StimuInt.stimuIntDescrp)];
+                
+                % get postions for TEI
+                StimulusEnd = StimuInt.Stimulength *1000;
+                invervalStim = 0:interval:StimulusEnd;
 
-            % get TEI
-            for m = 1:numPrints
-                for j = 1:numElec
-                    % Theta(5-7 Hz)
-                    theta(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,5,7)).^2));
-                    % Alpha(8-13 Hz)
-                    alpha(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,8,13)).^2));
-                    % Beta1(14-24 Hz)
-                    beta1(j) = mean(sqrt((eegfiltfft(SIGTMP(j,pos(m):pos(m+1),:),EEG.srate,14,24)).^2));
-                    % Task-Engagement
-                    if alpha(j) > 0 && theta(j) > 0
-                        task(j,m) = beta1(j)/(alpha(j)+theta(j));
-                    else
-                        task(j,m) = 0;
+                pos = invervalStim/1000*EEG.srate;
+                pos(pos == 0) = 1;
+
+                for counter = 1:length(invervalStim)-1
+                    taskcounter = taskcounter + 1;
+                    for indexElec = 1:numElec
+                        task(indexElec,taskcounter) = mean(subject.frequenciesPerElectorde{indexStim,indexElec,6}(pos(counter):pos(counter+1)));
                     end
                 end
             end
-
             
             % print preparation
             sizey = 300; % height of image
+            numPrints = length(task);
             Pos = cell(1,numPrints); % vector for position
             topoX = 100; % X position of first head in print
             mainfig.Position = [mainfig.Position(1), mainfig.Position(2), (numPrints*150) , sizey]; 
@@ -610,7 +505,7 @@ classdef Plotter
                 %pause(drawforce) % force figure update
                 timeLine.LineWidth = 1;
                 % timestamp text
-                str = strcat(num2str(rangeAll(index+1)-rangeAll(1)),' ms');
+                str = strcat(num2str(time(index+1)),' ms');
                 timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
                 drawnow 
                 %pause(drawforce) % force figure update
@@ -641,8 +536,8 @@ classdef Plotter
                     linesPos = linesPos + 1;
                     
                     % timestamp text
-                    if length(rangeAll) > linesPos
-                    str = strcat(num2str(rangeAll(linesPos)-rangeAll(1)),' ms');
+                    if length(time) > linesPos
+                    str = strcat(num2str(time(linesPos)),' ms');
                     addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
                     drawnow 
                     %pause(drawforce) % force figure update
@@ -720,27 +615,25 @@ classdef Plotter
         % startpos/endpos: Range of the printed data
         % data: data
         % srate: Frequency of the device used
-        function barsimg = plotElectrodeBars(self,electrodes,startpos,endpos,data,srate)
+        function barsimg = plotElectrodeBars(self,electrodes,data,pos,Stimulus)
             % prepare plot
             numelec = length(electrodes);
             barsfig = figure('visible','off','DefaultAxesFontSize',12);
             set(barsfig,'color','w');
             set(barsfig,'Position', [1, 1, 1200, 1200]);
-            data = data(:,startpos:endpos);
-            
-            % get frequency bands
             for i = 1:numelec
                 % Delta (1-4 Hz)
-                delta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,1,4)).^2));
+                delta(i) = mean(data{Stimulus,i,1}(pos(1):pos(2)));                              
                 % Theta(5-7 Hz)
-                theta(i) = mean(sqrt((eegfiltfft(data(i,:),srate,5,7)).^2));
+                theta(i) = mean(data{Stimulus,i,2}(pos(1):pos(2)));
                 % Alpha(8-13 Hz)
-                alpha(i) = mean(sqrt((eegfiltfft(data(i,:),srate,8,13)).^2));
+                alpha(i) = mean(data{Stimulus,i,3}(pos(1):pos(2)));
                 % Beta1(14-24 Hz)
-                beta1(i) = mean(sqrt((eegfiltfft(data(i,:),srate,14,24)).^2));
+                beta1(i) = mean(data{Stimulus,i,4}(pos(1):pos(2)));
                 % Beta2(25-40 Hz)
-                beta2(i) = mean(sqrt((eegfiltfft(data(i,:),srate,25,40)).^2));
+                beta2(i) = mean(data{Stimulus,i,5}(pos(1):pos(2)));
             end
+            
             allfreq = [delta theta alpha beta1 beta2];
             ymax = max(max(allfreq)); % y max for graph
             

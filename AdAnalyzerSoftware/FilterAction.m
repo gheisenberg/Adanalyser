@@ -75,7 +75,7 @@ classdef FilterAction < handle
                     % calculate eeg values per Stimulus Interval
                     eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
                     filteredEEGValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); 
-                    eegValues.filteredEEGPerVid = filteredEEGValuesPerStim;
+                    eegValues.filteredEEGPerStimu = filteredEEGValuesPerStim;
                     % save EGG Values in vector to write out csv
                     allEEGValues(j,:) = filteredList';
                     eegValues.eegValues = filteredList';
@@ -105,7 +105,7 @@ classdef FilterAction < handle
                     % calculate time and add labels to timeseries
                     time = 0:1/eegDevice.samplingRate:seconds;
                     time = ["Time [s]",time(2:end)];
-                    output = [config.electrodes num2cell(allEEGValues)];
+                    output = [config.electrodes' num2cell(allEEGValues)];
                     % combine
                     output = [time; output];
                     fname = [subject.OutputDirectory '/' subject.name '_Filtered_EEG_Values.csv'];
@@ -181,7 +181,7 @@ classdef FilterAction < handle
                     
                     subject.EEG = EEG;
                 end
-                
+          
                 data.subjects{i} = subject;
                 waitbar(i/numSubjects);
                 end       
@@ -302,6 +302,27 @@ classdef FilterAction < handle
                 eegStimuIntEnd = StimuIntStart+eegStimuIntLength-1;
                 splittedValues{i} = values(StimuIntStart:eegStimuIntEnd);
                 StimuIntStart = StimuIntStart+eegStimuIntLength;
+            end
+        end
+        
+        %% Calcualtes the mean Value of the EEG for each Stimulus/Subject
+        function meanEEGPerStim = calculateMeanEEGValuesForStimuInt(self,subject)
+            numElectrodes = length(subject.eegValuesForElectrodes);
+            eegForElectrode = subject.eegValuesForElectrodes{1};
+            numStimuInt = length(eegForElectrode.filteredEEGPerStimu);
+            meanEEGPerStim = cell(1,numStimuInt);
+            % cycle through Simulus Intervals and electrodes
+            for i = 1:numStimuInt
+                meanEEGPerStim{i} = eegForElectrode.filteredEEGPerStimu{i};
+                for j = 2:numElectrodes
+                    valuesForElectrode = subject.eegValuesForElectrodes{j}.filteredEEGPerStimu{i}; 
+                    previousValues = meanEEGPerStim{i}; 
+                    meanEEGPerStim{i} = previousValues+valuesForElectrode;
+                end
+                numValues = length(meanEEGPerStim{i});
+                for j = 1:numValues
+                    meanEEGPerStim{i}(j) = meanEEGPerStim{i}(j)/numElectrodes;
+                end
             end
         end
         

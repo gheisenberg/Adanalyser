@@ -8,6 +8,7 @@
 classdef SubjectFactory
     
     properties 
+        eegValuesForElectrodes = EEGPerElectrode;
     end
     
     methods
@@ -168,7 +169,7 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to array
-        function [EEGPerElectrode,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
+        function [eegPerElectrode,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
             invalid = [];
             % get eeg files and split them
             [~,name,~] = fileparts(eegFile);
@@ -178,8 +179,8 @@ classdef SubjectFactory
             fileContents = textscan(fileID,'%d','Headerlines',1);
             fclose(fileID);
             eegRawValues =  fileContents{1};
-            EEGPerElectrode = ElectrodeEEGData();
-            EEGPerElectrode.electrode = electrodeName; 
+            eegPerElectrode = EEGPerElectrode();
+            eegPerElectrode.electrode = electrodeName; 
             eegOffset = config.EEGCutoffValue;
             EEGSamplingRate = eegDevice.samplingRate;
             start = eegOffset*EEGSamplingRate;
@@ -191,8 +192,8 @@ classdef SubjectFactory
             % Cut of eeg values and create eeg matrix for each subject
             eegValsCutoff = eegRawValues(start:ende-1);
             eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
-            EEGPerElectrode.eegValues = eegValsCutoff;
-            EEGPerElectrode.eegMatrix = double(eegValsMatrix');
+            eegPerElectrode.eegValues = eegValsCutoff;
+            eegPerElectrode.eegMatrix = double(eegValsMatrix');
             end
         end
         

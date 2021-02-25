@@ -17,9 +17,8 @@ classdef EEGPerElectrode
         eegValues={} 
         % Matrix representation of the eeg values [seconds X Values per second; double]
         eegMatrix={} 
-        filteredEEGPerVid = {}
+        filteredEEGPerStimu = {}
         %State of electrode
         electrode
     end
 end
-

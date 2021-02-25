@@ -24,12 +24,12 @@ classdef Subject
         % invalid electrodes for subject
         invalidElectrodes = []
         
-        % raw values
+        % filterd values set during FilterAction
+        % data values
         edaValues= {}
         hrvValues= {}
         eegValuesForElectrodes = {}
         
-        % filterd values set during FilterAction
         % values per Stimlus
         edaPerStim = {}
         eegPerStim = {}
@@ -41,6 +41,7 @@ classdef Subject
         % frequency data
         frequencies = {}
         frequenciesSubedBy4 = {}
+        frequenciesPerElectorde = {}
         
         % EEG structure for Topolody Plot
         EEG = {}
