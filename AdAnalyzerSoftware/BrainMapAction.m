@@ -40,12 +40,12 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
 
         % Data preparation
         Usedelectrodes = config.electrodes;
-        numValues = subject.eegValuesForElectrodes; 
+        numValues = subject.eegDataPerElectrode; 
         numElectrodes = length(numValues);
         for j = 1:numElectrodes              
-            eegValues(:,j) =  subject.eegValuesForElectrodes{1, j}.eegValues;     
+            eegValuesAllElectrodes(:,j) =  subject.eegDataPerElectrode{1, j}.eegValues;     
         end
-        PlotDataOverTime = eegValues';
+        PlotDataOverTime = eegValuesAllElectrodes';
 
         % needed variables for chanloc preparation
         chanloc = Chanloc; % get Chanloc included in Standard-10-20-Cap81.mat
@@ -118,7 +118,7 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
 
         % prepare task variable
         numPos = length(pos)-1;
-        numValues = subject.eegValuesForElectrodes; 
+        numValues = subject.eegDataPerElectrode; 
         numElec = length(numValues);
         task = zeros(numElec,numPos);
 
@@ -184,9 +184,6 @@ function BrainMapAction(StimulusChosen,interval,timeframe,videoRes)
             set(mainfig,'units','pixels','position',[0 0 videoRes(1) videoRes(2)]) 
             set(gcf,'renderer','opengl') 
             drawnow nocallbacks
-
-            % add to test VM - delete comment
-            % set(videoObj, 'LoggingMode', 'memory');
 
             %create video in plot
             for t = 1:vidObj.FrameRate

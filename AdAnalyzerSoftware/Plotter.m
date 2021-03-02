@@ -19,7 +19,7 @@ classdef Plotter
         %   config: contains all configs as String
         %   fName: File name as String
         %   Devices: contains settings of different devices
-        function writeSettings(self,config,eegDevice,edaDevice,hrvDevice, subjects, fName)    
+        function writeSettings(self,config,eegDevice,edaDevice,hrvDevice, fName)    
             fatbraid="===========================================================" + newline;
             thinbraid="------------------------------------------------------" + newline;
             
@@ -135,7 +135,7 @@ classdef Plotter
                 
                 % Stimulus length
                 CharStimuLength = blanks(15);
-                CharStimuLength([9:15]) = 'seconds';
+                CharStimuLength(9:15) = 'seconds';
                 % Maintain the length of the stimulus and place it in the 
                 % respective place
                 % 1 = 1 digit number, 2 digit number or 3 digit number
@@ -154,7 +154,7 @@ classdef Plotter
                 % create blank char array
                 % type allways have to be a one digit number
                 CharStimuType = blanks(13);
-                CharStimuType([8:11]) = 'Type';
+                CharStimuType(8:11) = 'Type';
                 CharStimuType(13) = num2str(StimuInt{1, i}.stimuIntType);
                 
                 % Stimulus Description
@@ -164,7 +164,7 @@ classdef Plotter
                 % respective place
                 CharStimuDesc = blanks(20);
                 CharStartDesc = 20-length(StimuInt{1, i}.stimuIntDescrp)+1;
-                CharStimuDesc([CharStartDesc:end]) = StimuInt{1, i}.stimuIntDescrp;
+                CharStimuDesc(CharStartDesc:end) = StimuInt{1, i}.stimuIntDescrp;
                 
                 % Stimulus Intervals
                 CharStimuInt = blanks(26);            
@@ -178,7 +178,7 @@ classdef Plotter
                     IntChar = append(IntChar,' ');
                 end
                 CharStartInt = 26-length(IntChar)+1;
-                CharStimuInt([CharStartInt:end]) = IntChar;
+                CharStimuInt(CharStartInt:end) = IntChar;
                 
                 % Save text
                 output_text= strcat(output_text,[CharStimuLength ' | ' CharStimuType ' | ' CharStimuDesc ' | ' CharStimuInt]);
@@ -316,14 +316,14 @@ classdef Plotter
                     
                     % prepare task variable
                     numPos = length(pos)-1;
-                    numValues = subject.eegValuesForElectrodes; 
+                    numValues = subject.eegDataPerElectrode; 
                     numElec = length(numValues);
                     task = zeros(numElec,numPos);
 
                     % get TEI 
                     for m = 1:numPos
                         for j = 1:numElec                       
-                            task(j,m) = mean(subject.frequenciesPerElectorde{i,j,6}(pos(m):pos(m+1)));
+                            task(j,m) = mean(subject.eegDataPerElectrode{j}.eegSpecBandPerStim{i,6}(pos(m):pos(m+1)));
                         end
                     end
                     
@@ -349,7 +349,7 @@ classdef Plotter
                         cb.Limits = [0,1];
 
                         % print of histogram
-                        barsimg = self.plotElectrodeBars(electrodes,subject.frequenciesPerElectorde,[pos(k) pos(k+1)],i);
+                        barsimg = self.plotElectrodeBars(electrodes,subject.eegDataPerElectrode,[pos(k) pos(k+1)],i);
                         barschart = subplot(2,2,4);
                         barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
                         imshow(barsimg);
@@ -372,7 +372,7 @@ classdef Plotter
                             %create video in plot
                             for t = 1:vidObj.FrameRate
                                 % insert video frames
-                                videochart = subplot(2,2,[1 2]);
+                                subplot(2,2,[1 2]);
                                 imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*k)));
                                 
                                 % get frame from figure
@@ -450,7 +450,7 @@ classdef Plotter
                 for counter = 1:length(invervalStim)-1
                     taskcounter = taskcounter + 1;
                     for indexElec = 1:numElec
-                        task(indexElec,taskcounter) = mean(subject.frequenciesPerElectorde{indexStim,indexElec,6}(pos(counter):pos(counter+1)));
+                        task(indexElec,taskcounter) = mean(subject.eegDataPerElectrode{indexElec}.eegSpecBandPerStim{indexStim,6}(pos(counter):pos(counter+1)));
                     end
                 end
             end
@@ -621,33 +621,40 @@ classdef Plotter
             barsfig = figure('visible','off','DefaultAxesFontSize',12);
             set(barsfig,'color','w');
             set(barsfig,'Position', [1, 1, 1200, 1200]);
-            for i = 1:numelec
+            
+            delta = zeros(1,numelec);
+            theta = zeros(1,numelec);
+            alpha = zeros(1,numelec);
+            beta1 = zeros(1,numelec);
+            beta2 = zeros(1,numelec);
+            
+            for indexEle = 1:numelec
                 % Delta (1-4 Hz)
-                delta(i) = mean(data{Stimulus,i,1}(pos(1):pos(2)));                              
+                delta(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,1}(pos(1):pos(2)));                              
                 % Theta(5-7 Hz)
-                theta(i) = mean(data{Stimulus,i,2}(pos(1):pos(2)));
+                theta(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,2}(pos(1):pos(2)));
                 % Alpha(8-13 Hz)
-                alpha(i) = mean(data{Stimulus,i,3}(pos(1):pos(2)));
+                alpha(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,3}(pos(1):pos(2)));
                 % Beta1(14-24 Hz)
-                beta1(i) = mean(data{Stimulus,i,4}(pos(1):pos(2)));
+                beta1(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,4}(pos(1):pos(2)));
                 % Beta2(25-40 Hz)
-                beta2(i) = mean(data{Stimulus,i,5}(pos(1):pos(2)));
+                beta2(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,5}(pos(1):pos(2)));
             end
             
             allfreq = [delta theta alpha beta1 beta2];
             ymax = max(max(allfreq)); % y max for graph
             
             % Print
-            for i = 1:numelec
+            for indexEle = 1:numelec
                 hold on
                 % create subplot for each electrode
-                subplot(3,3,i);
+                subplot(3,3,indexEle);
                 names = categorical({'delta','theta','alpha','beta1','beta2'});
                 names = reordercats(names,{'delta','theta','alpha','beta1','beta2'});
-                bars = [delta(i), theta(i), alpha(i), beta1(i), beta2(i)];
+                bars = [delta(indexEle), theta(indexEle), alpha(indexEle), beta1(indexEle), beta2(indexEle)];
                 h = bar(names,bars,'FaceColor','flat');
                 ylim([0 ymax]);
-                title(electrodes(i),'FontSize', 24)
+                title(electrodes(indexEle),'FontSize', 24)
                 % recolor bars
                 h.CData(1,:) = [1 0 0];
                 h.CData(2,:) = [0.8500 0.3250 0.0980];
@@ -669,8 +676,7 @@ classdef Plotter
         function plotHRVRecurrence(self,subject,config,StimuIntName,hrvData,StimuIntDefs)
             % get the timestamps for each interval over the hole timeframe
             % see function for further explanation
-            [~,StimuIntLabels,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDefs);
-            plotLenght = length(hrvData);
+            [~,~,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDefs);
             N = length(hrvData);
             S = zeros(N, N);
             time = 1:N; % zeros(N,1);
@@ -727,15 +733,15 @@ classdef Plotter
         %  config: Config 
         %  StimuIntName: String
         %  edaData: EDA values for Subject as double[] 
-        function plotEDARecurrence(self,subject,config,StimuInt,edaData,edaDevice)
+        function plotEDARecurrence(self,subject,config,StimuIntDefs,edaData,edaDevice)
+            % get the timestamps for each interval over the hole timeframe
+            % see function for further explanation
+            [~,~,intervals,~] = self.calculateStimuIntStartPointsAndIntervals(StimuIntDefs);
+            
             SamplingRate=edaDevice.samplingRate;
             N = length(edaData);
             S = zeros(N, N);
             time = 1:length(edaData)/SamplingRate;
-            % Calculate time in seconds for x axis % Obsolet
-%             for i=1:N
-%                 time(i) = round(sum(edaData(1:i))/5);
-%             end
             for i = 1:N
                 S(:,i) = abs( repmat( edaData(i), N, 1 ) - edaData(:) );
             end
@@ -756,8 +762,8 @@ classdef Plotter
             set(freez, 'Position', [0.75 0.585 0.05 0.34]);
             % plot marker
             ax = gca;
-            self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
-            title(['Distance map of ' StimuInt.stimuIntDescrp ' phase space trajectory for subject' subject.name]);    
+            self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r'); %changed
+            title(['Distance map of  EDA data phase space trajectory for subject' subject.name]); %changed   
             subplot(2,1,2);
             maxDiff = max(max(S) - min(S))*0.001;
             if (config.RecurrenceThreshold ~= 0)
@@ -771,11 +777,11 @@ classdef Plotter
             set(gca,'YDir','normal')
             % plot marker
             ax = gca;
-            self.plotIntervals(StimuInt.intervals,[0, ax.YLim(2)],1,[],'r');
-            title([StimuInt.stimuIntDescrp ' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
+            self.plotIntervals(intervals,[0, ax.YLim(2)],1,[],'r');
+            title([' recurrence plot for subject ' subject.name ' with threshold ' num2str(maxDiff)]);
             
             % file name
-            fName = [subject.OutputDirectory '/' subject.name '_EDA_' StimuInt.stimuIntDescrp ' _recurrence.pdf'];
+            fName = [subject.OutputDirectory '/' subject.name '_EDA_recurrence.pdf'];
             print(fName,'-dpdf',fig);
         end
         
@@ -785,7 +791,7 @@ classdef Plotter
         %  outputDir: Path to output directory as String
         %  frequencies: eeg frequency data for subject as CellArray of double[] 
         %  intervals: intervals of interest as int[]
-        function plotBehavioralCharacteristics(self,subjectName,StimuIntNum,outputDir,frequencies,StimuIntDef,eegDevice)   
+        function plotBehavioralCharacteristics(self,subjectName,outputDir,frequencies,StimuIntDef,eegDevice)   
             EEGSamplingRate=eegDevice.samplingRate;
             intervals = StimuIntDef.intervals;
             stimuIntDescrp = StimuIntDef.stimuIntDescrp;
@@ -994,7 +1000,6 @@ classdef Plotter
                     end
                     StimuIntType = StimuIntDefs{1,i}(1);
                     StimuIntLength = StimuIntDefs{i}.Stimulength;
-                    labels = [];
                     % get x Axis for long and short Stimulus Intervals
                     if StimuIntLength > 1000
                         xAxis = 0:100:StimuIntLength;
@@ -1417,6 +1422,7 @@ classdef Plotter
                     scaleFactor = dataLength/max(xAxis);
                     xtime = xAxis * scaleFactor;
                     
+                    resultFreq = zeros(1,dataLength-2);
                     for i = 3:dataLength
                         mean1 = (mean1 +  tMean .*(signalData(i) - mean1));
 
@@ -1433,7 +1439,7 @@ classdef Plotter
                         mean3 = mean3 +  tFreq*(w - mean3);
 
                         % Just count half of the zero-crossings => /2
-                        resultFreq = [resultFreq mean3/2];
+                        resultFreq(i-2) = mean3/2;
                     end
 
                     % plot
@@ -1481,8 +1487,8 @@ classdef Plotter
         % the individual intervals to convert them into an interval vector 
         % over the whole timeframe of the data
         function [StimuIntStartPoints,StimuIntLabels,intervals,completeVidLength] = calculateStimuIntStartPointsAndIntervals(self,StimuIntDef)
-            StimuIntStartPoints = [];
-            StimuIntLabels={};
+            StimuIntStartPoints = zeros(1,length(StimuIntDef));
+            StimuIntLabels= cell(1,length(StimuIntDef));
             intervals = [];
             completeVidLength =0;
             for i=1:length(StimuIntDef)

@@ -11,14 +11,17 @@
 % Author: Tim Kreitzberg
 %
 
-classdef EEGPerElectrode
+classdef EEGData
     properties
-        % parsed eeg values 
-        eegValues={} 
-        % Matrix representation of the eeg values [seconds X Values per second; double]
-        eegMatrix={} 
-        filteredEEGPerStimu = {}
-        %State of electrode
-        electrode
+        % Bandpassed eeg Values (1-49 Hz)/for each Stimulus Interval
+        eegValues = {}
+        eegPerStim = {} 
+        
+        % Bandpassed eeg data subsampeld by 4
+        eegValuesSubedBy4 = {} 
+        
+        % Spectrum Band (Alpha,Beta1,..) for EEG data/data subsampeld by 4
+        eegSpecBand = {}
+        eegSpecBandSubedBy4 = {}
     end
 end

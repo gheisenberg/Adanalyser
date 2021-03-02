@@ -8,7 +8,8 @@
 classdef SubjectFactory
     
     properties 
-        eegValuesForElectrodes = EEGPerElectrode;
+        eegData = EEGData;
+        eegDataPerElectrode = EEGDataPerElectrode;
     end
     
     methods
@@ -103,7 +104,7 @@ classdef SubjectFactory
                     if ElectrodesStates{k} == 1
                         if eegFileIndicies > 0
                             eegFileForSubject = subjectlist{eegFileIndicies}; 
-                            [subject.eegValuesForElectrodes{k},Validation] = self.parseEEGFile(config,eegFileForSubject,StimuIntLength,eegDevice);
+                            [subject.eegDataPerElectrode{k},Validation] = self.parseEEGFile(config,eegFileForSubject,StimuIntLength,eegDevice);
                             if Validation ~= 0
                                 fprintf(['The EEG File of subject ' subjectName ' for electrode ' Validation ' is too short!\n'])
                                 fprintf('This subject will neither be filtered nor analyzed!\n\n')
@@ -129,11 +130,11 @@ classdef SubjectFactory
                 % Get empty rows
                 removeEmptyPositions = eegDevice.electrodePositions;
                 removeEmptyState = eegDevice.electrodeState;
-                removeEmpty = subject.eegValuesForElectrodes;
+                removeEmpty = subject.eegDataPerElectrode;
                 % delete empty rows
                 eegDevice.electrodePositions = removeEmptyPositions(~cellfun('isempty',removeEmptyPositions));
                 eegDevice.electrodeState = removeEmptyState(~cellfun('isempty',removeEmptyState));
-                subject.eegValuesForElectrodes = removeEmpty(~cellfun('isempty',removeEmpty));
+                subject.eegDataPerElectrode = removeEmpty(~cellfun('isempty',removeEmpty));
                 % get eda file for subject by subject name
                 matches = strfind(edaFilePaths,subjectName);
                 edaFileIndex = ~cellfun(@isempty,matches);
@@ -169,7 +170,7 @@ classdef SubjectFactory
  
         
         %% Parses EEG file to array
-        function [eegPerElectrode,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
+        function [eegDataPerElectrode,invalid] = parseEEGFile(self,config,eegFile,StimuIntLength,eegDevice)
             invalid = [];
             % get eeg files and split them
             [~,name,~] = fileparts(eegFile);
@@ -179,8 +180,8 @@ classdef SubjectFactory
             fileContents = textscan(fileID,'%d','Headerlines',1);
             fclose(fileID);
             eegRawValues =  fileContents{1};
-            eegPerElectrode = EEGPerElectrode();
-            eegPerElectrode.electrode = electrodeName; 
+            eegDataPerElectrode = EEGDataPerElectrode();
+            eegDataPerElectrode.electrode = electrodeName; 
             eegOffset = config.EEGCutoffValue;
             EEGSamplingRate = eegDevice.samplingRate;
             start = eegOffset*EEGSamplingRate;
@@ -192,8 +193,8 @@ classdef SubjectFactory
             % Cut of eeg values and create eeg matrix for each subject
             eegValsCutoff = eegRawValues(start:ende-1);
             eegValsMatrix = reshape(eegValsCutoff,EEGSamplingRate,StimuIntLength);
-            eegPerElectrode.eegValues = eegValsCutoff;
-            eegPerElectrode.eegMatrix = double(eegValsMatrix');
+            eegDataPerElectrode.eegValues = eegValsCutoff;
+            eegDataPerElectrode.eegMatrix = double(eegValsMatrix');
             end
         end
         

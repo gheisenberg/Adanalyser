@@ -1,12 +1,18 @@
 % Data representation of all informations related to one subject 
 %   Contains:
 %           a name, 
-%           edaValues, 
-%           hrvValues,
-%           eegValuesForElectrodes,
-%           Electrodes,
+%           OutputDirectory,
 %           isValid,
-%           edaPerVid,
+%           invalidElectrodes,
+% 
+%           edaValues,
+%           hrvValues,
+%           edaPerStim,
+%           hrvPerStim,
+% 
+%           eegData;
+% 
+%           EEG;
 %   hence, two different constructors are necessary 
 %   See: SubjectFactory, DataFactory
 %
@@ -16,49 +22,40 @@
 classdef Subject
    
     properties
-        %Initial values set during creation in SubjectFactory
+        % subject dependent variables
+        % see SubjectFactory.m and FilterAction.m
         name = '' 
         OutputDirectory = ''
         isValid = 1
-        
-        % invalid electrodes for subject
         invalidElectrodes = []
         
-        % filterd values set during FilterAction
-        % data values
-        edaValues= {}
-        hrvValues= {}
-        eegValuesForElectrodes = {}
+        % bandpassed values set during FilterAction.m
+        edaValues = {}
+        hrvValues = {}
         
-        % values per Stimlus
+        % bandpassed values per Stimlus set during FilterAction.m
         edaPerStim = {}
-        eegPerStim = {}
         hrvPerStim = {}
         
-        % eeg values sub sampled
-        eegSubSample = {}
-        
-        % frequency data
-        frequencies = {}
-        frequenciesSubedBy4 = {}
-        frequenciesPerElectorde = {}
+        % eeg data struct containing all created eeg data
+        % see eegData.m and eegDataPerElectrode for more information
+        eegData = {}
+        eegDataPerElectrode = {}
         
         % EEG structure for Topolody Plot
-        EEG = {}
-        
-        % signalSpec
-        signalSpec = []  
+        % needed for topoplot() from EEGLAB 
+        EEG = {} 
     end
     
     methods
         
         function eegValues = eegValuesByElectrode(self, electrode)
             eegValues = {}; 
-            numEegValues = length(self.eegValuesForElectrodes); 
+            numEegValues = length(self.eegValues); 
             for i=1:numEegValues
-                currentElectrode = self.eegValuesForElectrodes{i}.electrode; 
+                currentElectrode = self.eegValues{i}.electrode; 
                 if (electrode == currentElectrode)
-                    eegValues = self.eegValuesForElectrodes{i}; 
+                    eegValues = self.eegValues{i}; 
                 end
             end
         end 

@@ -54,48 +54,48 @@ classdef FilterAction < handle
                 subject.OutputDirectory = [parentfolder '\' subfolder_name];
                 
                 if subject.isValid == 1 % Filter invalid subjects
-                numElectrodes = length(subject.eegValuesForElectrodes);
+                numElectrodes = length(subject.eegDataPerElectrode);
                 
                 %loop for each electrode position
                 for j=1:numElectrodes
-                    eegValues = subject.eegValuesForElectrodes{j};
-                    rawMatrix = eegValues.eegMatrix;
+                    eegDataPerElectrode = subject.eegDataPerElectrode{j};
+                    rawMatrix = eegDataPerElectrode.eegMatrix;
                     [seconds,eegValsPerSec] = size(rawMatrix);
                     rawList = self.buildRawList(seconds,eegValsPerSec,rawMatrix);
                     % eegfiltfft is a eeglab function for (high|low|band) - 
                     % pass filter data using inverse fft - for more
                     % information please look at eegfiltfft.m
-                    filteredList = eegfiltfft(rawList,eegValsPerSec,1,49);
+                    eegBandPassed = eegfiltfft(rawList,eegValsPerSec,1,49);
                     %calculate the percent outside and 
                     percentOutside(1) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,rawList);
-                    percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredList);
+                    percentOutside(2) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,eegBandPassed);
                     if (config.EEG_DEVICE_USED)
-                        self.plotter.plotRawEEGFigures(rawList,filteredList,percentOutside,subject,eegValues.electrode,config);
+                        self.plotter.plotRawEEGFigures(rawList,eegBandPassed,percentOutside,subject,eegDataPerElectrode.electrode,config);
                     end
                     % calculate eeg values per Stimulus Interval
-                    eegValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,rawList);
-                    filteredEEGValuesPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,filteredList); 
-                    eegValues.filteredEEGPerStimu = filteredEEGValuesPerStim;
+                    eegBandPassedPerStim = self.getValuesPerStimuInt(1,eegValsPerSec,data.stimuIntDefs,eegBandPassed); 
+                    eegDataPerElectrode.eegPerStim = eegBandPassedPerStim;
                     % save EGG Values in vector to write out csv
-                    allEEGValues(j,:) = filteredList';
-                    eegValues.eegValues = filteredList';
-                    subject.eegValuesForElectrodes{j} = eegValues;
+                    eegAllValues(j,:) = eegBandPassed';
+                    eegDataPerElectrode.eegValues = eegBandPassed';
+                    subject.eegDataPerElectrode{j} = eegDataPerElectrode;
                     % Rate Quality for EEG Electrode
                     for v = 1:numStimuInt
-                        filteredEEGStim = filteredEEGValuesPerStim{v};
+                        filteredEEGStim = eegBandPassedPerStim{v};
                         filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGStim); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
                     end
                     
-                    % save eegData per Stim
-                    subject.eegPerStim = filteredEEGValuesPerStim;
-                    % create subSampled Data and save it
-                    subject.eegSubSample = self.singleSubsampleByFactorOf4(filteredEEGValuesPerStim,eegDevice);
+                    % save eegValues averaged over all electrodes
+                    subject.eegData.eegValues = self.calculateMeanEEGValuesForStimuInt(eegDataPerElectrode);
+                    % sub by 4
+                    subject.eegData.eegValuesSubedBy4 = self.singleSubsampleByFactorOf4(subject.eegData.eegValues,eegDevice);
+                    
                     % rate quality of each Stimulus Interval
-                    subject = self.rateQuality(subject,filteredQuality,data.stimuIntDefs,config,j);
+                    subject = self.rateQuality(subject,filteredQuality,config,j);
                     % calculate eda values per StimulusInterval
                     edaValuesPerStim = self.getValuesPerStimuInt(1,edaValsPerSec,data.stimuIntDefs,subject.edaValues);
                     subject.edaPerStim = edaValuesPerStim;
-                     % calculate hrv values per StimulusInterval
+                    % calculate hrv values per StimulusInterval
                     hrvValuesPerStim = self.getValuesPerStimuInt(1,hrvValsPerSec,data.stimuIntDefs,subject.hrvValues);
                     subject.hrvPerStim = hrvValuesPerStim;
                 end
@@ -105,10 +105,10 @@ classdef FilterAction < handle
                     % calculate time and add labels to timeseries
                     time = 0:1/eegDevice.samplingRate:seconds;
                     time = ["Time [s]",time(2:end)];
-                    output = [config.electrodes' num2cell(allEEGValues)];
+                    output = [config.electrodes' num2cell(eegAllValues)];
                     % combine
                     output = [time; output];
-                    fname = [subject.OutputDirectory '/' subject.name '_Filtered_EEG_Values.csv'];
+                    fname = [subject.OutputDirectory '/' subject.name '__1to49HzBandpassFiltered_EEG_RAW_Values_PerElectrode.csv'];
                     writematrix(output', fname,'Delimiter','semi');
                 end
                 
@@ -144,9 +144,11 @@ classdef FilterAction < handle
 
                     % Data preparation
                     Usedelectrodes = config.electrodes;
-                    numElectrodes = length(subject.eegValuesForElectrodes);
+                    numElectrodes = length(subject.eegDataPerElectrode);
+                    lenghtSignal = length(subject.eegDataPerElectrode{1,1}.eegValues);
+                    ValuesEEG = zeros(lenghtSignal,numElectrodes);
                     for j = 1:numElectrodes              
-                        ValuesEEG(:,j) =  subject.eegValuesForElectrodes{1, j}.eegValues;              
+                        ValuesEEG(:,j) =  subject.eegDataPerElectrode{1, j}.eegValues;              
                     end
                     PlotDataOverTime = ValuesEEG';
 
@@ -155,7 +157,6 @@ classdef FilterAction < handle
                     electrodes = Usedelectrodes'; % transfrom vector
                     numUsedElectrodes = length(electrodes);
                     lengthStandardChanloc = length(Chanloc);
-                    deleteRow = zeros(1,lengthStandardChanloc);
                     SumDeleteRow = zeros(1,lengthStandardChanloc);
 
                     % delete all unused electrode chanlocs
@@ -306,16 +307,15 @@ classdef FilterAction < handle
         end
         
         %% Calcualtes the mean Value of the EEG for each Stimulus/Subject
-        function meanEEGPerStim = calculateMeanEEGValuesForStimuInt(self,subject)
-            numElectrodes = length(subject.eegValuesForElectrodes);
-            eegForElectrode = subject.eegValuesForElectrodes{1};
-            numStimuInt = length(eegForElectrode.filteredEEGPerStimu);
+        function meanEEGPerStim = calculateMeanEEGValuesForStimuInt(self,eegData)
+            numElectrodes = length(eegData);
+            numStimuInt = length(eegData.eegPerStim);
             meanEEGPerStim = cell(1,numStimuInt);
             % cycle through Simulus Intervals and electrodes
             for i = 1:numStimuInt
-                meanEEGPerStim{i} = eegForElectrode.filteredEEGPerStimu{i};
+                meanEEGPerStim{i} = eegData.eegPerStim{i};
                 for j = 2:numElectrodes
-                    valuesForElectrode = subject.eegValuesForElectrodes{j}.filteredEEGPerStimu{i}; 
+                    valuesForElectrode = data.eegDataPerElectrode{j}.eegPerStim{i}; 
                     previousValues = meanEEGPerStim{i}; 
                     meanEEGPerStim{i} = previousValues+valuesForElectrode;
                 end
@@ -328,7 +328,7 @@ classdef FilterAction < handle
         
         %% Stores invalid Electrodes in subject
         %   Sets isValid flag for each Electrode based on used qualityThreshold
-        function subjects = rateQuality(self,subjects,quality,stimuIntDefs,config,electrode) 
+        function subjects = rateQuality(self,subjects,quality,config,electrode) 
             qualityThreshold = config.QualityIndex;
             if any(quality > qualityThreshold)
                     subjects.invalidElectrodes{end+1} = config.electrodes{electrode};
