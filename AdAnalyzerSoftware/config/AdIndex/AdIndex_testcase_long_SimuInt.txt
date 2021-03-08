@@ -1,0 +1,4 @@
+2,0,EDA Baseline
+3,1,EDA Orientation,1
+5,2,EEG Baseline,1,3
+1800,4,XIMOS Strong, 200,900,1000
