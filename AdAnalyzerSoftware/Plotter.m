@@ -87,8 +87,8 @@ classdef Plotter
             
             if length(config.electrodes) > 1
                 electrodes = config.electrodes;
-                for i = 2:length(electrodes)
-                    output_text= strcat(output_text,", " + electrodes(i));
+                for indexElec = 2:length(electrodes)
+                    output_text= strcat(output_text,", " + electrodes(indexElec));
                 end
             end
             output_text= strcat(output_text,""+newline);
@@ -119,7 +119,7 @@ classdef Plotter
         %% Saves ADIndex settings to fName.pdf
         %   StimuInt: contains settings for all Stimulus Intervals
         %   fName: File name as String
-        function writeAdIndex(self,StimuInt,fName)
+        function writeAdIndex(self,StimulusInterval,fName)
             fatbraid="==================================================================================" + newline;
             thinbraid="----------------------------------------------------------------------------------" + newline;
             
@@ -129,7 +129,7 @@ classdef Plotter
             output_text= strcat(output_text,thinbraid);
             
             % create textboxes
-            for i = 1:length(StimuInt)
+            for indexStimu = 1:length(StimulusInterval)
                 % Creates blanks to create a certain structure in the 
                 % AdIndex file - see AdIndex.pdf
                 
@@ -139,15 +139,15 @@ classdef Plotter
                 % Maintain the length of the stimulus and place it in the 
                 % respective place
                 % 1 = 1 digit number, 2 digit number or 3 digit number
-                lengthOfStimlus = length(num2str(StimuInt{1, i}.Stimulength));
+                lengthOfStimlus = length(num2str(StimulusInterval{1, indexStimu}.Stimulength));
                 if lengthOfStimlus == 1 
-                    CharStimuLength(7) = num2str(StimuInt{1, i}.Stimulength);
+                    CharStimuLength(7) = num2str(StimulusInterval{1, indexStimu}.Stimulength);
                 elseif lengthOfStimlus == 2
-                    CharStimuLength(6:7) = num2str(StimuInt{1, i}.Stimulength);
+                    CharStimuLength(6:7) = num2str(StimulusInterval{1, indexStimu}.Stimulength);
                 elseif lengthOfStimlus == 3
-                    CharStimuLength(5:7) = num2str(StimuInt{1, i}.Stimulength);
+                    CharStimuLength(5:7) = num2str(StimulusInterval{1, indexStimu}.Stimulength);
                 else
-                    CharStimuLength(4:7) = num2str(StimuInt{1, i}.Stimulength);
+                    CharStimuLength(4:7) = num2str(StimulusInterval{1, indexStimu}.Stimulength);
                 end
                 
                 % Stimulus type
@@ -155,7 +155,7 @@ classdef Plotter
                 % type allways have to be a one digit number
                 CharStimuType = blanks(13);
                 CharStimuType(8:11) = 'Type';
-                CharStimuType(13) = num2str(StimuInt{1, i}.stimuIntType);
+                CharStimuType(13) = num2str(StimulusInterval{1, indexStimu}.stimuIntType);
                 
                 % Stimulus Description
                 % the chars have to be place accordingly to their length,
@@ -163,18 +163,18 @@ classdef Plotter
                 % individual length of the Stimlus Interval and set on the
                 % respective place
                 CharStimuDesc = blanks(20);
-                CharStartDesc = 20-length(StimuInt{1, i}.stimuIntDescrp)+1;
-                CharStimuDesc(CharStartDesc:end) = StimuInt{1, i}.stimuIntDescrp;
+                CharStartDesc = 20-length(StimulusInterval{1, indexStimu}.stimuIntDescrp)+1;
+                CharStimuDesc(CharStartDesc:end) = StimulusInterval{1, indexStimu}.stimuIntDescrp;
                 
                 % Stimulus Intervals
                 CharStimuInt = blanks(26);            
-                hold = num2str(StimuInt{1, i}.intervals);
+                hold = num2str(StimulusInterval{1, indexStimu}.intervals);
                 IntChar = '';
                 % loop through all interval chars and seperate them with a
                 % ' '
                 numInt = size(hold);
-                for j = 1:numInt(1)
-                    IntChar = append(IntChar,hold(j,:));
+                for index = 1:numInt(1)
+                    IntChar = append(IntChar,hold(index,:));
                     IntChar = append(IntChar,' ');
                 end
                 CharStartInt = 26-length(IntChar)+1;
@@ -206,7 +206,7 @@ classdef Plotter
             index = index(4:end);
             numberOfPages = ceil(length(index)/50);
                 
-            for i = 1:numberOfPages
+            for indexPage = 1:numberOfPages
                 % setup fig
                 fig = figure('Visible','off');
                 axes('Position',[0.1 0.1 1 1],'Visible','off');
@@ -217,31 +217,31 @@ classdef Plotter
                 
                 % get index for subject < 50
                 if numberOfPages == 1
-                    indexPage = index(1:end);
+                    pageNum = index(1:end);
                 
                 % subject > 50
                 % get first 50 subjects
-                elseif i == 1
-                    indexPage = index(1:50);
+                elseif indexPage == 1
+                    pageNum = index(1:50);
                     
                 % subjects for the last page
-                elseif i == numberOfPages
-                    indexPage = index(50*(i-1):end);
+                elseif indexPage == numberOfPages
+                    pageNum = index(50*(indexPage-1):end);
                     
                 % get all subjects in the middel
                 else
-                    indexPage = index(50*i-1:50*i);
+                    pageNum = index(50*indexPage-1:50*indexPage);
                     
                 end
 
                 % print fig and save as pdf
-                indexPage = cat(1,header,indexPage);
-                descrp = text(0,0.9,indexPage,'FontName','FixedWidth','FontSize',8);
+                pageNum = cat(1,header,pageNum);
+                descrp = text(0,0.9,pageNum,'FontName','FixedWidth','FontSize',8);
                 descrp.VerticalAlignment = 'top';
                 if numberOfPages == 1
                     fNamePage = [fName(1:length(fName)-4) '.pdf'];
                 else
-                    fNamePage = [fName(1:length(fName)-4) '_' num2str(i) '.pdf'];
+                    fNamePage = [fName(1:length(fName)-4) '_' num2str(indexPage) '.pdf'];
                 end
                 print(fNamePage,'-dpdf',fig,'-r0','-fillpage');
             end
@@ -287,8 +287,8 @@ classdef Plotter
             end
             
             % loop for each Stimulus Interval
-            for i = 1:numStimuInts
-                StimuInt = StimuDef{i};
+            for indexStimu = 1:numStimuInts
+                StimuInt = StimuDef{indexStimu};
                 
                 % video obj
                 vName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_2D Topo_Video.mp4'];
@@ -321,9 +321,13 @@ classdef Plotter
                     task = zeros(numElec,numPos);
 
                     % get TEI 
-                    for m = 1:numPos
-                        for j = 1:numElec                       
-                            task(j,m) = mean(subject.eegDataPerElectrode{j}.eegSpecBandPerStim{i,6}(pos(m):pos(m+1)));
+                    % looping through all position and electrodes
+                    % eegSpecBandPerStim{indexStimu,6} -> the 6th row
+                    % contains the values for the TEI - see EEGData.m and
+                    % EEGDataPerElectrode.m
+                    for indexPos = 1:numPos
+                        for indexElec = 1:numElec
+                            task(indexElec,indexPos) = mean(subject.eegDataPerElectrode{indexElec}.eegSpecBandPerStim{indexStimu,6}(pos(indexPos):pos(indexPos+1)));
                         end
                     end
                     
@@ -333,7 +337,7 @@ classdef Plotter
                         open(vidObj);
                     end
                     
-                    for k = 1:numofprint
+                    for indexPrint = 1:numofprint
                         % print preparation
                         mainfig = figure('Visible','on');
                         set(mainfig,'PaperUnits','inches','PaperPosition',[0 0 12 7.5])
@@ -342,14 +346,14 @@ classdef Plotter
                         % Print of 2D Topo
                         subplot(2,2,3);
                         % double () in case we want to add a multiplier
-                        title({['AVG TEI between ' num2str(range(k)) '-' num2str(range(k+1)) 'ms']});
+                        title({['AVG TEI between ' num2str(range(indexPrint)) '-' num2str(range(indexPrint+1)) 'ms']});
                         % topoplot is a function of the eeglab libary
-                        topoplot(task(:,k),EEG.chanlocs,'electrodes','ptslabels');
+                        topoplot(task(:,indexPrint),EEG.chanlocs,'electrodes','ptslabels');
                         cb = colorbar;
                         cb.Limits = [0,1];
 
                         % print of histogram
-                        barsimg = self.plotElectrodeBars(electrodes,subject.eegDataPerElectrode,[pos(k) pos(k+1)],i);
+                        barsimg = self.plotElectrodeBars(electrodes,subject.eegDataPerElectrode,[pos(indexPrint) pos(indexPrint+1)],indexStimu);
                         barschart = subplot(2,2,4);
                         barschart.Position = barschart.Position + [-0.075 -0.075 0.15 0.15];
                         imshow(barsimg);
@@ -359,8 +363,8 @@ classdef Plotter
                         
                         % print out first frame
                         subplot(2,2,[1 2]);
-                        imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*k)));
-                        fName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(k+1))) 'ms_2D Topo.png'];
+                        imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*indexPrint)));
+                        fName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(indexPrint+1))) 'ms_2D Topo.png'];
                         print(fName,'-dpng','-r300',mainfig);
                         
                         if config.videoOutput == 1
@@ -370,10 +374,10 @@ classdef Plotter
                             drawnow nocallbacks
                             
                             %create video in plot
-                            for t = 1:vidObj.FrameRate
+                            for indexFrame = 1:vidObj.FrameRate
                                 % insert video frames
                                 subplot(2,2,[1 2]);
-                                imshow(vidFrameReSize(:,:,:,t+(vidObj.FrameRate*k)));
+                                imshow(vidFrameReSize(:,:,:,indexFrame+(vidObj.FrameRate*indexPrint)));
                                 
                                 % get frame from figure
                                 currentFrame = getframe(mainfig);
@@ -413,8 +417,8 @@ classdef Plotter
             % prelocate size of vectors for speed
             totalLength = 0;
             taskcounter = 0;
-            for i = StimulusIndex
-                totalLength = StimuDef{1, i}.Stimulength + totalLength;
+            for indexStimu = StimulusIndex
+                totalLength = StimuDef{1, indexStimu}.Stimulength + totalLength;
             end
             numPrints = (totalLength*1000)/interval;
             task = zeros(numElec,numPrints);
@@ -423,18 +427,18 @@ classdef Plotter
             time = 0:interval:totalLength*1000;
                 
             % prepare vector to draw lines
-            for indexStim = StimulusIndex
+            for indexStimu = StimulusIndex
                 
                 % get current Stimulus Interval
-                StimuInt = StimuDef{indexStim};
+                StimuInt = StimuDef{indexStimu};
                     
                 % get first and last postioin of each Stimulus Interval
                 StimulusIntervals = zeros(1,numStimuInt*2);
                 preNumber = 2;
-                for i = 2:2:numStimuInt*2
-                    StimulusIntervals(i-1) = 1 + StimulusIntervals(preNumber);
-                    StimulusIntervals(i) = (StimuInt.Stimulength*1000)/interval + StimulusIntervals(preNumber);
-                    preNumber = i;
+                for indexStimuLines = 2:2:numStimuInt*2
+                    StimulusIntervals(indexStimuLines-1) = 1 + StimulusIntervals(preNumber);
+                    StimulusIntervals(indexStimuLines) = (StimuInt.Stimulength*1000)/interval + StimulusIntervals(preNumber);
+                    preNumber = indexStimuLines;
                 end
                 
                 % save the Name
@@ -447,10 +451,10 @@ classdef Plotter
                 pos = invervalStim/1000*EEG.srate;
                 pos(pos == 0) = 1;
 
-                for counter = 1:length(invervalStim)-1
+                for indexTask = 1:length(invervalStim)-1
                     taskcounter = taskcounter + 1;
                     for indexElec = 1:numElec
-                        task(indexElec,taskcounter) = mean(subject.eegDataPerElectrode{indexElec}.eegSpecBandPerStim{indexStim,6}(pos(counter):pos(counter+1)));
+                        task(indexElec,taskcounter) = mean(subject.eegDataPerElectrode{indexElec}.eegSpecBandPerStim{indexStimu,6}(pos(indexTask):pos(indexTask+1)));
                     end
                 end
             end
@@ -462,18 +466,18 @@ classdef Plotter
             topoX = 100; % X position of first head in print
             mainfig.Position = [mainfig.Position(1), mainfig.Position(2), (numPrints*150) , sizey]; 
             
-            for j = 1:numPrints
+            for indexPrint = 1:numPrints
                 % Print of 2D Topo
-                topo = subplot(1,numPrints,j);
+                topo = subplot(1,numPrints,indexPrint);
                 topo.Units = 'pixels';
                 topo.Position = [topoX, 40, 90, 90]; % set position
                 % topoplot is a function of the eeglab libary
-                topoplot(task(:,j),EEG.chanlocs,'electrodes','on');
+                topoplot(task(:,indexPrint),EEG.chanlocs,'electrodes','on');
                 drawnow;
                 topoX = topoX + 110; % move X position for next head
 
                 % get Positions of topo plots
-                Pos{j} = topo.Position;
+                Pos{indexPrint} = topo.Position;
             end
             
             % set sizeX to mainfig position length
@@ -481,13 +485,13 @@ classdef Plotter
             sizex = mainfig.Position(3);
             
             % loop for legend in topoplot
-            counter = 1;
-            for m = 1:(length(StimulusIntervals)/2)
+            indexTask = 1;
+            for indexPlot = 1:(length(StimulusIntervals)/2)
                 % get index for Postions vector
-                lowindex = StimulusIntervals(counter); % last topoplot
-                counter = counter + 1;
-                index = StimulusIntervals(counter); % latest topoplot
-                counter = counter + 1;
+                lowindex = StimulusIntervals(indexTask); % last topoplot
+                indexTask = indexTask + 1;
+                index = StimulusIntervals(indexTask); % latest topoplot
+                indexTask = indexTask + 1;
                 if length(Pos) > index
                     % get position of figures left/right
                     SubplotLeft = Pos{index};
@@ -516,7 +520,7 @@ classdef Plotter
                 % interval
                 numOfLines = (index - lowindex);
                 linesPos = lowindex;
-                for k = 1:numOfLines
+                for indexLines = 1:numOfLines
                     if length(Pos) > linesPos
                         SubplotLeft = Pos{linesPos};
                         SubplotRight = Pos{linesPos+1};
@@ -547,7 +551,7 @@ classdef Plotter
                 
                 % Stimulus definiton text
                 % get Stimulus
-                str = StimuIntDefinitions(m);
+                str = StimuIntDefinitions(indexPlot);
                 % get position of first and last head of Interval
                 if length(Pos) > index
                     SubplotLeft = Pos{lowindex};
@@ -628,33 +632,33 @@ classdef Plotter
             beta1 = zeros(1,numelec);
             beta2 = zeros(1,numelec);
             
-            for indexEle = 1:numelec
+            for indexElec = 1:numelec
                 % Delta (1-4 Hz)
-                delta(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,1}(pos(1):pos(2)));                              
+                delta(indexElec) = mean(data{indexElec}.eegSpecBandPerStim{Stimulus,1}(pos(1):pos(2)));                              
                 % Theta(5-7 Hz)
-                theta(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,2}(pos(1):pos(2)));
+                theta(indexElec) = mean(data{indexElec}.eegSpecBandPerStim{Stimulus,2}(pos(1):pos(2)));
                 % Alpha(8-13 Hz)
-                alpha(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,3}(pos(1):pos(2)));
+                alpha(indexElec) = mean(data{indexElec}.eegSpecBandPerStim{Stimulus,3}(pos(1):pos(2)));
                 % Beta1(14-24 Hz)
-                beta1(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,4}(pos(1):pos(2)));
+                beta1(indexElec) = mean(data{indexElec}.eegSpecBandPerStim{Stimulus,4}(pos(1):pos(2)));
                 % Beta2(25-40 Hz)
-                beta2(indexEle) = mean(data{indexEle}.eegSpecBandPerStim{Stimulus,5}(pos(1):pos(2)));
+                beta2(indexElec) = mean(data{indexElec}.eegSpecBandPerStim{Stimulus,5}(pos(1):pos(2)));
             end
             
             allfreq = [delta theta alpha beta1 beta2];
             ymax = max(max(allfreq)); % y max for graph
             
             % Print
-            for indexEle = 1:numelec
+            for indexElec = 1:numelec
                 hold on
                 % create subplot for each electrode
-                subplot(3,3,indexEle);
+                subplot(3,3,indexElec);
                 names = categorical({'delta','theta','alpha','beta1','beta2'});
                 names = reordercats(names,{'delta','theta','alpha','beta1','beta2'});
-                bars = [delta(indexEle), theta(indexEle), alpha(indexEle), beta1(indexEle), beta2(indexEle)];
+                bars = [delta(indexElec), theta(indexElec), alpha(indexElec), beta1(indexElec), beta2(indexElec)];
                 h = bar(names,bars,'FaceColor','flat');
                 ylim([0 ymax]);
-                title(electrodes(indexEle),'FontSize', 24)
+                title(electrodes(indexElec),'FontSize', 24)
                 % recolor bars
                 h.CData(1,:) = [1 0 0];
                 h.CData(2,:) = [0.8500 0.3250 0.0980];
@@ -811,27 +815,27 @@ classdef Plotter
             end
             xTime = xAxis./stepWith; 
             absolutValuesPerSecond = zeros(length(frequencies),StimuIntLength/stepWith); 
-            [m,n] = size(absolutValuesPerSecond);
+            [numFrq,lenStimu] = size(absolutValuesPerSecond);
             % make values discrete (calculate mean per second)
-            for i=1:m
+            for indexFrq = 1:numFrq
                 start = 1; 
                 ende = EEGSamplingRate*stepWith; 
-                freqValues = frequencies{:,i}; 
-                for j=1:n
-                   absolutValuesPerSecond(i,j) = mean(freqValues(start:ende)); 
+                freqValues = frequencies{:,indexFrq}; 
+                for indexSecond = 1:lenStimu
+                   absolutValuesPerSecond(indexFrq,indexSecond) = mean(freqValues(start:ende)); 
                    start = start +EEGSamplingRate*stepWith;
                    ende = ende +EEGSamplingRate*stepWith; 
                 end
             end
             % Normalize percental 
-            valuesToPlot = zeros(m,n);
+            valuesToPlot = zeros(numFrq,lenStimu);
             % Add TEI values
-            valuesToPlot(m,:) = absolutValuesPerSecond(m,:);
-            for i=1:m 
-                for j=1:n
-                   maxPerSecond = max(absolutValuesPerSecond(:,j));
-                   maximumPos = absolutValuesPerSecond(:,j) == maxPerSecond;
-                   valuesToPlot(maximumPos,j) = maxPerSecond/sum(absolutValuesPerSecond(:,j))*100; % Nomierung ist falsch Gernot Tim
+            valuesToPlot(numFrq,:) = absolutValuesPerSecond(numFrq,:);
+            for indexFrq = 1:numFrq 
+                for indexSecond = 1:lenStimu
+                   maxPerSecond = max(absolutValuesPerSecond(:,indexSecond));
+                   maximumPos = absolutValuesPerSecond(:,indexSecond) == maxPerSecond;
+                   valuesToPlot(maximumPos,indexSecond) = maxPerSecond/sum(absolutValuesPerSecond(:,indexSecond))*100; % Nomierung ist falsch Gernot Tim
                    %offset = maxPerSecond*90/100; % if a value exists which is 10% smaller then max, show this value in plot
                    %secondValuePos = absolutValuesPerSecond(:,j) >= offset;
                    %if (secondValuePos~=maximumPos)
@@ -870,8 +874,8 @@ classdef Plotter
         %  StimuIntDef: StimulusInterval Definition
         function plotHRV(self,hrvValues,outputDir,subjName,StimuIntDef)
             fig = figure('Visible','off');
-            N = length(hrvValues);
-            time = 1:N;
+            numValues = length(hrvValues);
+            time = 1:numValues;
             % plot values
             plot(hrvValues,'k');
             grid;
@@ -883,10 +887,10 @@ classdef Plotter
             
             % get index and length of EDA Orientation, to build HRV
             % Baseline
-            for i = 1:length(StimuIntDef)
-                if StimuIntDef{1, i}.stimuIntType == 0
-                    index = i;
-                    StimuIntLength = StimuIntDef{1, i}.Stimulength;
+            for indexStimu = 1:length(StimuIntDef)
+                if StimuIntDef{1, indexStimu}.stimuIntType == 0
+                    index = indexStimu;
+                    StimuIntLength = StimuIntDef{1, indexStimu}.Stimulength;
                 end
             end
             % calculate the HRV Baseline
@@ -986,7 +990,7 @@ classdef Plotter
             yMax = max(allValues);
             yL = [yMin yMax];
             
-            for k = 1:numberofPages
+            for indexPage = 1:numberofPages
                 fig = figure('Visible','off');
                 subplotCounter = 1;
                 % choose x axis interval on base of StimulusInterval length
@@ -1036,7 +1040,7 @@ classdef Plotter
                 set(fig, 'PaperPositionMode', 'auto');
                 set(fig, 'PaperPosition', [0.2 0.2 20 29 ]);
                 if numberofPages > 1
-                    fPathNum = [fPath '_' int2str(k)];
+                    fPathNum = [fPath '_' int2str(indexPage)];
                     print(fPathNum,'-dpdf',fig);
                 else
                     print(fPath,'-dpdf',fig);
@@ -1408,11 +1412,11 @@ classdef Plotter
                 xAxis = 0:StimuIntLength;
             end            
             
-            for k = 1:sum(useData)
-                if useData(k) == 1    
+            for indexPlot = 1:sum(useData)
+                if useData(indexPlot) == 1    
                     
-                    signalData = data{k};
-                    resultFreq = [];
+                    % predefine needed variables
+                    signalData = data{indexPlot};
                     mean1 = 0;
                     mean2 = 0;
                     mean3 = 0;
@@ -1423,23 +1427,23 @@ classdef Plotter
                     xtime = xAxis * scaleFactor;
                     
                     resultFreq = zeros(1,dataLength-2);
-                    for i = 3:dataLength
-                        mean1 = (mean1 +  tMean .*(signalData(i) - mean1));
+                    for indexData = 3:dataLength
+                        mean1 = (mean1 +  tMean .*(signalData(indexData) - mean1));
 
                         % check if "bigger"
-                        k1 = not(mean1 < signalData(i-1));
+                        k1 = not(mean1 < signalData(indexData-1));
 
-                        mean2 = mean2 +  tMean*(signalData(i-1) - mean2);
+                        mean2 = mean2 +  tMean*(signalData(indexData-1) - mean2);
 
                         % check if "bigger"
-                        k2 = not(mean2 < signalData(i-2));
+                        k2 = not(mean2 < signalData(indexData-2));
 
                         % check if not equal
                         w = k1 ~= k2;
                         mean3 = mean3 +  tFreq*(w - mean3);
 
                         % Just count half of the zero-crossings => /2
-                        resultFreq(i-2) = mean3/2;
+                        resultFreq(indexData-2) = mean3/2;
                     end
 
                     % plot
@@ -1458,12 +1462,12 @@ classdef Plotter
 
                     grid;
                     title(['Momentary frequency for ' stimulus]);
-                    ylabel([DataTyp(k,:) ' data averaged over all electrode positions'])
+                    ylabel([DataTyp(indexPlot,:) ' data averaged over all electrode positions'])
                     
                     % set xAxis to correct length of Stimlus
                     set(gca,'XTick',xtime,'XTickLabel',xAxis);
                     
-                    print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_' DataTyp(k,:) '_frequency_estimation.pdf']);
+                    print(['-f',int2str(fig.Number)],'-dpdf',[conf.OutputDirectory '\' name '\' name '_' stimulus '_' DataTyp(indexPlot,:) '_frequency_estimation.pdf']);
                     close(fig);   
                 end
             end
@@ -1491,23 +1495,23 @@ classdef Plotter
             StimuIntLabels= cell(1,length(StimuIntDef));
             intervals = [];
             completeVidLength =0;
-            for i=1:length(StimuIntDef)
-                completeVidLength = completeVidLength + StimuIntDef{i}.Stimulength;
-                StimuIntLabels{i} = StimuIntDef{1, i}.stimuIntDescrp;
+            for indexStimu = 1:length(StimuIntDef)
+                completeVidLength = completeVidLength + StimuIntDef{indexStimu}.Stimulength;
+                StimuIntLabels{indexStimu} = StimuIntDef{1, indexStimu}.stimuIntDescrp;
                 % Starting value needs to be != 0, because of calculations
                 % later on -> changed from 0 -> 0.2
-                if i==1
-                    StimuIntStartPoints(i) = 0.2;
+                if indexStimu == 1
+                    StimuIntStartPoints(indexStimu) = 0.2;
                 % the second value must be used separately, 
                 % because of the exchange of 0 -> 0.2
-                elseif i == 2
-                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength;
+                elseif indexStimu == 2
+                    StimuIntStartPoints(indexStimu) = StimuIntDef{indexStimu-1}.Stimulength;
                 % then the values can simply be added up
                 else
-                    StimuIntStartPoints(i) = StimuIntDef{i-1}.Stimulength + StimuIntStartPoints(i-1);
+                    StimuIntStartPoints(indexStimu) = StimuIntDef{indexStimu-1}.Stimulength + StimuIntStartPoints(indexStimu-1);
                 end
-                currentIntervals = StimuIntDef{i}.intervals;
-                currentIntervals= currentIntervals + StimuIntStartPoints(i);
+                currentIntervals = StimuIntDef{indexStimu}.intervals;
+                currentIntervals= currentIntervals + StimuIntStartPoints(indexStimu);
                 intervals = horzcat(intervals,currentIntervals');
             end
         end
@@ -1528,7 +1532,7 @@ classdef Plotter
         
         %% Helper method to plot the StimulusInterval start points
         function plotStimuIntStartPoints(self,startPoints,labels,yPos,scaleFac)
-            for i=1:length(startPoints)
+            for i = 1:length(startPoints)
                 xPosition = startPoints(i);
                 xPosition = double(xPosition*scaleFac);
                 line([xPosition xPosition],yPos,'Color','b','LineStyle','--');

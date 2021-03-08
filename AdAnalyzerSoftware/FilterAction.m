@@ -36,14 +36,14 @@ classdef FilterAction < handle
             
             % prepare loop
             numStimuInt = length(data.stimuIntDefs);
-            numSubjects = length(data.subjects);            
+            numsubject = length(data.subjects);            
             edaValsPerSec = edaDevice.samplingRate;
             hrvValsPerSec = hrvDevice.samplingRate;
-            unfilteredQuality = zeros(numSubjects,numStimuInt);
-            filteredQuality = zeros(numSubjects,numStimuInt);
+            unfilteredQuality = zeros(numsubject,numStimuInt);
+            filteredQuality = zeros(numsubject,numStimuInt);
             % loop for each subject
-            for i=1:numSubjects
-                subject = data.subjects{i};
+            for indexSubject = 1:numsubject
+                subject = data.subjects{indexSubject};
                 
                 % create folder for each subject
                 parentfolder = config.OutputDirectory;
@@ -80,9 +80,9 @@ classdef FilterAction < handle
                     eegDataPerElectrode.eegValues = eegBandPassed';
                     subject.eegDataPerElectrode{j} = eegDataPerElectrode;
                     % Rate Quality for EEG Electrode
-                    for v = 1:numStimuInt
-                        filteredEEGStim = eegBandPassedPerStim{v};
-                        filteredQuality(i,v) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGStim); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
+                    for indexStimu = 1:numStimuInt
+                        filteredEEGStim = eegBandPassedPerStim{indexStimu};
+                        filteredQuality(indexSubject,indexStimu) = self.getPercentQutside(config.LowerThreshold,config.UpperThreshold,filteredEEGStim); % vector will be to big, because it was used for the function "quality figures", which is deactivated 
                     end
                     
                     % save eegValues averaged over all electrodes
@@ -183,8 +183,8 @@ classdef FilterAction < handle
                     subject.EEG = EEG;
                 end
           
-                data.subjects{i} = subject;
-                waitbar(i/numSubjects);
+                data.subjects{indexSubject} = subject;
+                waitbar(indexSubject/indexSubject);
                 end       
             end
            
@@ -203,29 +203,29 @@ classdef FilterAction < handle
             j = 1;
             isValid = 0;
             % loop to check if subject is in/valid
-            for i=1:numSubjects 
-               sub = subject{i};
+            for indexSubject = 1:numSubjects 
+               sub = subject{indexSubject};
                if sub.isValid == 1
                    isValid = isValid+1;
                    % save subject as valid
-                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   valid ']};
+                   validString(indexSubject+3) = {['EEG Values for subject   |   ' sub.name '   |   valid ']};
                    j = j+1;
                    % check for invalid electrodes and save them behind the
                    % subject
                    if  ~isempty(sub.invalidElectrodes)
-                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
+                       validString(indexSubject+3) = strcat(validString(indexSubject+3),'  |  Invalid electrodes  |',{' '});
                        for j = 1:length(sub.invalidElectrodes)
-                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
+                       validString(indexSubject+3) = strcat(validString(indexSubject+3),{' '},sub.invalidElectrodes(j)); 
                        end
                    end
                else 
                    % save subject as invalid
-                   validString(i+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid |']};
+                   validString(indexSubject+3) = {['EEG Values for subject   |   ' sub.name '   |   invalid |']};
                    isValid = isValid + 0;
                    if  length(sub.invalidElectrodes) >= 1 
-                       validString(i+3) = strcat(validString(i+3),'  |  Invalid electrodes  |',{' '});
+                       validString(indexSubject+3) = strcat(validString(indexSubject+3),'  |  Invalid electrodes  |',{' '});
                        for j = 1:length(sub.invalidElectrodes)
-                       validString(i+3) = strcat(validString(i+3),{' '},sub.invalidElectrodes(j)); 
+                       validString(indexSubject+3) = strcat(validString(indexSubject+3),{' '},sub.invalidElectrodes(j)); 
                        end   
                    end
                end
@@ -248,8 +248,8 @@ classdef FilterAction < handle
             reducedSamplingRate = double(eegDevice.samplingRate/factor);
             data_s = cell(1,numStimuInt);
             
-            for j = 1:numStimuInt
-                dataPerStimu = data{1,j};
+            for indexStimu = 1:numStimuInt
+                dataPerStimu = data{1,indexStimu};
                 reducedSignalLength = length(dataPerStimu)/(reducedSamplingRate); 
                 % initialize reduced signals by 0 
                 % _s may stand for "short" since the signal vectors 
@@ -258,15 +258,15 @@ classdef FilterAction < handle
 
                 % now fill the old signals into the shorter vectors by
                 % subsampling them
-                for i = 1:reducedSignalLength
+                for indexSignal = 1:reducedSignalLength
                     % Build mean value between upper and lower bound for 
                     % every frequency_band for subsampling the signal, hence reducing the resolution
-                    lower_bound = (i-1)*(reducedSamplingRate)+1;
-                    upper_bound = (i-1)*(reducedSamplingRate)+(reducedSamplingRate);
+                    lower_bound = (indexSignal-1)*(reducedSamplingRate)+1;
+                    upper_bound = (indexSignal-1)*(reducedSamplingRate)+(reducedSamplingRate);
 
-                    dataPerStimu_s(i) = mean(dataPerStimu(lower_bound:upper_bound));
+                    dataPerStimu_s(indexSignal) = mean(dataPerStimu(lower_bound:upper_bound));
                 end
-                data_s{j} = dataPerStimu_s;
+                data_s{indexStimu} = dataPerStimu_s;
             end
         end
         
@@ -276,10 +276,10 @@ classdef FilterAction < handle
         
         %% Substracts mean for each column from eegMatrix column values
         function rawList = buildRawList(self,seconds,eegValsPerSec,rawMatrix)
-            for i = 1:seconds
-                column=rawMatrix(i,:);
-                m=mean(column);
-                rawMatrix(i,:) = column-m;
+            for s = 1:seconds
+                column = rawMatrix(s,:);
+                m = mean(column);
+                rawMatrix(s,:) = column-m;
             end
             totalEEGValues = double(seconds*eegValsPerSec);
             rawList = reshape(rawMatrix',1,totalEEGValues);
@@ -297,11 +297,11 @@ classdef FilterAction < handle
         function splittedValues = getValuesPerStimuInt(self,StimuIntStart,valuesPerSec,stimuIntDefs,values)
             numStimuInt = length(stimuIntDefs);
             splittedValues = cell(1,numStimuInt);
-            for i = 1:numStimuInt
-                Stimulus = stimuIntDefs{i};
+            for indexStimu = 1:numStimuInt
+                Stimulus = stimuIntDefs{indexStimu};
                 eegStimuIntLength = double(Stimulus.Stimulength*valuesPerSec);
                 eegStimuIntEnd = StimuIntStart+eegStimuIntLength-1;
-                splittedValues{i} = values(StimuIntStart:eegStimuIntEnd);
+                splittedValues{indexStimu} = values(StimuIntStart:eegStimuIntEnd);
                 StimuIntStart = StimuIntStart+eegStimuIntLength;
             end
         end
@@ -312,16 +312,16 @@ classdef FilterAction < handle
             numStimuInt = length(eegData.eegPerStim);
             meanEEGPerStim = cell(1,numStimuInt);
             % cycle through Simulus Intervals and electrodes
-            for i = 1:numStimuInt
-                meanEEGPerStim{i} = eegData.eegPerStim{i};
+            for indexStimu = 1:numStimuInt
+                meanEEGPerStim{indexStimu} = eegData.eegPerStim{indexStimu};
                 for j = 2:numElectrodes
-                    valuesForElectrode = data.eegDataPerElectrode{j}.eegPerStim{i}; 
-                    previousValues = meanEEGPerStim{i}; 
-                    meanEEGPerStim{i} = previousValues+valuesForElectrode;
+                    valuesForElectrode = data.eegDataPerElectrode{j}.eegPerStim{indexStimu}; 
+                    previousValues = meanEEGPerStim{indexStimu}; 
+                    meanEEGPerStim{indexStimu} = previousValues+valuesForElectrode;
                 end
-                numValues = length(meanEEGPerStim{i});
+                numValues = length(meanEEGPerStim{indexStimu});
                 for j = 1:numValues
-                    meanEEGPerStim{i}(j) = meanEEGPerStim{i}(j)/numElectrodes;
+                    meanEEGPerStim{indexStimu}(j) = meanEEGPerStim{indexStimu}(j)/numElectrodes;
                 end
             end
         end

@@ -9,7 +9,6 @@
 % -> see SubjectFactory
 %
 % Author: Tim Kreitzberg
-%
 
 classdef EEGData
     properties
@@ -21,6 +20,13 @@ classdef EEGData
         eegValuesSubedBy4 = {} 
         
         % Spectrum Band (Alpha,Beta1,..) for EEG data/data subsampeld by 4
+        % Values are sorted in following order:
+        % 1 = Delta (1-4 Hz)
+        % 2 = Theta(5-7 Hz)
+        % 3 = Alpha(8-13 Hz)
+        % 4 = Beta1(14-24 Hz)
+        % 5 = Beta2(25-40 Hz
+        % 6 = Task-Engagement
         eegSpecBand = {}
         eegSpecBandSubedBy4 = {}
     end
