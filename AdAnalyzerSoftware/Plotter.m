@@ -305,11 +305,12 @@ classdef Plotter
                     % prepare video for print
                     fileDirectory = [config.videoString '\' StimuInt.stimuIntDescrp '.mp4']; % get directory
                     %fileDirectory = regexprep(fileDirectory, ' ', '_');
-                    vid = VideoReader(fileDirectory); % import video
-                    numOfFrames = round(vid.FrameRate*vid.Duration); % calculate number of frames
-                    vidFrame = read(vid,[1 numOfFrames]);
+                    videoFReader = vision.VideoFileReader(fileDirectory);
+                    %vid = VideoReader(fileDirectory); % import video
+                    %numOfFrames = vid.NumFrames; % calculate number of frames
+                    %vidFrame = read(vid,[1 numOfFrames]);
                     % resize video according to UserFrameRate
-                    vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
+                    %vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
                                        
                     pos = range/1000*EEG.srate;
                     pos(pos == 0) = 1; 
@@ -363,7 +364,7 @@ classdef Plotter
                         
                         % print out first frame
                         subplot(2,2,[1 2]);
-                        imshow(vidFrameReSize(:,:,:,(vidObj.FrameRate*indexPrint)));
+                        imshow(videoFReader());
                         fName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(indexPrint+1))) 'ms_2D Topo.png'];
                         print(fName,'-dpng','-r300',mainfig);
                         
@@ -377,7 +378,8 @@ classdef Plotter
                             for indexFrame = 1:vidObj.FrameRate
                                 % insert video frames
                                 subplot(2,2,[1 2]);
-                                imshow(vidFrameReSize(:,:,:,indexFrame+(vidObj.FrameRate*indexPrint)));
+                                %imshow(vidFrameReSize(:,:,:,indexFrame+(vidObj.FrameRate*indexPrint)));
+                                imshow(videoFReader());
                                 
                                 % get frame from figure
                                 currentFrame = getframe(mainfig);
@@ -409,10 +411,6 @@ classdef Plotter
             StimuIntDefinitions = [];
             numElec = length(config.electrodes);
             numStimuInt = length(StimulusIndex);
-            
-            % main figure
-            mainfig = figure('Visible','off');
-            set(mainfig,'Units','pixels');
             
             % prelocate size of vectors for speed
             totalLength = 0;
@@ -458,160 +456,200 @@ classdef Plotter
                     end
                 end
             end
-            
+
             % print preparation
             sizey = 300; % height of image
             numPrints = length(task);
             Pos = cell(1,numPrints); % vector for position
-            topoX = 100; % X position of first head in print
-            mainfig.Position = [mainfig.Position(1), mainfig.Position(2), (numPrints*150) , sizey]; 
-            
-            for indexPrint = 1:numPrints
-                % Print of 2D Topo
-                topo = subplot(1,numPrints,indexPrint);
-                topo.Units = 'pixels';
-                topo.Position = [topoX, 40, 90, 90]; % set position
-                % topoplot is a function of the eeglab libary
-                topoplot(task(:,indexPrint),EEG.chanlocs,'electrodes','on');
-                drawnow;
-                topoX = topoX + 110; % move X position for next head
-
-                % get Positions of topo plots
-                Pos{indexPrint} = topo.Position;
-            end
-            
-            % set sizeX to mainfig position length
-            % will be needed to position the topoplots accordingly
-            sizex = mainfig.Position(3);
-            
-            % loop for legend in topoplot
+            sizex = numPrints*150;
             indexTask = 1;
-            for indexPlot = 1:(length(StimulusIntervals)/2)
-                % get index for Postions vector
-                lowindex = StimulusIntervals(indexTask); % last topoplot
-                indexTask = indexTask + 1;
-                index = StimulusIntervals(indexTask); % latest topoplot
-                indexTask = indexTask + 1;
-                if length(Pos) > index
-                    % get position of figures left/right
-                    SubplotLeft = Pos{index};
-                    SubplotRight = Pos{index+1};
-                    % get X coordinate between both heads
-                    x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;% convert from pixels to normazied unit
-                else
-                    SubplotLeft = Pos{index};
-                    x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
-                end
-                y = SubplotLeft(2)/sizey; % convert from pixels to normazied unit
-                % timestamp line for each interval
-                timeLine = annotation('line',[x,x],[0.6,y]);
-                drawnow 
-                %pause(drawforce) % force figure update
-                timeLine.LineWidth = 1;
-                % timestamp text
-                str = strcat(num2str(time(index+1)),' ms');
-                timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                drawnow 
-                %pause(drawforce) % force figure update
-                % move text for half its size, because start getting printed on X position
-                timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
+            
+            topoPerLine = 8; % fixed for the res of 1280
+            topoLines = 5; % fiex for the res of 1024
+            topoPerPlot = topoPerLine * topoLines; 
+            
+            % get needed number of plots
+            numberOfPlot = ceil(numPrints/topoPerPlot);
+            
+            for indexPlot = 1:numberOfPlot
                 
-                % dotted lines for clarity between each head of the same
-                % interval
-                numOfLines = (index - lowindex);
-                linesPos = lowindex;
-                for indexLines = 1:numOfLines
-                    if length(Pos) > linesPos
-                        SubplotLeft = Pos{linesPos};
-                        SubplotRight = Pos{linesPos+1};
-                        x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;% convert to normazied unit
-                    else
-                        SubplotLeft = Pos{linesPos};
-                        x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
-                    end
-                    y = SubplotLeft(2)/sizey; % convert to normazied unit
-                    % line
-                    tickLines = annotation('line',[x,x],[0.6,y]);
-                    drawnow 
-                    %pause(drawforce) % force figure update
-                    tickLines.Color = 'b'; % blue
-                    tickLines.LineStyle = '--'; % dotted
-                    tickLines.LineWidth = 0.25; 
-                    linesPos = linesPos + 1;
-                    
-                    % timestamp text
-                    if length(time) > linesPos
-                    str = strcat(num2str(time(linesPos)),' ms');
-                    addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
-                    drawnow 
-                    %pause(drawforce) % force figure update
-                    addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
-                    end
-                end
+                % main figure
+                mainfig = figure('Visible','on');
+                set(mainfig,'Units','pixels');
+                mainfig.Position = [0, 0, 1250, 900];
                 
-                % Stimulus definiton text
-                % get Stimulus
-                str = StimuIntDefinitions(indexPlot);
-                % get position of first and last head of Interval
-                if length(Pos) > index
-                    SubplotLeft = Pos{lowindex};
-                    SubplotRight = Pos{index};
-                else
-                    SubplotLeft = Pos{lowindex};
-                    SubplotRight = Pos{index-1};
+                topoX = 25; % X position of first head in print
+                topoY = 700; % Y position for the first row of heads
+                
+                for indexLines = 1:topoLines
+                    for indexTopos = 1:topoPerLine
+                        % Print of 2D Topo
+                        topo = subplot(topoLines,topoPerLine,indexTask);
+                        topo.Units = 'pixels';
+                        topo.Position = [topoX, topoY, 100, 100]; % set position
+                        % topoplot is a function of the eeglab libary
+                        topoplot(task(:,indexTask),EEG.chanlocs,'electrodes','on');
+                        drawnow;
+                        topoX = topoX + 150; % move X position for next head
+
+                        % get Positions of topo plots
+                        Pos{indexTask} = topo.Position;
+
+                        indexTask = indexTask + 1;
+                        
+                        if indexTask == numPrints
+                           break 
+                        end
+                    end
+                    if indexTask == numPrints
+                       break 
+                    end
+                    topoX = 25;
+                    topoY = topoY - 150;
                 end
-                % get x for middle of this interval
-                x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
-                StimulusDefinition = annotation('textbox',[x,0.575,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-                drawnow 
-                %pause(drawforce)
-                % move text for half its size
-                StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
+                indexTask = 1;
+                set(gcf,'color','w');
+                F = getframe(mainfig); % get frame of figure
+
+                % save as png
+                fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period' int2str(indexPlot) '.png'];
+                imwrite(F.cdata, fName, 'png');
+                
+                close
             end
-            
-            % upper horizontal timeline
-            SubplotLeft = Pos{1};
-            SubplotRight = Pos{end};
-            x1 = SubplotLeft(1)/sizex;
-            x2 = (SubplotRight(1)+SubplotRight(3))/sizex;
-            timeLine = annotation('line',[x1,x2],[0.6,0.6]);
-            drawnow 
-            %pause(drawforce) % force figure update
-            timeLine.LineWidth = 1;
-            
-            % first timestamp line
-            SubplotTopo = Pos{1};
-            x = SubplotTopo(1)/sizex;
-            y = SubplotTopo(2)/sizey;
-            timeLine = annotation('line',[x,x],[0.6,y]);
-            drawnow 
-            %pause(drawforce) % force figure update
-            timeLine.LineWidth = 1;
-            % first timestamp text
-            timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String','0 ms','EdgeColor','none');
-            drawnow 
-            %pause(drawforce)
-            timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
-            
-            % Subplot title
-            str = 'Per Electrode Brain Activity over all Stimulus Intervals';
-            x = (SubplotRight(1)+SubplotRight(3)-SubplotLeft(1))/2/sizex;
-            annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
-            drawnow 
-   
-            % cut the mainfig
-            newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
-            set(gcf,'color','w');
-            F = getframe(mainfig); % get frame of figure
-            ImageSize = size(F.cdata); % get length of figure
-            F.cdata(:,newWidth:ImageSize(2),:) = []; % delete empty pixel
-            
-            % save as png
-            fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
-            imwrite(F.cdata, fName, 'png');
-            
-            % close figure
-            close
+%             
+%             % set sizeX to mainfig position length
+%             % will be needed to position the topoplots accordingly
+%             sizex = mainfig.Position(3);
+%             
+%             % loop for legend in topoplot
+%             indexTask = 1;
+%             for indexPlot = 1:(length(StimulusIntervals)/2)
+%                 % get index for Postions vector
+%                 lowindex = StimulusIntervals(indexTask); % last topoplot
+%                 indexTask = indexTask + 1;
+%                 index = StimulusIntervals(indexTask); % latest topoplot
+%                 indexTask = indexTask + 1;
+%                 if length(Pos) > index
+%                     % get position of figures left/right
+%                     SubplotLeft = Pos{index};
+%                     SubplotRight = Pos{index+1};
+%                     % get X coordinate between both heads
+%                     x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;% convert from pixels to normazied unit
+%                 else
+%                     SubplotLeft = Pos{index};
+%                     x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
+%                 end
+%                 y = SubplotLeft(2)/sizey; % convert from pixels to normazied unit
+%                 % timestamp line for each interval
+%                 timeLine = annotation('line',[x,x],[0.6,y]);
+%                 drawnow 
+%                 %pause(drawforce) % force figure update
+%                 timeLine.LineWidth = 1;
+%                 % timestamp text
+%                 str = strcat(num2str(time(index+1)),' ms');
+%                 timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
+%                 drawnow 
+%                 %pause(drawforce) % force figure update
+%                 % move text for half its size, because start getting printed on X position
+%                 timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
+%                 
+%                 % dotted lines for clarity between each head of the same
+%                 % interval
+%                 numOfLines = (index - lowindex);
+%                 linesPos = lowindex;
+%                 for indexLines = 1:numOfLines
+%                     if length(Pos) > linesPos
+%                         SubplotLeft = Pos{linesPos};
+%                         SubplotRight = Pos{linesPos+1};
+%                         x = ((SubplotLeft(1)+ SubplotLeft(3) + SubplotRight(1))/2)/sizex;% convert to normazied unit
+%                     else
+%                         SubplotLeft = Pos{linesPos};
+%                         x = (SubplotLeft(1) + SubplotLeft(3))/sizex;
+%                     end
+%                     y = SubplotLeft(2)/sizey; % convert to normazied unit
+%                     % line
+%                     tickLines = annotation('line',[x,x],[0.6,y]);
+%                     drawnow 
+%                     %pause(drawforce) % force figure update
+%                     tickLines.Color = 'b'; % blue
+%                     tickLines.LineStyle = '--'; % dotted
+%                     tickLines.LineWidth = 0.25; 
+%                     linesPos = linesPos + 1;
+%                     
+%                     % timestamp text
+%                     if length(time) > linesPos
+%                     str = strcat(num2str(time(linesPos)),' ms');
+%                     addLines = annotation('textbox',[x,0.035,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on','FontSize', 8);
+%                     drawnow 
+%                     %pause(drawforce) % force figure update
+%                     addLines.Position = addLines.Position - [(addLines.Position(3)/2),0,0,0];
+%                     end
+%                 end
+%                 
+%                 % Stimulus definiton text
+%                 % get Stimulus
+%                 str = StimuIntDefinitions(indexPlot);
+%                 % get position of first and last head of Interval
+%                 if length(Pos) > index
+%                     SubplotLeft = Pos{lowindex};
+%                     SubplotRight = Pos{index};
+%                 else
+%                     SubplotLeft = Pos{lowindex};
+%                     SubplotRight = Pos{index-1};
+%                 end
+%                 % get x for middle of this interval
+%                 x = ((SubplotLeft(1) + SubplotRight(1) + SubplotRight(3))/2)/sizex;
+%                 StimulusDefinition = annotation('textbox',[x,0.575,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
+%                 drawnow 
+%                 %pause(drawforce)
+%                 % move text for half its size
+%                 StimulusDefinition.Position = StimulusDefinition.Position - [(StimulusDefinition.Position(3)/2),0,0,0];
+%             end
+%             
+%             % upper horizontal timeline
+%             SubplotLeft = Pos{1};
+%             SubplotRight = Pos{end};
+%             x1 = SubplotLeft(1)/sizex;
+%             x2 = (SubplotRight(1)+SubplotRight(3))/sizex;
+%             timeLine = annotation('line',[x1,x2],[0.6,0.6]);
+%             drawnow 
+%             %pause(drawforce) % force figure update
+%             timeLine.LineWidth = 1;
+%             
+%             % first timestamp line
+%             SubplotTopo = Pos{1};
+%             x = SubplotTopo(1)/sizex;
+%             y = SubplotTopo(2)/sizey;
+%             timeLine = annotation('line',[x,x],[0.6,y]);
+%             drawnow 
+%             %pause(drawforce) % force figure update
+%             timeLine.LineWidth = 1;
+%             % first timestamp text
+%             timestamp = annotation('textbox',[x,0.035,0.1,0.1],'String','0 ms','EdgeColor','none');
+%             drawnow 
+%             %pause(drawforce)
+%             timestamp.Position = timestamp.Position - [(timestamp.Position(3)/2),0,0,0];
+%             
+%             % Subplot title
+%             str = 'Per Electrode Brain Activity over all Stimulus Intervals';
+%             x = (SubplotRight(1)+SubplotRight(3)-SubplotLeft(1))/2/sizex;
+%             annotation('textbox',[x,0.8,0.1,0.1],'String',str,'EdgeColor','none','FitBoxToText','on');
+%             drawnow 
+%    
+%             % cut the mainfig
+%             newWidth = SubplotRight(1)+ SubplotRight(3) + 100; % get right width of image
+%             set(gcf,'color','w');
+%             F = getframe(mainfig); % get frame of figure
+%             ImageSize = size(F.cdata); % get length of figure
+%             F.cdata(:,newWidth:ImageSize(2),:) = []; % delete empty pixel
+%             
+%             % save as png
+%             fName = [subject.OutputDirectory '\' subject.name '_Brain activity over entire stimulus period.png'];
+%             imwrite(F.cdata, fName, 'png');
+%             
+%             % close figure
+%             close
         end
         
         %% Prints of electrode frequency
