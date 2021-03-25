@@ -298,20 +298,16 @@ classdef Plotter
                 
                 StimulusEnd = StimuInt.Stimulength *1000;
                 range = 0:interval:StimulusEnd;
+                sec = interval/1000;
                 
                 % only print Type > 4 = Video/Images/Audio Stimulus
                 if StimuInt.stimuIntType >= 4
                     
                     % prepare video for print
                     fileDirectory = [config.videoString '\' StimuInt.stimuIntDescrp '.mp4']; % get directory
-                    %fileDirectory = regexprep(fileDirectory, ' ', '_');
-                    videoFReader = vision.VideoFileReader(fileDirectory);
-                    %vid = VideoReader(fileDirectory); % import video
-                    %numOfFrames = vid.NumFrames; % calculate number of frames
-                    %vidFrame = read(vid,[1 numOfFrames]);
-                    % resize video according to UserFrameRate
-                    %vidFrameReSize = vidFrame(:,:,:,round(1:vid.FrameRate/config.UserFrameRate:end));
-                                       
+                    vidReader = VideoReader(fileDirectory); % import video
+                    indexVideo = 1;
+                    
                     pos = range/1000*EEG.srate;
                     pos(pos == 0) = 1; 
                     
@@ -364,7 +360,7 @@ classdef Plotter
                         
                         % print out first frame
                         subplot(2,2,[1 2]);
-                        imshow(videoFReader());
+                        imshow(read(vidReader,indexVideo));
                         fName = [subject.OutputDirectory '\' subfolder_name '/' subjectName '_' StimuInt.stimuIntDescrp '_' num2str((range(indexPrint+1))) 'ms_2D Topo.png'];
                         print(fName,'-dpng','-r300',mainfig);
                         
@@ -375,11 +371,10 @@ classdef Plotter
                             drawnow nocallbacks
                             
                             %create video in plot
-                            for indexFrame = 1:vidObj.FrameRate
+                            for indexFrame = 1:vidObj.FrameRate*sec
                                 % insert video frames
                                 subplot(2,2,[1 2]);
-                                %imshow(vidFrameReSize(:,:,:,indexFrame+(vidObj.FrameRate*indexPrint)));
-                                imshow(videoFReader());
+                                imshow(read(vidReader,indexFrame + (vidObj.FrameRate*(indexPrint-1))));
                                 
                                 % get frame from figure
                                 currentFrame = getframe(mainfig);
@@ -388,6 +383,8 @@ classdef Plotter
                                 writeVideo(vidObj, currentFrame);
                             end
                         end
+                        % set to next second
+                        indexVideo = config.UserFrameRate * indexPrint * sec;
                         % close figure
                         close
                     end     
@@ -447,7 +444,7 @@ classdef Plotter
 
                 for indexPlot = 1:numberOfPlot
                     % main figure
-                    mainfig = figure('Visible','on');
+                    mainfig = figure('Visible','off');
                     set(mainfig,'Units','pixels');
                     mainfig.Position = [0, 0, 1250, 900];
                     
